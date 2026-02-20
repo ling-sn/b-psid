@@ -60,7 +60,7 @@ def map_forward(output: Path, small_f: int, big_F: int, bam: str):
       traceback.print_exc()
       raise
 
-def main(input_dir: str, library: str):
+def main(bam_folder: str):
    """
    PURPOSE:
    * Obtain specific alignments from BAM files, and then combine 
@@ -71,7 +71,7 @@ def main(input_dir: str, library: str):
    """
    try:
       ## Obtain BAM file in folder
-      folder = Path(input_dir)
+      folder = Path(bam_folder)
       bam = str(next(file for file in folder.glob("*.bam")))
 
       """ 
@@ -126,10 +126,10 @@ def main(input_dir: str, library: str):
 if __name__ == "__main__":
    parser = argparse.ArgumentParser(description = ("Splits alignment BAM into separate files (forward and reverse)"
                                                    " by detecting strandedness"))
-   parser.add_argument("--input_dir", help = "Path to folder with BAM file", required = True)
-   parser.add_argument("--library", help = "Library type. Choices: RF or FR")
+   parser.add_argument("--bam_folder", help = "Path to folder with BAM file", required = True)
+   # parser.add_argument("--library", help = "Library type. Choices: RF or FR")
    args = parser.parse_args()
 
    print("Splitting BAM files...")
-   main(args.input_dir, args.library)
+   main(args.bam_folder)
    print("Process finished.")
