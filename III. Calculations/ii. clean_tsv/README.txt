@@ -1,0 +1,3 @@
+- Cleans TSV outputs from D.R. calculations
+- Formats data for graphing
+- Outputs graphs

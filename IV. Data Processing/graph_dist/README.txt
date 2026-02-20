@@ -1,0 +1,2 @@
+- Produce polished graphs in Jupyter Notebook 
+- Edit figures in Illustrator
