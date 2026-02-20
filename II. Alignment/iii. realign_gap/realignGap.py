@@ -265,7 +265,7 @@ def main(star_folder, subf, fasta_dir, discard):
     
     try: 
         if subfolder.is_dir():
-            processed_folder = current_path/"realignments"
+            processed_folder = current_path/"realignments"/f"{subfolder.stem}"
             processed_folder.mkdir(exist_ok = True, parents = True)
             
             ## Obtain dedup .bam
