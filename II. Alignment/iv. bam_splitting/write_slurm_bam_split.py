@@ -36,6 +36,7 @@ def main(email: str, slurm_acct: str, walltime: str, mem: int):
                                             #SBATCH --job-name=BAM_SPLIT
                                             #SBATCH --mail-user={email}
                                             #SBATCH --mail-type=BEGIN,END,FAIL
+                                            #SBATCH --output=SPLIT_%u_%A_%a.out
                                             #SBATCH --array=0-{num_jobs}
                                             #SBATCH --account={slurm_acct}
                                             #SBATCH --time={walltime}
