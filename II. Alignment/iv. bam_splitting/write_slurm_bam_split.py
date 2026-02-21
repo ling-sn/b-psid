@@ -67,7 +67,7 @@ def main(email: str, slurm_acct: str, walltime: str, mem: int):
             if subfolder.is_dir():
                 ## Append new tasks to SBATCH
                 with open(output, "a") as f:
-                    task = (f'\n"python3 split.py --bam_folder realignments/{subfolder.stem}"')
+                    task = (f'\n"python3 split.py --bam_folder {subfolder.stem}"')
                     f.write(task)
 
         ## Once all tasks have been added, finish up SBATCH template
