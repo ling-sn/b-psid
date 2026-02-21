@@ -71,7 +71,7 @@ def main(bam_folder: str):
    """
    try:
       ## Obtain BAM file in folder
-      folder = Path("realignments"/bam_folder)
+      folder = Path("realignments")/bam_folder
       bam = str(next(file for file in folder.glob("*.bam")))
 
       """ 
