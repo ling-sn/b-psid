@@ -185,6 +185,11 @@ def make_key(folder_name, base_key):
     
     return prefix + base_key + suffix
 
+def group_by_chrom(df):
+    grouped = df.groupby("Chrom")
+    unuar_sites = grouped["GenomicModBase"].agg(set).to_dict()
+    return unuar_sites
+
 def get_sample_group(folder_name):
     """
     PURPOSE:
@@ -221,9 +226,14 @@ def main(folder_name, fasta):
     df = df[df["Region"] == "3UTR"]
     genome_coord = df[["Chrom", "GenomicModBase"]]
 
+    ## Split into two dataframes based on strand (+/-)
+    fwd_condition = genome_coord["Strand"] == "+"
+    fwd = genome_coord[fwd_condition]
+    rev = genome_coord[~fwd_condition]
+
     ## Group sites by chromosome, then convert to dict
-    grouped = genome_coord.groupby("Chrom")
-    unuar_sites = grouped["GenomicModBase"].agg(set).to_dict()
+    fwd_unuar = group_by_chrom(fwd)
+    rev_unuar = group_by_chrom(rev)
     
     try:
         if input_dir.is_dir():
