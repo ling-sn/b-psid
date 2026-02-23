@@ -232,9 +232,8 @@ def main(folder_name, fasta):
                 processed_folder.mkdir(exist_ok = True, parents = True)
                 
                 key = {base_key: make_key(subfolder, base_key) for base_key 
-                       in ["A_fwd", "C_fwd", "G_fwd", "T_fwd", 
-                           "A_rev", "C_rev", "G_rev", "T_rev",
-                           "Deletions_fwd", "Deletions_rev", 
+                       in ["A", "C", "G", "T",
+                           "Deletions",
                            "TotalCoverage",
                            "DeletionRate", 
                            "RealRate"]}
