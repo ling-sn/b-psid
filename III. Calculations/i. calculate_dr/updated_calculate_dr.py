@@ -159,27 +159,27 @@ def process_bam(bam, processed_folder, unuar_sites,
         df_final = df_final.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
         df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
-def make_key(subfolder, base_key):
+def make_key(folder_name, base_key):
     """
     PURPOSE:
     Modifies names of dictionary keys based on the Rep # (detected via RegEx)
-    and Sample Type (BS, NBS) in a given subfolder name.
+    and Sample Type (BS, NBS) in a given folder name.
     ---
     NOTES:
     * sorted(set(rep_matches)): Removes duplicate reps, sorts in ascending order
     * for rep in rep_list: Adds replicate prefix to dict key names
     * for sample in ['BS', 'NBS']: Adds sample type suffix to dict key names
     """
-    rep_matches = re.findall(r"Rep\d+", str(subfolder))
+    rep_matches = re.findall(r"Rep\d+", str(folder_name))
     rep_list = sorted(set(rep_matches), key = lambda x: int(x[3:]))
 
     for rep in rep_list:
-        if f"-{rep}-" in str(subfolder):
+        if f"-{rep}-" in str(folder_name):
             prefix = rep + "_"
             break
     
     for sample in ["BS", "NBS"]:
-        if f"-{sample}_" in str(subfolder):
+        if f"-{sample}_" in str(folder_name):
             suffix = "_" + sample
             break
     
@@ -225,22 +225,21 @@ def main(folder_name, fasta):
     grouped = genome_coord.groupby("Chrom")
     unuar_sites = grouped["GenomicModBase"].agg(set).to_dict()
     
-    try: 
-        for subfolder in input_dir.iterdir():
-            if subfolder.is_dir():
-                processed_folder = current_path/"calculations"/group_name
-                processed_folder.mkdir(exist_ok = True, parents = True)
-                
-                key = {base_key: make_key(subfolder, base_key) for base_key 
-                       in ["A", "C", "G", "T",
-                           "Deletions",
-                           "TotalCoverage",
-                           "DeletionRate", 
-                           "RealRate"]}
-                
-                for bam in subfolder.glob("*.bam"):
-                    process_bam(bam, processed_folder, unuar_sites, 
-                                fasta_dir, df, key, folder_name)
+    try:
+        if input_dir.is_dir():
+            processed_folder = current_path/"calculations"/group_name
+            processed_folder.mkdir(exist_ok = True, parents = True)
+            
+            key = {base_key: make_key(folder_name, base_key) 
+                   for base_key in ["A", "C", "G", "T",
+                                    "Deletions",
+                                    "TotalCoverage",
+                                    "DeletionRate", 
+                                    "RealRate"]}
+            
+            for bam in input_dir.glob("*.bam"):
+                process_bam(bam, processed_folder, unuar_sites, 
+                            fasta_dir, df, key, folder_name)
 
     except Exception as e:
         print("Failed to calculate observed & real deletion rates in "
