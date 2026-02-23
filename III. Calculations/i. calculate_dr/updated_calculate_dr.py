@@ -192,15 +192,15 @@ def get_sample_group(folder_name):
     by returning the first capture group in RegEx.
     ---
     EXAMPLE: 
-    '7KO-Cyto-BS_processed_fastqs' -> '7KO-Cyto'
+    'KEH-Rep1-7KO-HEK293T-Cyto-BS' -> '7KO-Cyto-BS'
     """
     try:
-        match = re.match(r"(.+)-(?:BS|NBS)_processed_fastqs", folder_name)
+        match = re.match(r"^.*(7KO|7LKO|WT)(?:.*)(-.*-.*)", folder_name)
     except Exception as e:
         print(f"Failed to RegEx match input folder to group: {e}")
         traceback.print_exc()
         raise
-    return match.group(1)
+    return match.group(1) + match.group(2)
 
 def main(folder_name, fasta):
     """
