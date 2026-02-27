@@ -165,21 +165,18 @@ def make_key(folder_name, base_key):
     Modifies names of dictionary keys based on the Rep # (detected via RegEx)
     and Sample Type (BS, NBS) in a given folder name.
     ---
-    NOTES:
-    * sorted(set(rep_matches)): Removes duplicate reps, sorts in ascending order
-    * for rep in rep_list: Adds replicate prefix to dict key names
-    * for sample in ['BS', 'NBS']: Adds sample type suffix to dict key names
+    EXAMPLE:
+    Inputs:
+        folder_name = KEH-Rep1-7KO-HEK293T-Cyto-BS
+        base_key = Deletions
+    Output: 
+        Rep1_Deletions_BS
     """
-    rep_matches = re.findall(r"Rep\d+", str(folder_name))
-    rep_list = sorted(set(rep_matches), key = lambda x: int(x[3:]))
-
-    for rep in rep_list:
-        if f"-{rep}-" in str(folder_name):
-            prefix = rep + "_"
-            break
+    rep = re.search(r"Rep\d+", str(folder_name))
+    prefix = rep + "_"
     
     for sample in ["BS", "NBS"]:
-        if f"-{sample}_" in str(folder_name):
+        if f"-{sample}" in str(folder_name):
             suffix = "_" + sample
             break
     
@@ -260,7 +257,7 @@ def main(folder_name, fasta):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Calculates observed and real deletion rates" 
                                                    "for every UNUAR site in a BAM file.")
-    parser.add_argument("--folder_name", help = "Name of processed_fastqs folder", required = True)
+    parser.add_argument("--folder_name", help = "Name of realignments folder", required = True)
     parser.add_argument("--fasta", help = "Directory to FASTA file", required = True)
     args = parser.parse_args()
 
