@@ -13,7 +13,10 @@ from multiprocessing import Pool
 ## Disable .loc indexing warning
 pd.options.mode.chained_assignment = None
 
-def create_tsv(df: pd.Dataframe, counts: pd.DataFrame, key: dict, folder_name: str, output_tsv_name: str):
+def create_tsv(df: pd.Dataframe, counts: pd.DataFrame, key: dict, 
+               folder_name: str, output_tsv_name: str):
+   output_tsv_name = processed_folder/f"{input_bam_name.stem}.tsv"
+   
    ## Calculate observed deletion rates
    coverage_list = [col for col in counts.columns
                   if re.search("(A_|C_|G_|T_|Deletions_).*", col)]
@@ -74,7 +77,8 @@ def create_tsv(df: pd.Dataframe, counts: pd.DataFrame, key: dict, folder_name: s
       df_final = df_final.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
-def count_base(unuar_sites, input_bam_name, fasta_dir, results):
+def count_base(unuar_dict: dict, input_bam_name: Path, 
+               fasta_dir: Path, results: list):
    """
    PURPOSE:
    Counts number of bases and deletions for each UNUAR site 
@@ -98,37 +102,34 @@ def count_base(unuar_sites, input_bam_name, fasta_dir, results):
    fastafile = FastaFile(fasta_dir) 
 
    try:
-      for chrom in unuar_sites:
+      for chrom in unuar_dict:
          ## Values in unuar_sites already stored in set (faster)
-         positions = unuar_sites[chrom]
-         base_keys = [
-               "A", "C_fwd", "G_fwd", "T_fwd",
-               "A_rev", "C_rev", "G_rev", "T_rev"
-         ]
+         positions = unuar_dict[chrom]
+         base_keys = ["A", "C", "G", "T"]
 
          for stats in pysamstats.stat_variation(
-               bamfile,
-               fastafile,
-               chrom,
-               start = min(unuar_sites[chrom]),
-               end = max(unuar_sites[chrom]) + 1,
-               one_based = True,
-               truncate = True,
-               no_dup = True
+            bamfile,
+            fastafile,
+            chrom,
+            start = min(unuar_dict[chrom]),
+            end = max(unuar_dict[chrom]) + 1,
+            one_based = True,
+            truncate = True,
+            no_dup = True
          ):
-               pos = stats["pos"]
+            pos = stats["pos"]
 
-               if pos not in positions:
-                  continue
+            if pos not in positions:
+               continue
 
-               results.append(
-                  {
+            results.append(
+               {
                   "Chrom": chrom,
                   "GenomicModBase": stats["pos"],
                   **{base: stats[base] for base in base_keys},
                   "Deletions": stats["deletions"]
-                  }
-               )
+               }
+            )
          
       bamfile.close()
    except Exception as e:
@@ -137,16 +138,13 @@ def count_base(unuar_sites, input_bam_name, fasta_dir, results):
       traceback.print_exc()
       raise
 
-def process_bam(bam, processed_folder: str, fwd_unuar, rev_unuar,
-               fasta_dir, df, key, folder_name):
+def process_bam(bam: Path, unuar_dict: dict, fasta_dir: Path):
    ## Turn string from list back into filepath
    input_bam_name = Path(bam)
-   output_tsv_name = processed_folder/f"{input_bam_name.stem}.tsv"
    
    ## Count A, C, G, T and deletions @ each UNUAR site
    results = []
-   for unuar_sites in [fwd_unuar, rev_unuar]:
-      count_base(unuar_sites, input_bam_name, fasta_dir, results)
+   count_base(unuar_dict, input_bam_name, fasta_dir, results)
 
    ## Convert results dict -> df
    counts = pd.DataFrame(results)
@@ -225,16 +223,22 @@ def main(folder_name: str, fasta: str):
          processed_folder.mkdir(exist_ok = True, parents = True)
          
          key = {base_key: make_key(folder_name, base_key) 
-                  for base_key in ["A", "C", "G", "T",
-                                 "Deletions",
-                                 "TotalCoverage",
-                                 "DeletionRate", 
-                                 "RealRate"]}
+                          for base_key in ["A", "C", "G", "T",
+                                           "Deletions",
+                                           "TotalCoverage",
+                                           "DeletionRate", 
+                                           "RealRate"]}
          
-         for bam_type in ["fwd", "rev"]:
-               bam = input_dir/f"{bam_type}.bam"
-               process_bam(bam, processed_folder, fwd_unuar, rev_unuar, 
-                           fasta_dir, df, key, folder_name)
+         types = ["fwd", "rev"]
+         unuar_dicts = [fwd_unuar, rev_unuar]
+         all_counts = []
+         
+         ## Obtain base-del counts for fwd/rev separately
+         for type, unuar_dict in zip(types, unuar_dicts):
+            bam = input_dir/f"{type}.bam"
+            counts = process_bam(bam, unuar_dict, fasta_dir)
+            all_counts.append(counts)
+         
 
    except Exception as e:
       print("Failed to calculate observed & real deletion rates in "
@@ -244,7 +248,7 @@ def main(folder_name: str, fasta: str):
 
 if __name__ == "__main__":
    parser = argparse.ArgumentParser(description = "Calculates observed and real deletion rates" 
-                                                "for every UNUAR site in a BAM file.")
+                                                  "for every UNUAR site in a BAM file.")
    parser.add_argument("--folder_name", help = "Name of realignments folder", required = True)
    parser.add_argument("--fasta", help = "Directory to FASTA file", required = True)
    args = parser.parse_args()
