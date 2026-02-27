@@ -11,8 +11,8 @@ def main():
    try:
       """
       PURPOSE: 
-      1. Merges dataframes (UNUAR sites + fitted values from BID-Seq)
-      2. Splits merged dataframe by strand [+/-] column
+      1. Merges dataframes (UNUAR sites & fitted values from BID-Seq)
+      2. Keeps only 3UTR sites and splits merged dataframe by strand [+/-]
       """
       current_path = Path.cwd()
       left = pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
@@ -22,12 +22,11 @@ def main():
 
       df = pd.merge(left, right, how = "left", on = "Motif")
       df = df[df["Region"] == "3UTR"]
-      genome_coord = df[["Chrom", "GenomicModBase"]]
 
       ## Split into two dataframes based on strand (+/-)
-      fwd_condition = genome_coord["Strand"] == "+"
-      fwd = genome_coord[fwd_condition]
-      rev = genome_coord[~fwd_condition]
+      fwd_condition = df["Strand"] == "+"
+      fwd = df[fwd_condition]
+      rev = df[~fwd_condition]
 
       ## Output as TSV files
       base = "B-PsiD_UNUAR_motif_sites_mRNA_hg38"
@@ -39,7 +38,7 @@ def main():
          df.to_csv(output_name, sep = "\t", index = False)
    
    except Exception as e:
-      print("Failed to merge dataframes and output separate .TSVs based on strand: {e}")
+      print(f"Failed to merge dataframes and output separate .TSVs based on strand: {e}")
       traceback.print_exc()
       raise
 
