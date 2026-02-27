@@ -43,8 +43,8 @@ def main():
       raise
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = ("Merges dataframes for B-PsiD and splits "
-                                                    "based on strand [+/-] for UNUAR site"))
-    print("Splitting UNUAR .tsv file...")
-    main()
-    print("Process finished.")
+   parser = argparse.ArgumentParser(description = ("Merges dataframes for B-PsiD and splits "
+                                                   "based on strand [+/-] for UNUAR site"))
+   print("Splitting UNUAR .tsv file...")
+   main()
+   print("Process finished.")
