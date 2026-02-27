@@ -13,37 +13,12 @@ from multiprocessing import Pool
 ## Disable .loc indexing warning
 pd.options.mode.chained_assignment = None
 
-def create_tsv(df: pd.Dataframe, counts: pd.DataFrame, key: dict, 
+def create_tsv(df_calc: pd.DataFrame, key: dict, 
                folder_name: str, output_tsv_name: str):
-   output_tsv_name = processed_folder/f"{input_bam_name.stem}.tsv"
-   
-   ## Calculate observed deletion rates
-   coverage_list = [col for col in counts.columns
-                  if re.search("(A_|C_|G_|T_|Deletions_).*", col)]
-   counts["TotalCoverage"] = counts[coverage_list].sum(axis = 1)
-   total_del = counts[["Deletions_fwd", "Deletions_rev"]].sum(axis = 1)
-   counts["DeletionRate"] = total_del / counts["TotalCoverage"]
-   
-   ## Calculate real deletion rates
-   df_draft = pd.merge(df, counts, how = "left", 
-                     on = ["Chrom", "GenomicModBase"]).dropna()
-   num = df_draft["fit_b"] - df_draft["DeletionRate"]
-   denom = (df_draft["fit_c"] * (df_draft["fit_b"] + df_draft["fit_s"] -
-            df_draft["fit_s"] * df_draft["DeletionRate"] - 1))
-   df_draft["RealRate"] = num/denom
-   
-   ## Rename columns
-   df_draft = df_draft.rename(columns = {"A": key["A"], 
-                                       "C": key["C"], 
-                                       "G": key["G"], 
-                                       "T": key["T"],
-                                       "Deletions": key["Deletions"],
-                                       "TotalCoverage": key["TotalCoverage"],
-                                       "DeletionRate": key["DeletionRate"], 
-                                       "RealRate": key["RealRate"]})
-
-   ## Apply filter conditions based on filename
    """
+   PURPOSE:
+   Apply filter conditions based on filename
+   ---
    WT:
    * BS files must have DeletionRate values of >= 0.3
    * NBS files must have DeletionRate values of <= 0.3
@@ -59,25 +34,52 @@ def create_tsv(df: pd.Dataframe, counts: pd.DataFrame, key: dict,
    # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
 
    ## Keep only rows where coverage >= 10)
-   df_final = df_draft[df_draft[cov_pattern].ge(10)]
+   df_final = df_calc[df_calc[cov_pattern].ge(10)]
 
    ## Only output files if WT or 7KO
    if re.match(fr"(WT|7KO).*", str(folder_name)):
       if re.match(fr"WT.*", str(folder_name)):
          if "_BS" in dr_pattern:
-               df_final = df_final[df_final[dr_pattern].ge(0.3)]
+            df_final = df_final[df_final[dr_pattern].ge(0.3)]
          else: 
-               df_final = df_final[df_final[dr_pattern].le(0.3)]
+            df_final = df_final[df_final[dr_pattern].le(0.3)]
 
       if re.match(fr"7KO.*", str(folder_name)):
          if "_BS" in dr_pattern:
-               df_final = df_final[df_final[dr_pattern].le(0.3)]
+            df_final = df_final[df_final[dr_pattern].le(0.3)]
 
       ## Save as .tsv output
       df_final = df_final.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
-def count_base(unuar_dict: dict, input_bam_name: Path, 
+def calc_rate(df_original: pd.DataFrame, df_count: pd.DataFrame, 
+              key: dict) -> pd.DataFrame:
+   ## Calculate observed deletion rates
+   coverage_list = [col for col in df_count.columns
+                    if re.search("(A_|C_|G_|T_|Deletions_).*", col)]
+   df_count["TotalCoverage"] = df_count[coverage_list].sum(axis = 1)
+   df_count["DeletionRate"] = df_count["Deletions"] / df_count["TotalCoverage"]
+   
+   ## Calculate real deletion rates
+   df_calc = pd.merge(df_original, df_count, how = "left", 
+                      on = ["Chrom", "GenomicModBase"]).dropna()
+   num = df_calc["fit_b"] - df_calc["DeletionRate"]
+   denom = (df_calc["fit_c"] * (df_calc["fit_b"] + df_calc["fit_s"] -
+            df_calc["fit_s"] * df_calc["DeletionRate"] - 1))
+   df_calc["RealRate"] = num/denom
+   
+   ## Rename columns
+   df_calc = df_calc.rename(columns = {"A": key["A"], 
+                                       "C": key["C"], 
+                                       "G": key["G"], 
+                                       "T": key["T"],
+                                       "Deletions": key["Deletions"],
+                                       "TotalCoverage": key["TotalCoverage"],
+                                       "DeletionRate": key["DeletionRate"], 
+                                       "RealRate": key["RealRate"]})
+   return df_calc
+
+def count_base(unuar_dict: dict, input_bam_name: Path,
                fasta_dir: Path, results: list):
    """
    PURPOSE:
@@ -138,7 +140,7 @@ def count_base(unuar_dict: dict, input_bam_name: Path,
       traceback.print_exc()
       raise
 
-def process_bam(bam: Path, unuar_dict: dict, fasta_dir: Path):
+def process_bam(bam: Path, unuar_dict: dict, fasta_dir: Path) -> pd.DataFrame:
    ## Turn string from list back into filepath
    input_bam_name = Path(bam)
    
@@ -150,7 +152,7 @@ def process_bam(bam: Path, unuar_dict: dict, fasta_dir: Path):
    counts = pd.DataFrame(results)
    return counts
 
-def make_key(folder_name: str, base_key: str):
+def make_key(folder_name: str, base_key: str) -> str:
    """
    PURPOSE:
    Modifies names of dictionary keys based on the Rep # (detected via RegEx)
@@ -179,7 +181,7 @@ def group_by_chrom(df: pd.DataFrame) -> dict:
    unuar_sites = grouped["GenomicModBase"].agg(set).to_dict()
    return unuar_sites
 
-def get_sample_group(folder_name: str):
+def get_sample_group(folder_name: str) -> str:
    """
    PURPOSE:
    Given input folder names, extract the group name
@@ -212,6 +214,9 @@ def main(folder_name: str, fasta: str):
    rev = pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
                      "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv").expanduser(), 
                      sep = "\t")
+   
+   ## Define full dataframe containing sites on both +/- strand
+   df_original = pd.concat(fwd, rev, ignore_index = True)
 
    ## Group sites by chromosome, then convert to dict
    fwd_unuar = group_by_chrom(fwd)
@@ -239,6 +244,21 @@ def main(folder_name: str, fasta: str):
             counts = process_bam(bam, unuar_dict, fasta_dir)
             all_counts.append(counts)
          
+         ## Concat fwd/rev count dataframes
+         df_count = pd.concat(all_counts, ignore_index = True)
+         
+         """
+         Process dataframe:
+         1. Calculate DeletionRate and RealRate
+         2. Filter out sites based on certain criteria
+            and output final dataframe as TSV
+         """
+         ## Calculate rates and rename columns
+         df_calc = calc_rate(df_original, df_count, key)
+         
+         ## Filter out sites
+         output_tsv_name = processed_folder/f"{folder_name}.tsv"
+         create_tsv(df_calc, key, folder_name, output_tsv_name)
 
    except Exception as e:
       print("Failed to calculate observed & real deletion rates in "
