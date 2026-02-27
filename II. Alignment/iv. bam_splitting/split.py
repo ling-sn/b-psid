@@ -4,89 +4,90 @@ import traceback
 import argparse
 import subprocess
 
-def merge_bams(bam1: Path, bam2: Path, output: Path):
-   try:
-      subprocess.run(
-         [
-            "samtools", "merge",
-            "-f", str(output),
-            str(bam1), str(bam2)
-         ],
-         check = True
-      )
-      subprocess.run(["samtools", "index", str(output)], check = True)
+class SplitBAM:
+   def merge_bams(self, bam1: Path, bam2: Path, output: Path):
+      try:
+         subprocess.run(
+            [
+               "samtools", "merge",
+               "-f", str(output),
+               str(bam1), str(bam2)
+            ],
+            check = True
+         )
+         subprocess.run(["samtools", "index", str(output)], check = True)
 
-   except Exception as e:
-      print(f"Failed to merge {bam1.name} and {bam2.name}: {e}")
-      traceback.print_exc()
-      raise
+      except Exception as e:
+         print(f"Failed to merge {bam1.name} and {bam2.name}: {e}")
+         traceback.print_exc()
+         raise
 
-def map_reverse(output: Path, small_f: int, bam: str):
-   try:
-      if not output.exists():
-         with open(output, "wb") as f:
-            subprocess.run(
-               [
-                  "samtools", "view", "-b",
-                  "-f", str(small_f),
-                  bam
-               ],
-               stdout = f,
-               check = True
-            )
+   def map_reverse(self, output: Path, small_f: int, bam: str):
+      try:
+         if not output.exists():
+            with open(output, "wb") as f:
+               subprocess.run(
+                  [
+                     "samtools", "view", "-b",
+                     "-f", str(small_f),
+                     bam
+                  ],
+                  stdout = f,
+                  check = True
+               )
 
-   except Exception as e:
-      print(f"Failed to collect alignments for {output.name}: {e}")
-      traceback.print_exc()
-      raise
+      except Exception as e:
+         print(f"Failed to collect alignments for {output.name}: {e}")
+         traceback.print_exc()
+         raise
 
-def map_forward(output: Path, small_f: int, big_F: int, bam: str):
-   try:
-      if not output.exists():
-         with open(output, "wb") as f:
-            subprocess.run(
-               [
-                  "samtools", "view", "-b",
-                  "-f", str(small_f),
-                  "-F", str(big_F),
-                  bam
-               ],
-               stdout = f,
-               check = True
-            )
+   def map_forward(self, output: Path, small_f: int, big_F: int, bam: str):
+      try:
+         if not output.exists():
+            with open(output, "wb") as f:
+               subprocess.run(
+                  [
+                     "samtools", "view", "-b",
+                     "-f", str(small_f),
+                     "-F", str(big_F),
+                     bam
+                  ],
+                  stdout = f,
+                  check = True
+               )
 
-   except Exception as e:
-      print(f"Failed to collect alignments for {output.name}: {e}")
-      traceback.print_exc()
-      raise
+      except Exception as e:
+         print(f"Failed to collect alignments for {output.name}: {e}")
+         traceback.print_exc()
+         raise
 
-def collect_rev(rev1: Path, rev2: Path, rev: Path, bam: str):
-   """
-   PURPOSE:
-   * Collect alignments for rev.bam
-   """
-   ## 1) Second-in-pair maps to the reverse strand
-   map_reverse(rev1, 144, bam)
+   def collect_rev(self, rev1: Path, rev2: Path, rev: Path, bam: str):
+      """
+      PURPOSE:
+      * Collect alignments for rev.bam
+      """
+      ## 1) Second-in-pair maps to the reverse strand
+      self.map_reverse(rev1, 144, bam)
 
-   ## 2) First-in-pair maps to the forward strand
-   map_forward(rev2, 64, 16, bam)
+      ## 2) First-in-pair maps to the forward strand
+      self.map_forward(rev2, 64, 16, bam)
 
-   ## 3) Combine alignments that originate on the reverse strand
-   merge_bams(rev1, rev2, rev)
+      ## 3) Combine alignments that originate on the reverse strand
+      self.merge_bams(rev1, rev2, rev)
 
-def collect_fwd(fwd1: Path, fwd2: Path, fwd: Path, bam: str):
-   """ 
-   PURPOSE:
-   * Collect alignments for fwd.bam
-   """
-   ## 1) Second-in-pair maps to the forward strand
-   map_forward(fwd1, 128, 16, bam)
+   def collect_fwd(self, fwd1: Path, fwd2: Path, fwd: Path, bam: str):
+      """ 
+      PURPOSE:
+      * Collect alignments for fwd.bam
+      """
+      ## 1) Second-in-pair maps to the forward strand
+      self.map_forward(fwd1, 128, 16, bam)
 
-   ## 2) First-in-pair maps to the reverse strand
-   map_reverse(fwd2, 80, bam)
+      ## 2) First-in-pair maps to the reverse strand
+      self.map_reverse(fwd2, 80, bam)
 
-   ## 3) Combine alignments that originate on the forward strand
-   merge_bams(fwd1, fwd2, fwd)
+      ## 3) Combine alignments that originate on the forward strand
+      self.merge_bams(fwd1, fwd2, fwd)
 
 def main(bam_folder: str, library_type: str):
    """
@@ -103,6 +104,9 @@ def main(bam_folder: str, library_type: str):
       ## Obtain BAM file in folder
       folder = Path("realignments")/bam_folder
       bam = str(next(file for file in folder.glob("*.bam")))
+
+      ## Initialize class
+      splitbam = SplitBAM()
 
       ## Define directories
       """
@@ -123,12 +127,12 @@ def main(bam_folder: str, library_type: str):
          directories.extend(all_files)
 
       if library_type == "RF":
-         collect_fwd(directories[0], directories[1], directories[2], bam)
-         collect_rev(directories[3], directories[4], directories[5], bam)
+         splitbam.collect_fwd(directories[0], directories[1], directories[2], bam)
+         splitbam.collect_rev(directories[3], directories[4], directories[5], bam)
       else:
          ## Swap around output file names
-         collect_fwd(directories[3], directories[4], directories[5], bam)
-         collect_rev(directories[0], directories[1], directories[2], bam)
+         splitbam.collect_fwd(directories[3], directories[4], directories[5], bam)
+         splitbam.collect_rev(directories[0], directories[1], directories[2], bam)
 
       """
       PART III:
