@@ -36,34 +36,36 @@ class BaseDelCounter:
 
       ## Keep only rows where coverage >= 10)
       df_final = df_calc[df_calc[cov_pattern].ge(10)]
+      df_final = df_final.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
+      df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
-      ## Only output files if WT or 7KO
-      if re.match(fr"(WT|7KO).*", str(folder_name)):
-         if re.match(fr"WT.*", str(folder_name)):
-            if "_BS" in dr_pattern:
-               df_final = df_final[df_final[dr_pattern].ge(0.3)]
-            else: 
-               df_final = df_final[df_final[dr_pattern].le(0.3)]
+      # ## Only output files if WT or 7KO
+      # if re.match(fr"(WT|7KO).*", str(folder_name)):
+      #    if re.match(fr"WT.*", str(folder_name)):
+      #       if "_BS" in dr_pattern:
+      #          df_final = df_final[df_final[dr_pattern].ge(0.3)]
+      #       else: 
+      #          df_final = df_final[df_final[dr_pattern].le(0.3)]
 
-         if re.match(fr"7KO.*", str(folder_name)):
-            if "_BS" in dr_pattern:
-               df_final = df_final[df_final[dr_pattern].le(0.3)]
+      #    if re.match(fr"7KO.*", str(folder_name)):
+      #       if "_BS" in dr_pattern:
+      #          df_final = df_final[df_final[dr_pattern].le(0.3)]
 
-         ## Save as .tsv output
-         df_final = df_final.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
-         df_final.to_csv(output_tsv_name, sep = "\t", index = False)
+      #    ## Save as .tsv output
+      #    df_final = df_final.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
+      #    df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
    def calc_rate(self, df_original: pd.DataFrame, df_count: pd.DataFrame, 
                  key: dict) -> pd.DataFrame:
       ## Calculate observed deletion rates
       coverage_list = [col for col in df_count.columns
-                     if re.search("(A_|C_|G_|T_|Deletions_).*", col)]
+                       if re.search("(A_|C_|G_|T_|Deletions_).*", col)]
       df_count["TotalCoverage"] = df_count[coverage_list].sum(axis = 1)
       df_count["DeletionRate"] = df_count["Deletions"] / df_count["TotalCoverage"]
       
       ## Calculate real deletion rates
       df_calc = pd.merge(df_original, df_count, how = "left", 
-                        on = ["Chrom", "GenomicModBase"]).dropna()
+                         on = ["Chrom", "GenomicModBase"]).dropna()
       num = df_calc["fit_b"] - df_calc["DeletionRate"]
       denom = (df_calc["fit_c"] * (df_calc["fit_b"] + df_calc["fit_s"] -
                df_calc["fit_s"] * df_calc["DeletionRate"] - 1))
@@ -233,11 +235,11 @@ def main(folder_name: str, fasta: str):
          processed_folder = current_path/"calculations"/group_name
          processed_folder.mkdir(exist_ok = True, parents = True)
          
-         key = {base_key: prep.make_key(folder_name, base_key) 
+         key = {base_key: prep.make_key(folder_name, base_key)
                           for base_key in ["A", "C", "G", "T",
                                            "Deletions",
                                            "TotalCoverage",
-                                           "DeletionRate", 
+                                           "DeletionRate",
                                            "RealRate"]}
          
          types = ["fwd", "rev"]
