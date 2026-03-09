@@ -25,7 +25,7 @@ def main(email, slurm_acct, walltime, mem, fa):
     - Recursive count of directories = Number of jobs in array
     - Subtract 1 so it's 0-based
     """
-    num_jobs = len(list(start_dir).rglob("*/")) - 1
+    num_jobs = len(list(start_dir.rglob("*/"))) - 1
     
     ## Create SBATCH file if it doesn't exist
     if not output.exists():
