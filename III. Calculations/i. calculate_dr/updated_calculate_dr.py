@@ -166,7 +166,7 @@ def make_key(folder_name: str, base_key: str) -> str:
       Rep1_Deletions_BS
    """
    rep = re.search(r"Rep\d+", str(folder_name))
-   prefix = rep + "_"
+   prefix = rep.group(0) + "_"
    
    for sample in ["BS", "NBS"]:
       if f"-{sample}" in str(folder_name):
