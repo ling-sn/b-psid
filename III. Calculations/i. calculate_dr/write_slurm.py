@@ -3,6 +3,7 @@ from pathlib import Path
 import traceback
 import argparse
 import textwrap
+import os
 
 def main(email, slurm_acct, walltime, mem, fa):
     """
@@ -25,7 +26,7 @@ def main(email, slurm_acct, walltime, mem, fa):
     - Recursive count of directories = Number of jobs in array
     - Subtract 1 so it's 0-based
     """
-    num_jobs = len(list(start_dir.rglob("*/"))) - 1
+    num_jobs = len(next(os.walk(start_dir))[1]) - 1
     
     ## Create SBATCH file if it doesn't exist
     if not output.exists():
@@ -71,15 +72,14 @@ def main(email, slurm_acct, walltime, mem, fa):
             f.write(template_start)
 
     try:
-        for folder in start_dir.iterdir():
-            ## Obtain all subfolder names in each folder within 'realignments'
-            subfolders = [subf.stem for subf in folder.iterdir() if subf.is_dir()]
+        ## Obtain all subfolder names within 'realignments'
+        subfolders = [subf.stem for subf in start_dir.iterdir() if subf.is_dir()]
 
-            ## Append new tasks to SBATCH
-            with open(output, "a") as f:
-                for subf in subfolders:
-                    task = f'\n"python3 run_calculate_dr.py --folder_name {folder} --subf_name {subf} --fasta {fa}"'
-                    f.write(task)
+        ## Append new tasks to SBATCH
+        with open(output, "a") as f:
+            for subf in subfolders:
+                task = f'\n"python3 run_calculate_dr.py --folder_name {subf} --fasta {fa}"'
+                f.write(task)
         
         ## Once all tasks have been added, finish up SBATCH template
         with open(output, "a") as f:
