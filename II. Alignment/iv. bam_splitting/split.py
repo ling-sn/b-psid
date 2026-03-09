@@ -152,8 +152,8 @@ def main(bam_folder: str, library_type: str):
       raise
 
 if __name__ == "__main__":
-   parser = argparse.ArgumentParser(description = ("Splits alignment BAM into separate files (forward and reverse)"
-                                                   " by detecting strandedness"))
+   parser = argparse.ArgumentParser(description = ("Splits alignment BAM into separate files"
+                                                   " (forward and reverse) by detecting strandedness"))
    parser.add_argument("--bam_folder", help = "Path to folder with BAM file", required = True)
    parser.add_argument("--library_type", choices = ["RF", "FR"], default = "RF")
    args = parser.parse_args()
