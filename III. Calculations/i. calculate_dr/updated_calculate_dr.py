@@ -37,6 +37,9 @@ class BaseDelCounter:
       ## Keep only rows where coverage >= 10)
       df_final = df_calc[df_calc[cov_pattern].ge(10)]
       df_final = df_final.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
+      
+      assert not df_final.empty, f"expected non-empty df_final, actual: {len(df_final)}"
+      
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
       # ## Only output files if WT or 7KO
@@ -255,6 +258,8 @@ def main(folder_name: str, fasta: str):
          ## Concat fwd/rev count dataframes
          df_count = pd.concat(all_counts, ignore_index = True)
          
+         assert not df_count.empty, f"expected non-empty df_count, actual: {len(df_count)}"
+         
          """
          Process dataframe:
          1. Calculate DeletionRate and RealRate
@@ -263,6 +268,8 @@ def main(folder_name: str, fasta: str):
          """
          ## Calculate rates and rename columns
          df_calc = counter.calc_rate(df_original, df_count, key)
+         
+         assert not df_calc.empty, f"expected non-empty df_calc, actual: {len(df_calc)}"
          
          ## Filter out sites
          output_tsv_name = processed_folder/f"{folder_name}.tsv"
