@@ -78,7 +78,7 @@ def main(email, slurm_acct, walltime, mem, fa):
         ## Append new tasks to SBATCH
         with open(output, "a") as f:
             for subf in subfolders:
-                task = f'\n"python3 run_calculate_dr.py --folder_name {subf} --fasta {fa}"'
+                task = f'\n"python3 calculate_dr.py --folder_name {subf} --fasta {fa}"'
                 f.write(task)
         
         ## Once all tasks have been added, finish up SBATCH template
