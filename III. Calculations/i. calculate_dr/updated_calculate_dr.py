@@ -216,7 +216,7 @@ def main(folder_name: str, fasta: str):
                      sep = "\t")
    
    ## Define full dataframe containing sites on both +/- strand
-   df_original = pd.concat(fwd, rev, ignore_index = True)
+   df_original = pd.concat([fwd, rev], ignore_index = True)
 
    ## Group sites by chromosome, then convert to dict
    fwd_unuar = group_by_chrom(fwd)
