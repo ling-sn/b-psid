@@ -211,12 +211,18 @@ def main(folder_name: str, fasta: str):
    input_dir = current_path/"realignments"/folder_name
    fasta_dir = Path(fasta).expanduser()
    
-   fwd = pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
-                     "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv").expanduser(), 
-                     sep = "\t")
-   rev = pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
-                     "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv").expanduser(), 
-                     sep = "\t")
+   fwd = (
+            pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
+                        "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv").expanduser(), 
+                        sep = "\t")
+            .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
+         )
+   rev = (
+            pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
+                        "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv").expanduser(), 
+                        sep = "\t")
+            .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
+         )
    
    ## Initialize classes
    prep = PrepData()
