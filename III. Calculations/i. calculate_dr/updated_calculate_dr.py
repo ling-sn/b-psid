@@ -35,8 +35,10 @@ class BaseDelCounter:
       # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
 
       ## Keep only rows where coverage >= 10)
-      df_draft = df_calc[df_calc[cov_pattern].ge(10)]
-      df_final = df_draft.drop_duplicates().sort_values(by = dr_pattern, ascending = False)
+      df_final = (
+                     df_calc[df_calc[cov_pattern].ge(10)]
+                     .sort_values(by = dr_pattern, ascending = False)
+                 )
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
       # ## Only output files if WT or 7KO
