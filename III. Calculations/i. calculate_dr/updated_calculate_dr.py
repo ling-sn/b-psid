@@ -191,10 +191,10 @@ class PrepData:
       by returning the first capture group in RegEx.
       ---
       EXAMPLE: 
-      'KEH-Rep1-7KO-HEK293T-Cyto-BS' -> '7KO-Cyto-BS'
+      'KEH-Rep1-7KO-HEK293T-Cyto-BS' -> '7KO-Cyto'
       """
       try:
-         match = re.match(r"^.*(7KO|7LKO|WT)(?:.*)(-.*-.*)", folder_name)
+         match = re.match(r"^.*(7KO|7LKO|WT)(?:.*)(-.*)(?:-.*)", folder_name)
       except Exception as e:
          print(f"Failed to RegEx match input folder to group: {e}")
          traceback.print_exc()
@@ -233,10 +233,10 @@ def main(folder_name: str, fasta: str):
    ## Group sites by chromosome, then convert to dict
    fwd_unuar = prep.group_by_chrom(fwd)
    rev_unuar = prep.group_by_chrom(rev)
-   group_name = prep.get_sample_group(folder_name)
    
    try:
       if input_dir.is_dir():
+         group_name = prep.get_sample_group(folder_name)
          processed_folder = current_path/"calculations"/group_name
          processed_folder.mkdir(exist_ok = True, parents = True)
          
