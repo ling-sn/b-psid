@@ -1,0 +1,265 @@
+## use RNA-STAR conda environment
+from pathlib import Path
+import traceback
+import argparse
+import pandas as pd
+import numpy as np
+import re
+from scipy.stats import fisher_exact
+
+class FilterTSV:
+   def merge_WT_7KO(self, matching_name, pvals_tsv, final_dir):
+      matches = [tsv for tsv in pvals_tsv if re.search(matching_name, tsv.stem)]
+      df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
+      
+      """
+      1. Ensure 7KO is merged with WT, so WT columns appear first
+      2. If either dataframe is not empty, then merge w/ outer join
+      3. No need to iteratively merge because there are only 2 files
+      """  
+      first_cols = df_list[0].columns.tolist()
+      
+      if any(re.search("WT", col) for col in first_cols):
+         df1 = df_list[0]
+         df2 = df_list[1]
+      else:
+         df1 = df_list[1]
+         df2 = df_list[0]
+         
+      """
+      Rename differing columns (except {WT|7KO}_Pvalue_Pass column) with prefix
+      """
+      selected_colnames = (df1.columns.tolist())[0:17]
+      diff_cols = (df1.columns.difference(selected_colnames, sort = False))[:-1]
+      
+      for df, prefix in zip([df1, df2], ["WT_", "7KO_"]):
+         for old_name in diff_cols:
+            new_name = prefix + old_name
+            df.rename(columns = {old_name: new_name}, inplace = True)
+            
+      """
+      Merge df1 & df2
+      """
+      if not df1.empty and not df2.empty:
+         df_merged = pd.merge(df1, df2, on = selected_colnames, how = "inner")
+      elif df1.empty:
+         df_merged = df2
+      else:
+         df_merged = df1
+         
+      """
+      1. Create output name
+         e.g., 7KO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
+      2. Save merged dataframe as TSV
+      """
+      output_name = (matches[0].stem).split("-")[1]
+      merged_dir = final_dir/f"{output_name}.tsv"
+      df_merged.to_csv(merged_dir, sep = "\t", index = False)
+  
+   def fisher_test(self, df_merged: pd.DataFrame, 
+                   merged_colnames: list, 
+                   rep_list: list) -> pd.DataFrame:
+      try:
+         for rep in rep_list:
+            bs_del_col = next(col for col in merged_colnames 
+                              if re.search(f"{rep}_Deletions_BS", col))
+            nbs_del_col = next(col for col in merged_colnames 
+                               if re.search(f"{rep}_Deletions_NBS", col))
+            bs_t_col = next(col for col in merged_colnames
+                            if re.search(f"{rep}_T_BS", col))
+            nbs_t_col = next(col for col in merged_colnames
+                         if re.search(f"{rep}_T_NBS", col))
+
+            t_cols = [bs_t_col, nbs_t_col]
+            del_cols = [bs_del_col, nbs_del_col]
+
+            fisher_cols = [t_cols[0], 
+                           del_cols[0], 
+                           t_cols[1], 
+                           del_cols[1]]
+            
+            ## Create copy to disable SettingWithCopyWarning
+            df_merged = df_merged.copy()
+
+            ## Calculate p-values
+            if set(fisher_cols).issubset(df_merged.columns):
+               df_merged = df_merged.dropna(subset = fisher_cols)
+               arr = df_merged[fisher_cols].values.reshape(-1, 2, 2) 
+               pvals = [fisher_exact(table, alternative = "less")[1] 
+                        for table in arr]
+               df_merged[f"{rep}_Pvalue"] = pvals
+                  
+         return df_merged
+      except Exception as e:
+         print(f"Failed to calculate p-value for {rep}: {e}")
+         traceback.print_exc()
+         raise
+
+   def calc_pval(self, df_merged: pd.DataFrame, sample: str, pvals_dir: Path):
+      ## Calculate p-values for each replicate
+      merged_colnames = df_merged.columns.tolist()
+      rep_list = sorted(
+                  set([re.search(r"(Rep\d+)", col).group(1) 
+                       for col in merged_colnames 
+                       if re.search(r"(Rep\d+)", col)]), 
+                  key = lambda x: int(re.search(r"Rep(\d+)", x).group(1))
+                 )
+      df_pval = self.fisher_test(df_merged, merged_colnames, rep_list)
+
+      ## Filter by p-value (at least 2/3 replicates pass cutoff)
+      wt_7ko = sample.split("-")[0]
+      pval_cutoff_name = f"{wt_7ko}_Pvalue_Pass"
+      df_pval[pval_cutoff_name] = 0
+
+      pval_list = [col for col in df_pval.columns 
+                   if re.search("_Pvalue$", col)]
+
+      for col in pval_list:
+         if re.match(fr"WT.*", str(sample)):
+            pval_condition = df_pval[col] <= 0.05                  
+         elif re.match(fr"7KO.*", str(sample)):
+            pval_condition = df_pval[col] > 0.05
+
+         df_pval.loc[pval_condition, pval_cutoff_name] += 1
+
+      count_cutoff = df_pval[pval_cutoff_name].ge(2)
+      df_final = df_pval.loc[count_cutoff]
+
+      ## Save as output
+      output_dir = pvals_dir/f"{sample}-Pvals.tsv"
+      df_final.to_csv(output_dir, sep = "\t", index = False)
+
+   def calc_avg_std(self, df: pd.DataFrame, 
+                    avg_col: str, 
+                    std_col: str) -> pd.DataFrame:
+      dr_col = [col for col in df.columns 
+                if re.search("_DeletionRate_", col)]
+      df[avg_col] = df[dr_col].mean(axis = 1)
+      df[std_col] = df[dr_col].std(axis = 1)
+      return df
+
+   def merge_reps(self, suffix: str, 
+                  tsv_list: list, 
+                  subfolder: Path) -> pd.DataFrame:
+      """
+      1. Search TSVs for matching suffix in filename
+      2. Put them in list
+      3. Read in as pandas dataframes
+      """
+      matches = [tsv for tsv in tsv_list if re.search(suffix, tsv.stem)]
+      df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
+
+      """
+      Iteratively merge dataframes
+      """
+      df1_colnames = df_list[0].columns.tolist()
+      selected_colnames = df1_colnames[0:17]
+      merged = df_list[0]
+
+      for df in df_list[1:]:
+         if not df.empty:
+            merged = pd.merge(merged, df,
+                              on = selected_colnames,
+                              how = "outer")
+      
+      """
+      1. Define col_start and col_end so that concatenation
+         results in examples like:
+         a. 7KO_AvgDeletionRate_BS
+         b. 7KO_StdDeletionRate_BS
+      2. Create AvgDeletionRate and StdDeletionRate columns
+         in merged df
+      """
+      col_start = subfolder.name.split("-")[0]
+      col_end = suffix.split("-")[1]
+      
+      avg_std_colnames = []
+      for type in ["Avg", "Std"]:
+         name = col_start + f"_{type}DeletionRate_" + col_end
+         avg_std_colnames.append(name)
+
+      calc_merged = self.calc_avg_std(merged, 
+                                      avg_std_colnames[0], 
+                                      avg_std_colnames[1])
+      calc_merged = (
+         calc_merged.drop_duplicates()
+         .sort_values(by = avg_std_colnames[0], ascending = False)
+      )
+      return calc_merged
+
+def main():
+   """
+   PURPOSE:
+   Filters .tsv files in grouped folders
+   """
+   current_path = Path.cwd()
+   start_dir = current_path/"calculations"
+
+   ## Initialize class
+   filtertsv = FilterTSV()
+
+   try: 
+      ## Create output folder directories
+      processed_folder = current_path/"merged"
+      pvals_dir = processed_folder/"pvals"
+      final_dir = processed_folder/"final_outputs"
+      for dirname in [processed_folder, pvals_dir, final_dir]:
+         dirname.mkdir(exist_ok = True, parents = True)
+
+      for subfolder in start_dir.iterdir():
+         if subfolder.is_dir():
+            ## Collect paths of .tsv files and put in list
+            tsv_list = sorted(
+               subfolder.glob("*.tsv"),
+               ## Order by replicate integer
+               key = lambda x: int(re.search(r"Rep(\d+)", x.name).group(1))
+            )
+
+            ## Merge by replicate, and calc. D.R. avg/std
+            merged_bs_nbs = []
+            for suffix in ["-BS", "-NBS"]:
+               merged = filtertsv.merge_reps(suffix, tsv_list, subfolder)
+               merged_bs_nbs.append(merged)
+            
+            ## Merge by BS-NBS
+            """
+            EXAMPLE: 
+            WT-Cyto-BS + WT-Cyto-NBS -> WT-Cyto
+            """
+            df1 = merged_bs_nbs[0]
+            df2 = merged_bs_nbs[1]
+            selected_colnames = (df1.columns.tolist())[0:17]
+            
+            if not (df1.empty and df2.empty):
+               df_merged = pd.merge(df1, df2, on = selected_colnames, how = "outer")
+            elif df1.empty:
+               df_merged = df2
+            else:
+               df_merged = df1
+               
+            ## Calculate p-value
+            for sample in ["WT-Cyto", "WT-Nuc", "7KO-Cyto", "7KO-Nuc"]:
+               filtertsv.calc_pval(df_merged, sample, pvals_dir)
+
+      ## After p-value calculations, create final merged ouputs
+      pvals_tsv = list(pvals_dir.glob("*.tsv"))
+
+      for matching_name in ["-Cyto-Pvals", "-Nuc-Pvals"]:
+         filtertsv.merge_WT_7KO(matching_name, pvals_tsv, final_dir)
+
+   except Exception as e:
+      print(f"Failed to create merged .tsv file: {e}")
+      traceback.print_exc()
+      raise
+    
+if __name__ == "__main__":
+   parser = argparse.ArgumentParser(description = "Calculates observed and real deletion rates" 
+                                                  "for every UNUAR site in a BAM file.")
+   parser.add_argument("--folder_name", help = "Name of realignments folder", required = True)
+   parser.add_argument("--fasta", help = "Directory to FASTA file", required = True)
+   args = parser.parse_args()
+   
+   
+   print("Filtering .tsv files...")
+   main()
+   print("Process finished.")
