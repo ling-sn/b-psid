@@ -38,6 +38,7 @@ class BaseDelCounter:
       df_final = (
                      df_calc[df_calc[cov_pattern].ge(10)]
                      .sort_values(by = dr_pattern, ascending = False)
+                     .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
                  )
 
       ## Only filter files if WT or 7KO
@@ -178,10 +179,12 @@ class PrepData:
       
       return prefix + base_key + suffix
 
-   def group_by_chrom(self, df: pd.DataFrame) -> dict:
-      genome_coord = df[["Chrom", "GenomicModBase"]]
-      grouped = genome_coord.groupby("Chrom")
-      unuar_sites = grouped["GenomicModBase"].agg(set).to_dict()
+   def create_agg_dict(self, df: pd.DataFrame, 
+                       group1_col: str, group2_col: str) -> dict:
+      if group2_col == "GenomicModBase":
+         df = (df[[group1_col, group2_col]])
+      genome_coord = df.groupby(group1_col)
+      unuar_sites = genome_coord[group2_col].agg(set).to_dict()
       return unuar_sites
 
    def get_sample_group(self, folder_name: str) -> str:
@@ -214,13 +217,11 @@ def main(folder_name: str, fasta: str):
             pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
                         "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv").expanduser(), 
                         sep = "\t")
-            .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
          )
    rev = (
             pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
                         "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv").expanduser(), 
                         sep = "\t")
-            .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
          )
    
    ## Initialize classes
@@ -231,8 +232,8 @@ def main(folder_name: str, fasta: str):
    df_original = pd.concat([fwd, rev], ignore_index = True)
 
    ## Group sites by chromosome, then convert to dict
-   fwd_unuar = prep.group_by_chrom(fwd)
-   rev_unuar = prep.group_by_chrom(rev)
+   fwd_unuar = prep.create_agg_dict(fwd, "Chrom", "GenomicModBase")
+   rev_unuar = prep.create_agg_dict(rev, "Chrom", "GenomicModBase")
    
    try:
       if input_dir.is_dir():
