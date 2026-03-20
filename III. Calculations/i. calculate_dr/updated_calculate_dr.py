@@ -38,7 +38,7 @@ class BaseDelCounter:
                              for key, value in all_transcripts.items()]
       df_transcripts = pd.DataFrame(updated_transcripts, 
                                     columns = ["Chrom", "GenomicModBase", "AllAssocTranscripts"])
-      df_transcripts.insert(17, df_transcripts.pop())
+      
       ## Keep only RealRate >= 0.3
       # rr_pattern = key["RealRate"]
       # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
@@ -70,6 +70,8 @@ class BaseDelCounter:
                   how = "left",
                   on = ["Chrom", "GenomicModBase"])
       )
+      df_final.insert(17, df_final.pop())
+      
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
    def calc_rate(self, df_original: pd.DataFrame, df_count: pd.DataFrame, 
