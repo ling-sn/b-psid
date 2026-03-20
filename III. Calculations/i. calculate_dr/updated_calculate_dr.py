@@ -27,6 +27,9 @@ class BaseDelCounter:
       Mutation (PUS7KO):
       * BS files must have DeletionRate values of <= 0.3
       """
+      ## Initialize class
+      prep = PrepData()
+      
       dr_pattern = key["DeletionRate"]
       cov_pattern = key["TotalCoverage"]
       # rr_pattern = key["RealRate"]
@@ -35,7 +38,7 @@ class BaseDelCounter:
       # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
 
       ## Keep only rows where coverage >= 10)
-      df_final = (
+      df_draft = (
                      df_calc[df_calc[cov_pattern].ge(10)]
                      .sort_values(by = dr_pattern, ascending = False)
                      .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
@@ -53,6 +56,19 @@ class BaseDelCounter:
             if "_BS" in dr_pattern:
                df_final = df_final[df_final[dr_pattern].le(0.3)]
       
+      ## Collect all associated transcripts for each (Chrom, GenomicModBase) pair
+      all_transcripts = prep.create_agg_dict(df_draft, 
+                                              ["Chrom", "GenomicModBase"], 
+                                              "TranscriptID")
+      updated_transcripts = [(key[0], key[1], ", ".join(str(x) for x in value)) 
+                             for key, value in all_transcripts.items()]
+      df_transcripts = pd.DataFrame(updated_transcripts, 
+                                    columns = ["Chrom", "GenomicModBase", "AllAssocTranscripts"])
+      
+      ## Output final TSV
+      df_final = pd.merge(df_draft, df_transcripts,
+                          how = "left",
+                          on = ["Chrom", "GenomicModBase"])
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
    def calc_rate(self, df_original: pd.DataFrame, df_count: pd.DataFrame, 
@@ -180,13 +196,13 @@ class PrepData:
       return prefix + base_key + suffix
 
    def create_agg_dict(self, df: pd.DataFrame, 
-                       group1_col: str, group2_col: str) -> dict:
+                       group1_col: str|list, group2_col: str) -> dict:
       if group2_col == "GenomicModBase":
          df = (df[[group1_col, group2_col]])
       genome_coord = df.groupby(group1_col)
       unuar_sites = genome_coord[group2_col].agg(set).to_dict()
       return unuar_sites
-
+   
    def get_sample_group(self, folder_name: str) -> str:
       """
       PURPOSE:
