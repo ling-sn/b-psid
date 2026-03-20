@@ -29,7 +29,7 @@ class FilterTSV:
       """
       Rename differing columns (except {WT|7KO}_Pvalue_Pass column) with prefix
       """
-      selected_colnames = (df1.columns.tolist())[0:17]
+      selected_colnames = (df1.columns.tolist())[0:18]
       diff_cols = (df1.columns.difference(selected_colnames, sort = False))[:-1]
       
       for df, prefix in zip([df1, df2], ["WT_", "7KO_"]):
@@ -56,40 +56,53 @@ class FilterTSV:
       merged_dir = final_dir/f"{output_name}.tsv"
       df_merged.to_csv(merged_dir, sep = "\t", index = False)
   
+   def match_cols(merged_colnames: list, rep: str, basedel: str) -> list:
+      col_list = []
+      for sample in ["BS", "NBS"]:
+         match = next(col for col in merged_colnames
+                      if re.search(f"{rep}_{basedel}_{sample}", col))
+         col_list.append(match)
+      return col_list
+  
    def fisher_test(self, df_merged: pd.DataFrame, 
                    merged_colnames: list, 
                    rep_list: list) -> pd.DataFrame:
       try:
-         for rep in rep_list:
-            bs_del_col = next(col for col in merged_colnames 
-                              if re.search(f"{rep}_Deletions_BS", col))
-            nbs_del_col = next(col for col in merged_colnames 
-                               if re.search(f"{rep}_Deletions_NBS", col))
-            bs_t_col = next(col for col in merged_colnames
-                            if re.search(f"{rep}_T_BS", col))
-            nbs_t_col = next(col for col in merged_colnames
-                         if re.search(f"{rep}_T_NBS", col))
+         ## Split dataframe by strand (+/-)
+         fwd = df_merged[df_merged["Strand"] == "+"]
+         rev = df_merged[df_merged["Strand"] == "-"]
+         
+         ## Adjust p-value calc. based on which strand UNUAR site is on
+         for df in [fwd, rev]:
+            for rep in rep_list:
+               del_cols = self.match_cols(merged_colnames, rep, "Deletions")
+               t_cols = self.match_cols(merged_colnames, rep, "T")
+               a_cols = self.match_cols(merged_colnames, rep, "A")
 
-            t_cols = [bs_t_col, nbs_t_col]
-            del_cols = [bs_del_col, nbs_del_col]
+               fisher_cols = [t_cols[0], 
+                              del_cols[0], 
+                              t_cols[1], 
+                              del_cols[1]]
+               
+               if df == rev:
+                  ## If UNUAR site on - strand, use A counts instead of T
+                  fisher_cols[0] = a_cols[0]
+                  fisher_cols[2] = a_cols[1]
+               
+               ## Create copy to disable SettingWithCopyWarning
+               df = df.copy()
 
-            fisher_cols = [t_cols[0], 
-                           del_cols[0], 
-                           t_cols[1], 
-                           del_cols[1]]
-            
-            ## Create copy to disable SettingWithCopyWarning
-            df_merged = df_merged.copy()
-
-            ## Calculate p-values
-            if set(fisher_cols).issubset(df_merged.columns):
-               df_merged = df_merged.dropna(subset = fisher_cols)
-               arr = df_merged[fisher_cols].values.reshape(-1, 2, 2) 
-               pvals = [fisher_exact(table, alternative = "less")[1] 
-                        for table in arr]
-               df_merged[f"{rep}_Pvalue"] = pvals
+               ## Calculate p-values
+               if set(fisher_cols).issubset(df.columns):
+                  df = df.dropna(subset = fisher_cols)
+                  arr = df[fisher_cols].values.reshape(-1, 2, 2) 
+                  pvals = [fisher_exact(table, alternative = "less")[1] 
+                           for table in arr]
+                  df[f"{rep}_Pvalue"] = pvals
+         
+         df_pval = pd.concat([fwd, rev], ignore_index = True)
                   
-         return df_merged
+         return df_pval
       except Exception as e:
          print(f"Failed to calculate p-value for {rep}: {e}")
          traceback.print_exc()
@@ -100,14 +113,14 @@ class FilterTSV:
       merged_colnames = df_merged.columns.tolist()
       rep_list = sorted(
                   set([re.search(r"(Rep\d+)", col).group(1) 
-                       for col in merged_colnames 
-                       if re.search(r"(Rep\d+)", col)]), 
+                      for col in merged_colnames 
+                      if re.search(r"(Rep\d+)", col)]), 
                   key = lambda x: int(re.search(r"Rep(\d+)", x).group(1))
                  )
       df_pval = self.fisher_test(df_merged, merged_colnames, rep_list)
 
       ## Filter by p-value (at least 2/3 replicates pass cutoff)
-      wt_7ko = sample.split("-")[0]
+      wt_7ko = sample.split("-")[0] # Determine if sample is WT or 7KO
       pval_cutoff_name = f"{wt_7ko}_Pvalue_Pass"
       df_pval[pval_cutoff_name] = 0
 
@@ -120,8 +133,10 @@ class FilterTSV:
          elif re.match(fr"7KO.*", str(sample)):
             pval_condition = df_pval[col] > 0.05
 
+         ## If condition is true, add +1 to p-vals that pass cutoff
          df_pval.loc[pval_condition, pval_cutoff_name] += 1
 
+      ## Select only UNUAR sites that have >=2 p-vals that pass cutoff
       count_cutoff = df_pval[pval_cutoff_name].ge(2)
       df_final = df_pval.loc[count_cutoff]
 
@@ -153,7 +168,7 @@ class FilterTSV:
       Iteratively merge dataframes
       """
       df1_colnames = df_list[0].columns.tolist()
-      selected_colnames = df1_colnames[0:17]
+      selected_colnames = df1_colnames[0:18]
       merged = df_list[0]
 
       for df in df_list[1:]:
@@ -228,7 +243,7 @@ def main():
             """
             df1 = merged_bs_nbs[0]
             df2 = merged_bs_nbs[1]
-            selected_colnames = (df1.columns.tolist())[0:17]
+            selected_colnames = (df1.columns.tolist())[0:18]
             
             if not (df1.empty and df2.empty):
                df_merged = pd.merge(df1, df2, on = selected_colnames, how = "outer")
