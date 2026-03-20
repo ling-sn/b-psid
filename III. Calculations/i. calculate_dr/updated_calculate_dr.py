@@ -30,45 +30,46 @@ class BaseDelCounter:
       ## Initialize class
       prep = PrepData()
       
-      dr_pattern = key["DeletionRate"]
-      cov_pattern = key["TotalCoverage"]
-      # rr_pattern = key["RealRate"]
+      ## Collect all associated transcripts for each (Chrom, GenomicModBase) pair
+      all_transcripts = prep.create_agg_dict(df_calc, 
+                                             ["Chrom", "GenomicModBase"], 
+                                             "TranscriptID")
+      updated_transcripts = [(key[0], key[1], ", ".join(str(x) for x in value)) 
+                             for key, value in all_transcripts.items()]
+      df_transcripts = pd.DataFrame(updated_transcripts, 
+                                    columns = ["Chrom", "GenomicModBase", "AllAssocTranscripts"])
 
       ## Keep only RealRate >= 0.3
+      # rr_pattern = key["RealRate"]
       # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
 
       ## Keep only rows where coverage >= 10)
+      dr_pattern = key["DeletionRate"]
+      cov_pattern = key["TotalCoverage"]
       df_draft = (
-                     df_calc[df_calc[cov_pattern].ge(10)]
-                     .sort_values(by = dr_pattern, ascending = False)
-                     .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
-                 )
+         df_calc[df_calc[cov_pattern].ge(10)]
+         .sort_values(by = dr_pattern, ascending = False)
+         .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
+      )
 
       ## Only filter files if WT or 7KO
       if re.search(fr"(WT|7KO).*", str(folder_name)):
          if re.search(fr"WT.*", str(folder_name)):
             if "_BS" in dr_pattern:
-               df_final = df_final[df_final[dr_pattern].ge(0.3)]
+               df_draft = df_draft[df_draft[dr_pattern].ge(0.3)]
             else: 
-               df_final = df_final[df_final[dr_pattern].le(0.3)]
+               df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
 
          if re.search(fr"7KO.*", str(folder_name)):
             if "_BS" in dr_pattern:
-               df_final = df_final[df_final[dr_pattern].le(0.3)]
-      
-      ## Collect all associated transcripts for each (Chrom, GenomicModBase) pair
-      all_transcripts = prep.create_agg_dict(df_draft, 
-                                              ["Chrom", "GenomicModBase"], 
-                                              "TranscriptID")
-      updated_transcripts = [(key[0], key[1], ", ".join(str(x) for x in value)) 
-                             for key, value in all_transcripts.items()]
-      df_transcripts = pd.DataFrame(updated_transcripts, 
-                                    columns = ["Chrom", "GenomicModBase", "AllAssocTranscripts"])
+               df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
       
       ## Output final TSV
-      df_final = pd.merge(df_draft, df_transcripts,
-                          how = "left",
-                          on = ["Chrom", "GenomicModBase"])
+      df_final = (
+         pd.merge(df_draft, df_transcripts,
+                  how = "left",
+                  on = ["Chrom", "GenomicModBase"])
+      )
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
    def calc_rate(self, df_original: pd.DataFrame, df_count: pd.DataFrame, 
@@ -230,15 +231,15 @@ def main(folder_name: str, fasta: str):
    fasta_dir = Path(fasta).expanduser()
    
    fwd = (
-            pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
-                        "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv").expanduser(), 
-                        sep = "\t")
-         )
+      pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
+                  "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv").expanduser(), 
+                  sep = "\t")
+   )
    rev = (
-            pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
-                        "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv").expanduser(), 
-                        sep = "\t")
-         )
+      pd.read_csv(Path("~/umms-RNAlabDATA/Software/B-PsiD_tools"
+                  "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv").expanduser(), 
+                  sep = "\t")
+   )
    
    ## Initialize classes
    prep = PrepData()
