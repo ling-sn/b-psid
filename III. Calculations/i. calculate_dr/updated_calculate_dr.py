@@ -38,7 +38,7 @@ class BaseDelCounter:
                              for key, value in all_transcripts.items()]
       df_transcripts = pd.DataFrame(updated_transcripts, 
                                     columns = ["Chrom", "GenomicModBase", "AllAssocTranscripts"])
-
+      df_transcripts.insert(17, df_transcripts.pop())
       ## Keep only RealRate >= 0.3
       # rr_pattern = key["RealRate"]
       # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
