@@ -70,7 +70,7 @@ class BaseDelCounter:
                   how = "left",
                   on = ["Chrom", "GenomicModBase"])
       )
-      df_final.insert(17, df_final.pop("AllAssocTranscripts"))
+      df_final.insert(17, "AllAssocTranscripts", df_final.pop("AllAssocTranscripts"))
       
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
