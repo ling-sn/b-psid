@@ -56,7 +56,7 @@ class FilterTSV:
       merged_dir = final_dir/f"{output_name}.tsv"
       df_merged.to_csv(merged_dir, sep = "\t", index = False)
   
-   def match_cols(merged_colnames: list, rep: str, basedel: str) -> list:
+   def match_cols(self, merged_colnames: list, rep: str, basedel: str) -> list:
       col_list = []
       for sample in ["BS", "NBS"]:
          match = next(col for col in merged_colnames
