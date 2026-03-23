@@ -73,7 +73,7 @@ class FilterTSV:
          rev = df_merged[df_merged["Strand"] == "-"]
          
          ## Adjust p-value calc. based on which strand UNUAR site is on
-         for df in [fwd, rev]:
+         for df, strand in zip([fwd, rev], ["+", "-"]):
             for rep in rep_list:
                del_cols = self.match_cols(merged_colnames, rep, "Deletions")
                t_cols = self.match_cols(merged_colnames, rep, "T")
@@ -84,7 +84,7 @@ class FilterTSV:
                               t_cols[1], 
                               del_cols[1]]
                
-               if df == rev:
+               if strand == "-":
                   ## If UNUAR site on - strand, use A counts instead of T
                   fisher_cols[0] = a_cols[0]
                   fisher_cols[2] = a_cols[1]
