@@ -268,13 +268,6 @@ def main():
       raise
     
 if __name__ == "__main__":
-   parser = argparse.ArgumentParser(description = "Calculates observed and real deletion rates" 
-                                                  "for every UNUAR site in a BAM file.")
-   parser.add_argument("--folder_name", help = "Name of realignments folder", required = True)
-   parser.add_argument("--fasta", help = "Directory to FASTA file", required = True)
-   args = parser.parse_args()
-   
-   
    print("Filtering .tsv files...")
    main()
    print("Process finished.")
