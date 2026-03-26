@@ -51,7 +51,8 @@ class FilterTSV:
       Add NCBI links
       """
       df_merged["TranscriptID"] = df_merged["TranscriptID"].str.replace("rna-", "", regex = False)
-      df_merged["NCBI_Link"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df_merged["TranscriptID"]
+      df_merged["NCBILink"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df_merged["TranscriptID"]
+      df_merged.insert(18, "NCBILink", df_merged.pop("NCBILink"))
       
       """
       1. Create output name
@@ -85,15 +86,15 @@ class FilterTSV:
                t_cols = self.match_cols(merged_colnames, rep, "T")
                a_cols = self.match_cols(merged_colnames, rep, "A")
 
-               fisher_cols = [t_cols[0], 
-                              del_cols[0], 
-                              t_cols[1], 
-                              del_cols[1]]
+               fisher_cols = [t_cols[0],     ## BS
+                              del_cols[0],   ## BS
+                              t_cols[1],     ## NBS
+                              del_cols[1]]   ## NBS
                
                if strand == "-":
                   ## If UNUAR site on - strand, use A counts instead of T
-                  fisher_cols[0] = a_cols[0]
-                  fisher_cols[2] = a_cols[1]
+                  fisher_cols[0] = a_cols[0] ## BS
+                  fisher_cols[2] = a_cols[1] ## NBS
                
                ## Create copy to disable SettingWithCopyWarning
                df = df.copy()
@@ -257,7 +258,7 @@ def main():
                df_merged = df2
             else:
                df_merged = df1
-               
+            
             ## Calculate p-value
             for sample in ["WT-Cyto", "WT-Nuc", "7KO-Cyto", "7KO-Nuc"]:
                filtertsv.calc_pval(df_merged, sample, pvals_dir)
