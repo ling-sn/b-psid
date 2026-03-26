@@ -46,7 +46,13 @@ class FilterTSV:
          df_merged = df2
       else:
          df_merged = df1
-         
+      
+      """
+      Add NCBI links
+      """
+      df_merged["TranscriptID"] = df_merged["TranscriptID"].str.replace("rna-", "", regex = False)
+      df_merged["NCBI_Link"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df_merged["TranscriptID"]
+      
       """
       1. Create output name
          e.g., 7KO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
