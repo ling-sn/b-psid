@@ -80,6 +80,7 @@ class FilterTSV:
          rev = df_merged[df_merged["Strand"] == "-"]
          
          ## Adjust p-value calc. based on which strand UNUAR site is on
+         results = []
          for df, strand in zip([fwd, rev], ["+", "-"]):
             for rep in rep_list:
                del_cols = self.match_cols(merged_colnames, rep, "Deletions")
@@ -106,8 +107,9 @@ class FilterTSV:
                   pvals = [fisher_exact(table, alternative = "less")[1] 
                            for table in arr]
                   df[f"{rep}_Pvalue"] = pvals
+            results.append(df)
          
-         df_pval = pd.concat([fwd, rev], ignore_index = True)
+         df_pval = pd.concat(results, ignore_index = True)
                   
          return df_pval
       except Exception as e:
