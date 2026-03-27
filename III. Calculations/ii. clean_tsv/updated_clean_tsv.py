@@ -121,11 +121,11 @@ class FilterTSV:
       ## Calculate p-values for each replicate
       merged_colnames = df_merged.columns.tolist()
       rep_list = sorted(
-                  set([re.search(r"(Rep\d+)", col).group(1) 
-                      for col in merged_colnames 
-                      if re.search(r"(Rep\d+)", col)]), 
-                  key = lambda x: int(re.search(r"Rep(\d+)", x).group(1))
-                 )
+         set([re.search(r"(Rep\d+)", col).group(1) 
+               for col in merged_colnames 
+               if re.search(r"(Rep\d+)", col)]), 
+         key = lambda x: int(re.search(r"Rep(\d+)", x).group(1))
+      )
       df_pval = self.fisher_test(df_merged, merged_colnames, rep_list)
 
       ## Filter by p-value (at least 2/3 replicates pass cutoff)
@@ -136,17 +136,14 @@ class FilterTSV:
       pval_list = [col for col in df_pval.columns 
                    if re.search("_Pvalue$", col)]
 
-      for col in pval_list:
-         if re.match(fr"WT.*", str(sample)):
-            pval_condition = df_pval[col] <= 0.05                  
-         elif re.match(fr"7KO.*", str(sample)):
-            pval_condition = df_pval[col] > 0.05
-
-         ## If condition is true, add +1 to p-vals that pass cutoff
-         df_pval.loc[pval_condition, pval_cutoff_name] += 1
+      ## Count p-vals that pass cutoff
+      if re.match(fr"WT.*", str(sample)):
+         df_pval[pval_cutoff_name] = (df_pval[pval_list] <= 0.05).sum(axis = 1)               
+      elif re.match(fr"7KO.*", str(sample)):
+         df_pval[pval_cutoff_name] = (df_pval[pval_list] > 0.05).sum(axis = 1)
 
       ## Select only UNUAR sites that have >=2 p-vals that pass cutoff
-      count_cutoff = df_pval[pval_cutoff_name].ge(2)
+      count_cutoff = df_pval[pval_cutoff_name].ge(1)
       df_final = df_pval.loc[count_cutoff]
 
       ## Save as output
