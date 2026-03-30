@@ -65,7 +65,7 @@ class FilterTSV:
                    wt_7ko_7lko: str) -> pd.DataFrame:
       try:
          ## Rename columns with WT/7KO prefix (excluding last 2, which already contain it)
-         selected_cols = (df_merged.columns.tolist())[18:-2]   
+         selected_cols = (df_merged.columns.tolist())[18:-2]
          for old_name in selected_cols:
             new_name = wt_7ko_7lko + "_" + old_name
             df_merged.rename(columns = {old_name: new_name}, inplace = True)
@@ -74,8 +74,8 @@ class FilterTSV:
          merged_colnames = df_merged.columns.tolist()
          rep_list = sorted(
             set([re.search(r"(Rep\d+)", col).group(1) 
-                  for col in merged_colnames 
-                  if re.search(r"(Rep\d+)", col)]), 
+                for col in merged_colnames 
+                if re.search(r"(Rep\d+)", col)]), 
             key = lambda x: int(re.search(r"Rep(\d+)", x).group(1))
          )
          
@@ -106,15 +106,18 @@ class FilterTSV:
 
                ## Calculate p-values
                if set(fisher_cols).issubset(df.columns):
-                  df = df.dropna(subset = fisher_cols)
-                  arr = df[fisher_cols].values.reshape(-1, 2, 2) 
+                  ## Create copy of dropped rows, calculate pvals, then join back with original dataframe with outer join
+                  df_copy = df.dropna(subset = fisher_cols)
+                  arr = df_copy[fisher_cols].values.reshape(-1, 2, 2) 
                   pvals = [fisher_exact(table, alternative = "less")[1] 
                            for table in arr]
-                  df[f"{rep}_Pvalue"] = pvals
+                  df_copy[f"{rep}_Pvalue"] = pvals
+                  df = pd.merge(df, df_copy,
+                                on = df.columns.tolist(),
+                                how = "outer")
             results.append(df)
-         
-         df_pval = self.iteratively_merge(results)
-                  
+
+         df_pval = pd.concat(results, ignore_index = True)
          return df_pval
       except Exception as e:
          print(f"Failed to calculate p-value for {rep}: {e}")
@@ -134,7 +137,7 @@ class FilterTSV:
                    if re.search("_Pvalue$", col)]
 
       ## Count p-vals that pass cutoff
-      if re.match(fr"WT.*", str(sample)):
+      if wt_7ko_7lko == "WT":
          df_pval[pval_cutoff_name] = (df_pval[pval_list] <= 0.05).sum(axis = 1)               
       else:
          df_pval[pval_cutoff_name] = (df_pval[pval_list] > 0.05).sum(axis = 1)
