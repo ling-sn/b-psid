@@ -25,23 +25,13 @@ class FilterTSV:
       else:
          df1 = df_list[1]
          df2 = df_list[0]
-         
-      """
-      Rename differing columns (except {WT|7KO}_Pvalue_Pass column) with prefix
-      """
-      selected_colnames = (df1.columns.tolist())[0:18]
-      diff_cols = (df1.columns.difference(selected_colnames, sort = False))[:-1]
-      
-      for df, prefix in zip([df1, df2], ["WT_", "7KO_"]):
-         for old_name in diff_cols:
-            new_name = prefix + old_name
-            df.rename(columns = {old_name: new_name}, inplace = True)
             
       """
       Merge df1 & df2
       """
+      selected_colnames = (df1.columns.tolist())[0:18]
       if not df1.empty and not df2.empty:
-         df_merged = pd.merge(df1, df2, on = selected_colnames, how = "inner")
+         df_merged = pd.merge(df1, df2, on = selected_colnames, how = "outer")
       elif df1.empty:
          df_merged = df2
       else:
@@ -71,10 +61,24 @@ class FilterTSV:
          col_list.append(match)
       return col_list
   
-   def fisher_test(self, df_merged: pd.DataFrame, 
-                   merged_colnames: list, 
-                   rep_list: list) -> pd.DataFrame:
+   def fisher_test(self, df_merged: pd.DataFrame,
+                   wt_7ko_7lko: str) -> pd.DataFrame:
       try:
+         ## Rename columns with WT/7KO prefix (excluding last 2, which already contain it)
+         selected_cols = (df_merged.columns.tolist())[18:-2]   
+         for old_name in selected_cols:
+            new_name = wt_7ko_7lko + "_" + old_name
+            df_merged.rename(columns = {old_name: new_name}, inplace = True)
+         
+         ## Collect column names and replicates in dataframe
+         merged_colnames = df_merged.columns.tolist()
+         rep_list = sorted(
+            set([re.search(r"(Rep\d+)", col).group(1) 
+                  for col in merged_colnames 
+                  if re.search(r"(Rep\d+)", col)]), 
+            key = lambda x: int(re.search(r"Rep(\d+)", x).group(1))
+         )
+         
          ## Split dataframe by strand (+/-)
          fwd = df_merged[df_merged["Strand"] == "+"]
          rev = df_merged[df_merged["Strand"] == "-"]
@@ -109,7 +113,7 @@ class FilterTSV:
                   df[f"{rep}_Pvalue"] = pvals
             results.append(df)
          
-         df_pval = pd.concat(results, ignore_index = True)
+         df_pval = self.iteratively_merge(results)
                   
          return df_pval
       except Exception as e:
@@ -119,18 +123,11 @@ class FilterTSV:
 
    def calc_pval(self, df_merged: pd.DataFrame, sample: str, pvals_dir: Path):
       ## Calculate p-values for each replicate
-      merged_colnames = df_merged.columns.tolist()
-      rep_list = sorted(
-         set([re.search(r"(Rep\d+)", col).group(1) 
-               for col in merged_colnames 
-               if re.search(r"(Rep\d+)", col)]), 
-         key = lambda x: int(re.search(r"Rep(\d+)", x).group(1))
-      )
-      df_pval = self.fisher_test(df_merged, merged_colnames, rep_list)
+      wt_7ko_7lko = sample.split("-")[0] # Determine if sample is WT, 7KO, 7LKO
+      df_pval = self.fisher_test(df_merged, wt_7ko_7lko)
 
       ## Filter by p-value (at least 2/3 replicates pass cutoff)
-      wt_7ko = sample.split("-")[0] # Determine if sample is WT or 7KO
-      pval_cutoff_name = f"{wt_7ko}_Pvalue_Pass"
+      pval_cutoff_name = f"{wt_7ko_7lko}_Pvalue_Pass"
       df_pval[pval_cutoff_name] = 0
 
       pval_list = [col for col in df_pval.columns 
@@ -139,10 +136,10 @@ class FilterTSV:
       ## Count p-vals that pass cutoff
       if re.match(fr"WT.*", str(sample)):
          df_pval[pval_cutoff_name] = (df_pval[pval_list] <= 0.05).sum(axis = 1)               
-      elif re.match(fr"7KO.*", str(sample)):
+      else:
          df_pval[pval_cutoff_name] = (df_pval[pval_list] > 0.05).sum(axis = 1)
 
-      ## Select only UNUAR sites that have >=2 p-vals that pass cutoff
+      ## Select only UNUAR sites that have >=1 p-vals that pass cutoff
       count_cutoff = df_pval[pval_cutoff_name].ge(1)
       df_final = df_pval.loc[count_cutoff]
 
@@ -159,6 +156,19 @@ class FilterTSV:
       df[std_col] = df[dr_col].std(axis = 1)
       return df
 
+   def iteratively_merge(self, list_of_dfs: list):
+      df1_colnames = list_of_dfs[0].columns.tolist()
+      selected_colnames = df1_colnames[0:18]
+      merged = list_of_dfs[0]
+
+      for df in list_of_dfs[1:]:
+         if not df.empty:
+            merged = pd.merge(merged, df,
+                              on = selected_colnames,
+                              how = "outer")
+   
+      return merged
+
    def merge_reps(self, suffix: str, 
                   tsv_list: list, 
                   subfolder: Path) -> pd.DataFrame:
@@ -166,22 +176,11 @@ class FilterTSV:
       1. Search TSVs for matching suffix in filename
       2. Put them in list
       3. Read in as pandas dataframes
+      4. Iteratively merge dataframes
       """
       matches = [tsv for tsv in tsv_list if re.search(suffix, tsv.stem)]
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
-
-      """
-      Iteratively merge dataframes
-      """
-      df1_colnames = df_list[0].columns.tolist()
-      selected_colnames = df1_colnames[0:18]
-      merged = df_list[0]
-
-      for df in df_list[1:]:
-         if not df.empty:
-            merged = pd.merge(merged, df,
-                              on = selected_colnames,
-                              how = "outer")
+      merged = self.iteratively_merge(df_list)
       
       """
       1. Define col_start and col_end so that concatenation
@@ -227,6 +226,7 @@ def main():
       for dirname in [processed_folder, pvals_dir, final_dir]:
          dirname.mkdir(exist_ok = True, parents = True)
 
+      all_merged = []
       for subfolder in start_dir.iterdir():
          if subfolder.is_dir():
             ## Collect paths of .tsv files and put in list
@@ -258,9 +258,11 @@ def main():
             else:
                df_merged = df1
             
-            ## Calculate p-value
-            for sample in ["WT-Cyto", "WT-Nuc", "7KO-Cyto", "7KO-Nuc"]:
-               filtertsv.calc_pval(df_merged, sample, pvals_dir)
+            all_merged.append(df_merged)
+            
+      ## Calculate p-value
+      for sample in ["WT-Cyto", "WT-Nuc", "7KO-Cyto", "7KO-Nuc"]:
+         filtertsv.calc_pval(df_merged, sample, pvals_dir)
 
       ## After p-value calculations, create final merged ouputs
       pvals_tsv = list(pvals_dir.glob("*.tsv"))
