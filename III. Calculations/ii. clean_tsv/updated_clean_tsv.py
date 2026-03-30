@@ -64,11 +64,12 @@ class FilterTSV:
    def fisher_test(self, df_merged: pd.DataFrame,
                    wt_7ko_7lko: str) -> pd.DataFrame:
       try:
-         ## Rename columns with WT/7KO prefix (excluding last 2, which already contain it)
-         selected_cols = (df_merged.columns.tolist())[18:-2]
+         ## Rename columns with WT/7KO/7LKO prefix
+         selected_cols = (df_merged.columns.tolist())[18:]
          for old_name in selected_cols:
-            new_name = wt_7ko_7lko + "_" + old_name
-            df_merged.rename(columns = {old_name: new_name}, inplace = True)
+            if not re.match(fr"^(WT|7KO|7LKO).*", old_name):
+               new_name = wt_7ko_7lko + "_" + old_name
+               df_merged.rename(columns = {old_name: new_name}, inplace = True)
          
          ## Collect column names and replicates in dataframe
          merged_colnames = df_merged.columns.tolist()
@@ -125,11 +126,17 @@ class FilterTSV:
          raise
 
    def calc_pval(self, df_merged: pd.DataFrame, sample: str, pvals_dir: Path):
-      ## Calculate p-values for each replicate
+      """
+      PART I:
+      Calculate p-values for each replicate
+      """
       wt_7ko_7lko = sample.split("-")[0] # Determine if sample is WT, 7KO, 7LKO
       df_pval = self.fisher_test(df_merged, wt_7ko_7lko)
 
-      ## Filter by p-value (at least 2/3 replicates pass cutoff)
+      """
+      PART II:
+      Filter by p-value
+      """
       pval_cutoff_name = f"{wt_7ko_7lko}_Pvalue_Pass"
       df_pval[pval_cutoff_name] = 0
 
