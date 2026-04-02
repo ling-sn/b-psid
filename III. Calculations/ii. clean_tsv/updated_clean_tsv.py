@@ -11,7 +11,7 @@ class FilterTSV:
    def merge_WT_7KO(self, matching_name, pvals_tsv, final_dir):
       matches = [tsv for tsv in pvals_tsv if re.search(matching_name, tsv.stem)]
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
-      df_merged = self.iteratively_merge(df_list)
+      df_merged = self.iteratively_merge(df_list, "inner")
       
       """
       Add NCBI links
@@ -142,7 +142,7 @@ class FilterTSV:
       df[std_col] = df[dr_col].std(axis = 1)
       return df
 
-   def iteratively_merge(self, list_of_dfs: list):
+   def iteratively_merge(self, list_of_dfs: list, merge_type: str):
       df1_colnames = list_of_dfs[0].columns.tolist()
       selected_colnames = df1_colnames[0:18]
       merged = list_of_dfs[0]
@@ -151,7 +151,7 @@ class FilterTSV:
          if not df.empty:
             merged = pd.merge(merged, df,
                               on = selected_colnames,
-                              how = "outer")
+                              how = merge_type)
    
       return merged
 
@@ -166,7 +166,7 @@ class FilterTSV:
       """
       matches = [tsv for tsv in tsv_list if re.search(suffix, tsv.stem)]
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
-      merged = self.iteratively_merge(df_list)
+      merged = self.iteratively_merge(df_list, "outer")
       
       """
       1. Define col_start and col_end so that concatenation
