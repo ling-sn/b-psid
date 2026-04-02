@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import re
 from scipy.stats import fisher_exact
+pd.options.mode.chained_assignment = None
 
 class FilterTSV:
    def merge_WT_7KO(self, matching_name, pvals_tsv, final_dir):
@@ -78,9 +79,6 @@ class FilterTSV:
                   fisher_cols[0] = a_cols[0] ## BS
                   fisher_cols[2] = a_cols[1] ## NBS
                
-               ## Create copy to disable SettingWithCopyWarning
-               df = df.copy()
-
                ## Calculate p-values
                if set(fisher_cols).issubset(df.columns):
                   ## Create copy of dropped rows, calculate pvals, then join back with original dataframe with outer join
