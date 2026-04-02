@@ -11,31 +11,7 @@ class FilterTSV:
    def merge_WT_7KO(self, matching_name, pvals_tsv, final_dir):
       matches = [tsv for tsv in pvals_tsv if re.search(matching_name, tsv.stem)]
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
-      
-      """
-      1. Ensure 7KO is merged with WT, so WT columns appear first
-      2. If either dataframe is not empty, then merge w/ outer join
-      3. No need to iteratively merge because there are only 2 files
-      """  
-      first_cols = df_list[0].columns.tolist()
-      
-      if any(re.search("WT", col) for col in first_cols):
-         df1 = df_list[0]
-         df2 = df_list[1]
-      else:
-         df1 = df_list[1]
-         df2 = df_list[0]
-            
-      """
-      Merge df1 & df2
-      """
-      selected_colnames = (df1.columns.tolist())[0:18]
-      if not df1.empty and not df2.empty:
-         df_merged = pd.merge(df1, df2, on = selected_colnames, how = "outer")
-      elif df1.empty:
-         df_merged = df2
-      else:
-         df_merged = df1
+      df_merged = self.iteratively_merge(df_list)
       
       """
       Add NCBI links
@@ -46,7 +22,7 @@ class FilterTSV:
       
       """
       1. Create output name
-         e.g., 7KO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
+         e.g., 7KO-Cyto-Pvals + 7LKO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
       2. Save merged dataframe as TSV
       """
       output_name = (matches[0].stem).split("-")[1]
@@ -112,7 +88,7 @@ class FilterTSV:
                   arr = df_copy[fisher_cols].values.reshape(-1, 2, 2) 
                   pvals = [fisher_exact(table, alternative = "less")[1] 
                            for table in arr]
-                  df_copy[f"{rep}_Pvalue"] = pvals
+                  df_copy[f"{wt_7ko_7lko}_{rep}_Pvalue"] = pvals
                   df = pd.merge(df, df_copy,
                                 on = df.columns.tolist(),
                                 how = "outer")
