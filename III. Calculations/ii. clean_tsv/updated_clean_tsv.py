@@ -212,7 +212,7 @@ def main():
       for dirname in [processed_folder, pvals_dir, final_dir]:
          dirname.mkdir(exist_ok = True, parents = True)
 
-      all_merged = []
+      all_merged = {}
       for subfolder in start_dir.iterdir():
          if subfolder.is_dir():
             ## Collect paths of .tsv files and put in list
@@ -222,7 +222,7 @@ def main():
                key = lambda x: int(re.search(r"Rep(\d+)", x.name).group(1))
             )
 
-            ## Merge by replicate, and calc. D.R. avg/std
+            ## Merge by replicate (Rep 1-3), and calc. D.R. avg/std
             merged_bs_nbs = []
             for suffix in ["-BS", "-NBS"]:
                merged = filtertsv.merge_reps(suffix, tsv_list, subfolder)
@@ -244,11 +244,11 @@ def main():
             else:
                df_merged = df1
             
-            all_merged.append(df_merged)
+            all_merged[subfolder.name] = df_merged
             
       ## Calculate p-value
-      for sample in ["WT-Cyto", "WT-Nuc", "7KO-Cyto", "7KO-Nuc"]:
-         filtertsv.calc_pval(df_merged, sample, pvals_dir)
+      for sample in all_merged:
+         filtertsv.calc_pval(all_merged[sample], sample, pvals_dir)
 
       ## After p-value calculations, create final merged ouputs
       pvals_tsv = list(pvals_dir.glob("*.tsv"))
