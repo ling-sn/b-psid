@@ -53,16 +53,12 @@ class BaseDelCounter:
       )
 
       ## Only filter files if WT or 7KO
-      if re.search(fr"(WT|7KO).*", str(folder_name)):
-         if re.search(fr"WT.*", str(folder_name)):
-            if "_BS" in dr_pattern:
-               df_draft = df_draft[df_draft[dr_pattern].ge(0.2)]
-            else: 
-               df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
-
-         if re.search(fr"7KO.*", str(folder_name)):
-            if "_BS" in dr_pattern:
-               df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
+      if (
+            re.search(fr"WT.*-NBS$", str(folder_name))
+            or
+            re.search(fr"7KO.*-BS$", str(folder_name))
+      ):
+         df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
       
       ## Output final TSV
       df_final = (
