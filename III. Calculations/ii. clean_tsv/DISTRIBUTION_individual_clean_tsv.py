@@ -213,7 +213,7 @@ def main():
             for file in tsv_list:
                shutil.copy(file, individual_folder)
          
-      print("Succesfully merged replicates, and copied individual TSVs to folder.")
+      print("Successfully merged replicates, and copied individual TSVs to folder.")
 
       ## Collect all TSVs in processed_folder
       concat_reps_tsv = list(processed_folder.glob("*.tsv"))
@@ -224,8 +224,8 @@ def main():
 
       ## Separately, create 3 additonal concat dataframes based on pattern
       df_name = {}
-      file_pattern = ["7KO.*-BS", "WT.*-BS", "WT.*-NBS"]
-      var_names = ["7ko_bs_dr", "wt_bs_dr", "wt_nbs_dr"] 
+      file_pattern = ["7KO.*-BS", "7KO.*-NBS", "WT.*-BS", "WT.*-NBS"]
+      var_names = ["7ko_bs_dr", "7KO_nbs_dr", "wt_bs_dr", "wt_nbs_dr"] 
 
       for pattern, name in zip(file_pattern, var_names):
          matches = [tsv for tsv in concat_reps_tsv if re.search(pattern, tsv.stem)]
@@ -236,6 +236,7 @@ def main():
       We now have 4 dataframes:
       * total_cov = Concat of all files in processed_folder
       * 7ko_bs_dr = Concat of files with '7KO.*BS' pattern in processed_folder
+      * 7ko_nbs_dr = Concat of files with '7KO.*NBS' pattern in processed_folder
       * wt_bs_dr = Concat of files with 'WT.*BS' pattern in processed_folder
       * wt_nbs_dr = Concat of files with 'WT.*NBS' pattern in processed_folder
       ---
@@ -247,7 +248,7 @@ def main():
       ind_name = []
 
       ## Dataframes that we want to make graphs for
-      df_graphs = [total_cov, df_name["7ko_bs_dr"], 
+      df_graphs = [total_cov, df_name["7ko_bs_dr"], df_name["7ko_nbs_dr"],
                    df_name["wt_bs_dr"], df_name["wt_nbs_dr"]]
       
       ## Run graph_plots function
