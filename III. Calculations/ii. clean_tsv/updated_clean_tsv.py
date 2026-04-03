@@ -5,10 +5,18 @@ import argparse
 import pandas as pd
 import numpy as np
 import re
+import requests
 from scipy.stats import fisher_exact
+from bs4 import BeautifulSoup
 pd.options.mode.chained_assignment = None
 
 class FilterTSV:
+   def obtain_gene(self, url: str):
+      page = requests.get(url)
+      soup = BeautifulSoup(page.content, "html.parser")
+      gene = soup.find("span", class_= "gn")
+      return gene.text
+   
    def merge_WT_7KO(self, matching_name, pvals_tsv, final_dir):
       matches = [tsv for tsv in pvals_tsv if re.search(matching_name, tsv.stem)]
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
@@ -20,6 +28,12 @@ class FilterTSV:
       df_merged["TranscriptID"] = df_merged["TranscriptID"].str.replace("rna-", "", regex = False)
       df_merged["NCBILink"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df_merged["TranscriptID"]
       df_merged.insert(18, "NCBILink", df_merged.pop("NCBILink"))
+      
+      """
+      Obtain gene name
+      """
+      df_merged["Gene"] = df_merged["NCBILink"].apply(self.obtain_gene)
+      df_merged.insert(0, "Gene", df_merged.pop("Gene"))
       
       """
       1. Create output name
