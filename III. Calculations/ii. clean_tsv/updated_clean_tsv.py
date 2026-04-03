@@ -2,7 +2,6 @@
 from pathlib import Path
 import traceback
 import pandas as pd
-import numpy as np
 import re
 import requests
 import concurrent.futures
