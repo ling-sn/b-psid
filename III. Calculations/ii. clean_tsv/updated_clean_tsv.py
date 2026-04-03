@@ -1,7 +1,6 @@
 ## use RNA-STAR conda environment
 from pathlib import Path
 import traceback
-import argparse
 import pandas as pd
 import numpy as np
 import re
