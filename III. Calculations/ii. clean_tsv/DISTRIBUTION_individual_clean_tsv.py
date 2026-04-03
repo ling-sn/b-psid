@@ -222,7 +222,7 @@ def main():
       ## Separately, create 3 additonal concat dataframes based on pattern
       df_name = {}
       file_pattern = ["7KO.*-BS", "7KO.*-NBS", "WT.*-BS", "WT.*-NBS"]
-      var_names = ["7ko_bs_dr", "7KO_nbs_dr", "wt_bs_dr", "wt_nbs_dr"] 
+      var_names = ["7ko_bs_dr", "7ko_nbs_dr", "wt_bs_dr", "wt_nbs_dr"] 
 
       for pattern, name in zip(file_pattern, var_names):
          matches = [tsv for tsv in concat_reps_tsv if re.search(pattern, tsv.stem)]
