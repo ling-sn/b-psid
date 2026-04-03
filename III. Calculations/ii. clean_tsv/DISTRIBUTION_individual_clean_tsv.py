@@ -128,16 +128,15 @@ def concat_reps(suffix, tsv_list, subfolder, processed_folder):
    """
    matches = [tsv for tsv in tsv_list if re.search(suffix, tsv.stem)]
    df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
-   selected_cols = (df_list[0].columns.tolist())[0:17]
+   selected_cols = (df_list[0].columns.tolist())[0:18]
 
    concat_list = []
-   pattern_list = ["_TotalCoverage_", "_DeletionRate_"]
 
    for df in df_list:
       nested_list = []
       new_names = []
       
-      for pattern in pattern_list:
+      for pattern in ["_TotalCoverage_", "_DeletionRate_"]:
          ## New names: TotalCoverage, DeletionRate
          new_names.append(pattern.strip("_"))
 
@@ -188,20 +187,18 @@ def main():
 
    try: 
       processed_folder = current_path/"merged"
-      processed_folder.mkdir(exist_ok = True, parents = True)
       individual_folder = current_path/"individual"
-      individual_folder.mkdir(exist_ok = True, parents = True)
+      for dirname in [processed_folder, individual_folder]:
+         dirname.mkdir(exist_ok = True, parents = True)
 
       for subfolder in input_dir.iterdir():
-         tsv_folder = input_dir/subfolder/"individual_tsv"
-
          if subfolder.is_dir():
             """
             Collect paths of .tsv files in list, then
             separately merge replicates for each sample type
             """
             tsv_list = sorted(
-               tsv_folder.glob("*.tsv"),
+               subfolder.glob("*.tsv"),
                key = lambda x: int(re.search(r"Rep(\d+)", x.name).group(1)) ## order by rep integer
             )
             for suffix in ["-BS", "-NBS"]:
