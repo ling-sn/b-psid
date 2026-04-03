@@ -56,7 +56,7 @@ class BaseDelCounter:
       if re.search(fr"(WT|7KO).*", str(folder_name)):
          if re.search(fr"WT.*", str(folder_name)):
             if "_BS" in dr_pattern:
-               df_draft = df_draft[df_draft[dr_pattern].ge(0.3)]
+               df_draft = df_draft[df_draft[dr_pattern].ge(0.2)]
             else: 
                df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
 
