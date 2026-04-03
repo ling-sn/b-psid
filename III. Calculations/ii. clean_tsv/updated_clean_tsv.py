@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import re
 import requests
+import concurrent.futures
 from scipy.stats import fisher_exact
 from bs4 import BeautifulSoup
 pd.options.mode.chained_assignment = None
@@ -32,7 +33,10 @@ class FilterTSV:
       """
       Obtain gene name
       """
-      df_merged["Gene"] = df_merged["NCBILink"].apply(self.obtain_gene)
+      MAX_THREADS = 20
+      threads = min(MAX_THREADS, len(df_merged["NCBILink"]))
+      with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
+         df_merged["Gene"] = list(executor.map(self.obtain_gene, df_merged["NCBILink"]))
       df_merged.insert(0, "Gene", df_merged.pop("Gene"))
       
       """
