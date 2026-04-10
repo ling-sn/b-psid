@@ -1,4 +1,4 @@
-## use RNA-STAR conda environment
+## use B-PSID conda environment
 from pathlib import Path
 import traceback
 import pandas as pd
@@ -36,6 +36,19 @@ class FilterTSV:
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
          df_merged["Gene"] = list(executor.map(self.obtain_gene, df_merged["NCBILink"]))
       df_merged.insert(0, "Gene", df_merged.pop("Gene"))
+      
+      """
+      1. Sort rows by TotalAvgDeletionRate (descending order)
+      2. Move all important rows (TotalAvg, Std, PvaluePass) to end of dataframe
+      """
+      df_merged.sort_values(by = "TotalAvgDeletionRate", 
+                            ascending = False, inplace = True)
+      important_cols = [col for col in df_merged.columns if 
+                        re.search("_(TotalAvgDeletionRate|StdDeletionRate|Pvalue_Pass)", 
+                        col)]
+      diff_cols = list(df_merged.columns.difference(important_cols, sort = False))
+      new_col_order = diff_cols + important_cols
+      df_merged = df_merged[new_col_order]
       
       """
       1. Create output name
@@ -129,34 +142,32 @@ class FilterTSV:
 
       """
       PART II:
-      Filter by p-value
+      Filter by p-value for WT only
+      1. Count p-vals that pass cutoff
+      2. Select only UNUAR sites that have >=1 p-vals that pass cutoff
       """
-      pval_cutoff_name = f"{wt_7ko_7lko}_Pvalue_Pass"
-      df_pval[pval_cutoff_name] = 0
-
       pval_list = [col for col in df_pval.columns 
                    if re.search("_Pvalue$", col)]
-
-      ## Count p-vals that pass cutoff
       if wt_7ko_7lko == "WT":
-         df_pval[pval_cutoff_name] = (df_pval[pval_list] <= 0.05).sum(axis = 1)               
-      else:
-         df_pval[pval_cutoff_name] = (df_pval[pval_list] > 0.05).sum(axis = 1)
-
-      ## Select only UNUAR sites that have >=1 p-vals that pass cutoff
-      count_cutoff = df_pval[pval_cutoff_name].ge(1)
-      df_final = df_pval.loc[count_cutoff]
+         pval_cutoff_name = f"{wt_7ko_7lko}_Pvalue_Pass"
+         df_pval[pval_cutoff_name] = (df_pval[pval_list] <= 0.05).sum(axis = 1)    
+         count_cutoff = df_pval[pval_cutoff_name].ge(1)
+         df_pval = df_pval.loc[count_cutoff]           
+      # else:
+      #    df_pval[pval_cutoff_name] = (df_pval[pval_list] > 0.05).sum(axis = 1)
 
       ## Save as output
       output_dir = pvals_dir/f"{sample}-Pvals.tsv"
-      df_final.to_csv(output_dir, sep = "\t", index = False)
+      df_pval.to_csv(output_dir, sep = "\t", index = False)
 
    def calc_avg_std(self, df: pd.DataFrame, 
                     avg_col: str, 
                     std_col: str) -> pd.DataFrame:
       dr_col = [col for col in df.columns 
                 if re.search("_DeletionRate_", col)]
-      df[avg_col] = df[dr_col].mean(axis = 1)
+      cov_col = [col for col in df.columns
+                 if re.search("_TotalCoverage_", col)]
+      df[avg_col] = df[dr_col].sum(axis = 1) / df[cov_col].sum(axis = 1)
       df[std_col] = df[dr_col].std(axis = 1)
       return df
 
@@ -189,16 +200,16 @@ class FilterTSV:
       """
       1. Define col_start and col_end so that concatenation
          results in examples like:
-         a. 7KO_AvgDeletionRate_BS
+         a. 7KO_TotalAvgDeletionRate_BS
          b. 7KO_StdDeletionRate_BS
-      2. Create AvgDeletionRate and StdDeletionRate columns
+      2. Create TotalAvgDeletionRate and StdDeletionRate columns
          in merged df
       """
       col_start = subfolder.name.split("-")[0]
       col_end = suffix.split("-")[1]
       
       avg_std_colnames = []
-      for type in ["Avg", "Std"]:
+      for type in ["TotalAvg", "Std"]:
          name = col_start + f"_{type}DeletionRate_" + col_end
          avg_std_colnames.append(name)
 
