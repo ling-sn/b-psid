@@ -56,7 +56,7 @@ def main(email, slurm_acct, walltime, mem, fa):
                                             # For more info on #SBATCH variables, see https://arc.umich.edu/greatlakes/slurm-user-guide/
                                             # and https://slurm.schedmd.com/sbatch.html
                                             #
-                                            # This requires a conda environment with samtools and pysam (RNA-STAR)
+                                            # This requires a conda environment with samtools and pysam (B-PSID)
                                             # 
                                             # To call this script:
                                             # sbatch run_calculate_dr.sbatch
@@ -64,7 +64,7 @@ def main(email, slurm_acct, walltime, mem, fa):
 
                                             module purge
                                             eval "$(conda shell.bash hook)"
-                                            conda activate ~/miniconda3/envs/RNA-STAR
+                                            conda activate ~/miniconda3/envs/B-PSID
 
                                             declare -a tasks=(
                                             """)
