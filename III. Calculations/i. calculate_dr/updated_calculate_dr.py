@@ -122,7 +122,7 @@ class BaseDelCounter:
         properly dropped later (outside this func).
       """
       deletions = 0
-      
+
       for read in bamfile.fetch(chrom, pos - 1, pos):
          if read.is_secondary or read.is_duplicate:
             continue
