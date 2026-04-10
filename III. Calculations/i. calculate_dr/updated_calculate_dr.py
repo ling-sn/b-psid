@@ -43,22 +43,17 @@ class BaseDelCounter:
       # rr_pattern = key["RealRate"]
       # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
 
-      ## Keep only rows where coverage >= 10)
+      ## Sort rows by deletion rate
       dr_pattern = key["DeletionRate"]
-      cov_pattern = key["TotalCoverage"]
-      df_draft = (
-         df_calc[df_calc[cov_pattern].ge(10)]
-         .sort_values(by = dr_pattern, ascending = False)
-         .drop_duplicates(subset = ["Chrom", "GenomicModBase"], keep = "first")
-      )
+      df_draft = df_calc.sort_values(by = dr_pattern, ascending = False)
 
-      ## Only filter files if WT or 7KO
-      if (
-            re.search(fr"WT.*-NBS$", str(folder_name))
-            or
-            re.search(fr"7KO.*-BS$", str(folder_name))
-      ):
-         df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
+      # ## Only filter files if WT or 7KO
+      # if (
+      #       re.search(fr"WT.*-NBS$", str(folder_name))
+      #       or
+      #       re.search(fr"7KO.*-BS$", str(folder_name))
+      # ):
+      #    df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
       
       ## Output final TSV
       df_final = (
