@@ -191,7 +191,7 @@ class BaseDelCounter:
          bamfile.close()
       except Exception as e:
          print(f"Failed to count bases/deletions in UNUAR sites"
-               f"within chromosome {chrom}: {e}")
+               f" within chromosome {chrom}: {e}")
          traceback.print_exc()
          raise
 
