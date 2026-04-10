@@ -126,10 +126,8 @@ class BaseDelCounter:
       for read in bamfile.fetch(chrom, pos - 1, pos):
          cigar = read.cigarstring
          del_info = re.search(r"(\d+)D", str(cigar))
-         digit = del_info.group(1)
-         if not del_info or digit != 1:
-            continue
-         deletions += 1
+         if del_info and del_info.group(1) == 1:
+            deletions += 1
          
       if (deletions == 0):
          return None
