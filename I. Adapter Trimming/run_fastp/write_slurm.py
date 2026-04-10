@@ -1,4 +1,4 @@
-## Use RNA-STAR conda environment
+## Use B-PSID conda environment
 from pathlib import Path
 import traceback
 import argparse
@@ -67,7 +67,7 @@ def main(input_folder: str, output_folder: str, email: str,
                                             # For more info on #SBATCH variables, see https://arc.umich.edu/greatlakes/slurm-user-guide/
                                             # and https://slurm.schedmd.com/sbatch.html
                                             #
-                                            # This requires a conda environment with samtools and pysam (RNA-STAR)
+                                            # This requires a conda environment with samtools and pysam (B-PSID)
                                             # 
                                             # To call this script:
                                             # sbatch write_slurm.sbatch
@@ -75,7 +75,7 @@ def main(input_folder: str, output_folder: str, email: str,
 
                                             module purge
                                             eval "$(conda shell.bash hook)"
-                                            conda activate ~/miniconda3/envs/RNA-SEQ
+                                            conda activate ~/miniconda3/envs/B-PSID
 
                                             declare -a tasks=(
                                             """)
