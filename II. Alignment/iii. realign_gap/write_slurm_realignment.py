@@ -1,4 +1,4 @@
-## Use RNA-STAR conda environment
+## Use B-PSID conda environment
 from pathlib import Path
 import traceback
 import argparse
@@ -49,7 +49,7 @@ def main(star_folder: Path, fasta: Path, discard: bool,
                                             ################################################################################
                                             # Edit the strings under 'declare -a tasks=(' to match your experiments.
                                             #
-                                            # This requires a conda environment with samtools, pysam, and parasail (RNA-STAR)
+                                            # This requires a conda environment with samtools, pysam, and parasail (B-PSID)
                                             # 
                                             # To call this script:
                                             # sbatch realignGap.sbatch
@@ -57,7 +57,7 @@ def main(star_folder: Path, fasta: Path, discard: bool,
 
                                             module purge
                                             eval "$(conda shell.bash hook)"
-                                            conda activate ~/miniconda3/envs/RNA-STAR
+                                            conda activate ~/miniconda3/envs/B-PSID
 
                                             declare -a tasks=(
                                             """)
