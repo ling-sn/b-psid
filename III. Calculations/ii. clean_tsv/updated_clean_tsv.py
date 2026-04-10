@@ -97,7 +97,11 @@ class FilterTSV:
                
                ## Calculate p-values
                if set(fisher_cols).issubset(df.columns):
-                  ## Create copy of dropped rows, calculate pvals, then join back with original dataframe with outer join
+                  """
+                  1. Create copy of dropped rows
+                  2. Calculate pvals
+                  3. Join back with original dataframe using outer join
+                  """
                   df_copy = df.dropna(subset = fisher_cols)
                   arr = df_copy[fisher_cols].values.reshape(-1, 2, 2) 
                   pvals = [fisher_exact(table, alternative = "less")[1] 
