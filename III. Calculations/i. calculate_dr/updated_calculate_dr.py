@@ -79,8 +79,13 @@ class BaseDelCounter:
       df_count["DeletionRate"] = df_count["Deletions"] / df_count["TotalCoverage"]
       
       ## Calculate real deletion rates
-      df_calc = pd.merge(df_original, df_count, how = "left", 
-                         on = ["Chrom", "GenomicModBase"]).dropna()
+      count_cols = df_count.columns.tolist()
+      df_calc = (
+         pd.merge(df_original, df_count, how = "left", 
+                  on = ["Chrom", "GenomicModBase"])
+         .dropna(subset = count_cols, how = "all")
+      )
+      df_calc["Deletions"] = df_calc["Deletions"].fillna(0) 
       num = df_calc["fit_b"] - df_calc["DeletionRate"]
       denom = (df_calc["fit_c"] * (df_calc["fit_b"] + df_calc["fit_s"] -
                df_calc["fit_s"] * df_calc["DeletionRate"] - 1))
@@ -96,6 +101,45 @@ class BaseDelCounter:
                                           "DeletionRate": key["DeletionRate"], 
                                           "RealRate": key["RealRate"]})
       return df_calc
+
+   def count_single_dels(self, chrom: str, 
+                         pos: int, 
+                         bamfile: pysam.AlignmentFile) -> int:
+      """
+      PURPOSE:
+      1. Obtain all reads at specific genomic coordinate.
+      2. If read has 1D (single-nt deletion) in its CIGAR 
+         string, append deletion count.
+         -> We only consider deletions of the central U in
+            the UNUAR motif.
+      3. Skip all reads that (i) don't have deletions or
+         (ii) have multi-nt deletions.
+      ---
+      NOTES:
+      * pos is 1-based, but base pysam is 0-based.
+      * bamfile.fetch() obtains ALL reads overlapping the 
+        specified position.
+      * We can extract deletion info from CIGAR strings by 
+        searching for digits followed by a D.
+        -> EXAMPLE: Given CIGAR string 4M1I3M4D9M, we can
+           extract 4D which indicates there are 4 deletions.
+      * If deletions == 0, return None so null rows can be
+        properly dropped later (outside this func).
+      """
+      deletions = 0
+      
+      for read in bamfile.fetch(chrom, pos - 1, pos):
+         cigar = read.cigarstring
+         del_info = re.search(r"(\d+)D", str(cigar))
+         digit = del_info.group(1)
+         if not del_info or digit != 1:
+            continue
+         deletions += 1
+         
+      if (deletions == 0):
+         return None
+      
+      return deletions
 
    def count_base(self, unuar_dict: dict, input_bam_name: Path,
                   fasta_dir: Path, results: list):
@@ -147,7 +191,7 @@ class BaseDelCounter:
                      "Chrom": chrom,
                      "GenomicModBase": stats["pos"],
                      **{base: stats[base] for base in base_keys},
-                     "Deletions": stats["deletions"]
+                     "Deletions": self.count_single_dels(chrom, pos, bamfile)
                   }
                )
             
