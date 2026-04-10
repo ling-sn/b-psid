@@ -1,4 +1,4 @@
-## Use RNA-STAR conda environment
+## Use B-PSID conda environment
 from pathlib import Path
 import traceback
 import argparse
@@ -124,9 +124,11 @@ class BaseDelCounter:
       deletions = 0
       
       for read in bamfile.fetch(chrom, pos - 1, pos):
+         if read.is_secondary or read.is_duplicate:
+            continue
          cigar = read.cigarstring
          del_info = re.search(r"(\d+)D", str(cigar))
-         if del_info and del_info.group(1) == 1:
+         if del_info and int(del_info.group(1)) == 1:
             deletions += 1
          
       if (deletions == 0):
@@ -184,7 +186,8 @@ class BaseDelCounter:
                      "Chrom": chrom,
                      "GenomicModBase": stats["pos"],
                      **{base: stats[base] for base in base_keys},
-                     "Deletions": self.count_single_dels(chrom, pos, bamfile)
+                     "Deletions": stats["deletions"]
+                     # "Deletions": self.count_single_dels(chrom, pos, bamfile)
                   }
                )
             
@@ -306,7 +309,7 @@ def main(folder_name: str, fasta: str):
          
          ## Obtain base-del counts for fwd/rev separately
          for type, unuar_dict in zip(types, unuar_dicts):
-            bam = input_dir/f"{type}.bam"
+            bam = input_dir/f"{type}.sorted.bam"
             counts = counter.process_bam(bam, unuar_dict, fasta_dir)
             all_counts.append(counts)
          
