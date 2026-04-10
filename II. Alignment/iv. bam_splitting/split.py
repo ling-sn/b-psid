@@ -7,6 +7,7 @@ import subprocess
 class SplitBAM:
    def merge_bams(self, bam1: Path, bam2: Path, output: Path):
       try:
+         sorted_output = output.with_suffix(".sorted.bam")
          subprocess.run(
             [
                "samtools", "merge",
@@ -15,7 +16,10 @@ class SplitBAM:
             ],
             check = True
          )
-         subprocess.run(["samtools", "index", str(output)], check = True)
+         subprocess.run(["samtools", "sort", str(output), "-o", 
+                         str(sorted_output)], check = True)
+         subprocess.run(["samtools", "index", str(sorted_output)], 
+                        check = True)
 
       except Exception as e:
          print(f"Failed to merge {bam1.name} and {bam2.name}: {e}")
@@ -142,7 +146,8 @@ def main(bam_folder: str, library_type: str):
          [
             "rm",
             str(directories[0]), str(directories[1]),
-            str(directories[3]), str(directories[4])
+            str(directories[2]), str(directories[3]),
+            str(directories[4]), str(directories[5])
          ]
       )
 
