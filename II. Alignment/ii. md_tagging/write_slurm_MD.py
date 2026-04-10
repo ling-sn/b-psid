@@ -1,4 +1,4 @@
-## Use RNA-SEQ conda environment
+## Use B-PSID conda environment
 from pathlib import Path
 import traceback
 import argparse
@@ -47,7 +47,7 @@ def main(star_folder: Path, fasta: Path, email: str,
                                             ################################################################################
                                             # Edit the strings under 'declare -a tasks=(' to match your experiments.
                                             #
-                                            # This requires a conda environment with samtools, pysam, and parasail (RNA-STAR)
+                                            # This requires a conda environment with samtools, pysam, and parasail (B-PSID)
                                             # 
                                             # To call this script:
                                             # sbatch write_MD.sbatch
@@ -55,7 +55,7 @@ def main(star_folder: Path, fasta: Path, email: str,
 
                                             module purge
                                             eval "$(conda shell.bash hook)"
-                                            conda activate ~/miniconda3/envs/RNA-SEQ
+                                            conda activate ~/miniconda3/envs/B-PSID
 
                                             declare -a tasks=(
                                             """)
