@@ -79,7 +79,7 @@ class BaseDelCounter:
       df_count["DeletionRate"] = df_count["Deletions"] / df_count["TotalCoverage"]
       
       ## Calculate real deletion rates
-      count_cols = df_count.columns.tolist()
+      count_cols = (df_count.columns.tolist())[3:]
       df_calc = (
          pd.merge(df_original, df_count, how = "left", 
                   on = ["Chrom", "GenomicModBase"])
