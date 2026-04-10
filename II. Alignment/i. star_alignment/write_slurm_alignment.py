@@ -1,4 +1,4 @@
-## Use RNA-SEQ conda environment
+## Use B-PSID conda environment
 from pathlib import Path
 import traceback
 import argparse
@@ -61,7 +61,7 @@ def main(input_folder: str, output_folder: str, aligner_type: str,
 
                                             module purge
                                             eval "$(conda shell.bash hook)"
-                                            conda activate ~/miniconda3/envs/RNA-SEQ
+                                            conda activate ~/miniconda3/envs/B-PSID
 
                                             declare -a tasks=(
                                             """)
