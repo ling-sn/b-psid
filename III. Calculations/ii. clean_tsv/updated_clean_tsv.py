@@ -31,7 +31,7 @@ class FilterTSV:
       """
       Obtain gene name
       """
-      MAX_THREADS = 30
+      MAX_THREADS = 20
       threads = min(MAX_THREADS, len(df_merged["NCBILink"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
          df_merged["Gene"] = list(executor.map(self.obtain_gene, df_merged["NCBILink"]))
