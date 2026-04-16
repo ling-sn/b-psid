@@ -38,12 +38,10 @@ class FilterTSV:
       df_merged.insert(0, "Gene", df_merged.pop("Gene"))
       
       """
-      1. Sort rows by TotalAvgDeletionRate (descending order)
+      1. Sort rows by TotalAvgDeletionRate for WT-BS sample (descending order)
       2. Move all important rows (TotalAvg, Std, PvaluePass) to end of dataframe
       """
-      avg_col = next(col for col in df_merged.columns 
-                     if re.search("_TotalAvgDeletionRate_", col))
-      df_merged.sort_values(by = avg_col,
+      df_merged.sort_values(by = "WT_TotalAvgDeletionRate_BS",
                             ascending = False, inplace = True)
       important_cols = [col for col in df_merged.columns if 
                         re.search("(TotalAvgDeletionRate|StdDeletionRate|Pvalue_Pass)", 
