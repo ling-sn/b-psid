@@ -16,7 +16,7 @@ class FilterTSV:
       gene = soup.find("span", class_= "gn")
       return gene.text
    
-   def merge_WT_7KO(self, matching_name, pvals_tsv, final_dir):
+   def merge_all(self, matching_name, pvals_tsv, final_dir):
       matches = [tsv for tsv in pvals_tsv if re.search(matching_name, tsv.stem)]
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
       df_merged = self.iteratively_merge(df_list, "inner")
@@ -286,7 +286,7 @@ def main():
       pvals_tsv = list(pvals_dir.glob("*.tsv"))
 
       for matching_name in ["-Cyto-Pvals", "-Nuc-Pvals"]:
-         filtertsv.merge_WT_7KO(matching_name, pvals_tsv, final_dir)
+         filtertsv.merge_all(matching_name, pvals_tsv, final_dir)
 
    except Exception as e:
       print(f"Failed to create merged .tsv file: {e}")
