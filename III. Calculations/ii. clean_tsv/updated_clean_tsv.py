@@ -41,10 +41,12 @@ class FilterTSV:
       1. Sort rows by TotalAvgDeletionRate (descending order)
       2. Move all important rows (TotalAvg, Std, PvaluePass) to end of dataframe
       """
-      df_merged.sort_values(by = "TotalAvgDeletionRate", 
+      avg_col = next(col for col in df_merged.columns 
+                     if re.search("_TotalAvgDeletionRate_", col))
+      df_merged.sort_values(by = avg_col,
                             ascending = False, inplace = True)
       important_cols = [col for col in df_merged.columns if 
-                        re.search("_(TotalAvgDeletionRate|StdDeletionRate|Pvalue_Pass)", 
+                        re.search("(TotalAvgDeletionRate|StdDeletionRate|Pvalue_Pass)", 
                         col)]
       diff_cols = list(df_merged.columns.difference(important_cols, sort = False))
       new_col_order = diff_cols + important_cols
@@ -163,13 +165,16 @@ class FilterTSV:
    def calc_avg_std(self, df: pd.DataFrame, 
                     avg_col: str, 
                     std_col: str) -> pd.DataFrame:
-      dr_col = [col for col in df.columns 
-                if re.search("_DeletionRate_", col)]
+      del_col = [col for col in df.columns 
+                 if re.search("_Deletions_", col)]
       cov_col = [col for col in df.columns
                  if re.search("_TotalCoverage_", col)]
-      df[avg_col] = df[dr_col].sum(axis = 1) / df[cov_col].sum(axis = 1)
+      dr_col = [col for col in df.columns 
+                if re.search("_DeletionRate_", col)]
+      df[avg_col] = df[del_col].sum(axis = 1) / df[cov_col].sum(axis = 1)
       df[std_col] = df[dr_col].std(axis = 1)
       return df
+
 
    def iteratively_merge(self, list_of_dfs: list, merge_type: str):
       df1_colnames = list_of_dfs[0].columns.tolist()
