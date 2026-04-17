@@ -5,7 +5,7 @@
 #SBATCH --output=clean_tsv_%u_%A_%a.out
 #SBATCH --account=cweidman99
 #SBATCH --time=30:00
-#SBATCH --mem=16000m
+#SBATCH --mem=30000m
 #SBATCH --partition=standard
 #SBATCH --ntasks-per-node=1
 #SBATCH --nodes=1
