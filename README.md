@@ -5,7 +5,9 @@ Pseudouridine (Ψ), an isomer of uridine, is a prevalent RNA modification driven
 1. Set-up the B-PSID conda environment in GLC.
    * Download `create_env.sbatch` from this repository and upload it to the starting directory of your reads.
    * In Bash, run the command `sbatch create_env.sbatch`. This should take a maximum of 5 minutes to run.
-2. Come back to this repository and click into the folders in the order listed below. Then, follow the instructions in their READMEs.
+2. In your starting directory on GLC, create a 📁 `raw_fastqs` folder containing **all** the raw fastq.gz files from Illumina sequencing.
+   * Do not add any subfolders.
+4. Come back to this repository and click into the folders in the order listed below. Then, follow the instructions in their READMEs.
    * 📁 `I. Adapter Trimming`
    * 📁 `II. Alignment`
    * 📁 `III. Calculations`
