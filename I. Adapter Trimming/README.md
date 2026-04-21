@@ -43,7 +43,7 @@ python3 run_cutadapt_fastp.py --input raw_fastqs --output trimmed_reads -C 2 -U 
 * **-C:** Number of CPUs. (Default = 2)
 * **-U:** Length of UMI at 5' end of reads.
 * **-S:** Only process files with sample prefix within the input directory.
-
+---
 ### Citations
 * `run_cutadapt_fastp.py` by Chase Weidmann. If you have any questions, please reach out to [chaseaw](https://github.com/chaseaw).
 * Zhang et al. BID-seq for transcriptome-wide quantitative sequencing of mRNA pseudouridine at base resolution. _Nature Protocols_ 19, 517–538 (2024). https://doi.org/10.1038/s41596-023-00917-5
