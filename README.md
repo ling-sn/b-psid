@@ -5,7 +5,7 @@ Pseudouridine (Ψ), an isomer of uridine, is a prevalent RNA modification driven
 1. Set-up B-PSID conda environment in GLC.
    * Download `create_env.sbatch` from this repository and upload it to the starting directory of your reads.
    * In GLC, run `sbatch create_env.sbatch`. This should take a maximum of 5 minutes to run.
-2. Come back to this repository and click into the following folders in the order listed below. Then, follow the instructions in their READMEs.
+2. Come back to this repository and click into the following folders in the order given below. Then, follow the instructions in their READMEs.
    * 📁 `I. Adapter Trimming`
    * 📁 `II. Alignment`
    * 📁 `III. Calculations`
