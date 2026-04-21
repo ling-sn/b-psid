@@ -8,7 +8,7 @@
 <img src="https://github.com/user-attachments/assets/a952f05f-8174-4efc-bf71-19d750776d53" width="400"/>
 
 ### Overview
-* Aligns trimmed reads with [STAR](https://github.com/alexdobin/STAR) using the hg38 genome as a reference.
+* Aligns trimmed reads with [STAR](https://github.com/alexdobin/STAR) using hg38 as the reference genome.
 * During alignment, mapped contaminant RNAs are obtained with a FASTA and only the unmapped reads (mRNA) are used for downstream analysis.
   
   <img src="https://github.com/user-attachments/assets/8de821ce-dce6-4050-958b-eca6f8a94a0a" width="200"/>
@@ -72,5 +72,11 @@ python3 -u run_align.py --input trimmed_reads --output star_aligned --aligner st
   * rRNA online source: [fallerlab](https://github.com/fallerlab/ARF/blob/main/rRNAs/4V6X_human_rRNAs.fa)
   * tRNA online source: [GtRNAdb](https://gtrnadb.ucsc.edu/genomes/eukaryota/Hsapi38/Hsapi38-seq.html)
   * snoRNA online source: [snoRNABase](https://www-snorna.biotoul.fr/browse.php)
+ 
+* The contaminants index is pre-built and located in its permanent directory `~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants`, which can be directly used with the **--filter-index** parameter.
+  * If these files are lost, they can be accessed via 📁 `rm_contam` > `contaminants_index` in this repository.
+ 
+* Alternatively, the contaminants index can be manually created.
+  * Go into 📁 `rm_contam` > `manual`, then copy `contaminants.fa`, `build_index.py`, and `build_index.sbatch` into your GLC directory. Finally, run the SBATCH file.
 
 ### Creating STAR and contaminants index (optional)
