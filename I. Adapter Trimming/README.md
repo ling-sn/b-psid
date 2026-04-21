@@ -4,7 +4,7 @@
 
 ### Overview
 * Performs quality control (adapter trimming and merging) on raw fastqs.
-* The raw fastq files contain information for each **Read 1** and **Read 2**, such as their sequences and base quality scores. If one of the reads has poor quality scores, then it will be discarded and the read will be unpaired. Otherwise, depending on if the reads overlap, they will be merged or unmerged.
+* The raw fastqs contain information for each **Read 1** and **Read 2**, such as their sequences and base quality scores. If one of the reads has poor quality scores, then it will be discarded and the read will stay unpaired. Otherwise, depending on whether the reads overlap, they will be merged or unmerged.
 
   <img src="https://github.com/user-attachments/assets/96b31246-c87b-482b-8649-53b5c5ded5bb" width="400"/>
 
