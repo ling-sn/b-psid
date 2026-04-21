@@ -4,7 +4,7 @@
 
 ### Overview
 * Performs quality control (adapter trimming and merging) on raw fastqs.
-* The raw fastq files contain information for each **Read 1** and **Read 2**, such as their sequences and base quality scores. If one of the reads has poor quality scores, then it will be discarded and the read will be unpaired. Otherwise, depending on if the reads overlap, they will be merged or unmerged.
+* The raw fastqs contain information for each **Read 1** and **Read 2**, such as their sequences and base quality scores. If one of the reads has poor quality scores, then it will be discarded and the read will stay unpaired. Otherwise, depending on whether the reads overlap, they will be merged or unmerged.
 
   <img src="https://github.com/user-attachments/assets/96b31246-c87b-482b-8649-53b5c5ded5bb" width="400"/>
 
@@ -12,8 +12,8 @@
 ### Instructions
 1. Create `raw_fastqs` folder if it doesn't already exist, and upload the remaining starter files to your GLC directory.
 2. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, create an SBATCH by running `write_slurm_cutadapt.py` in Bash with the following input commands:
-   * **--input_folder:** Folder for input raw fastqs.
-   * **--output_folder:** Folder for trimmed fastqs.
+   * **--input_folder:** Name of folder containing input raw fastqs.
+   * **--output_folder:** Name of folder for trimmed fastqs.
    * **--email:** Email that will be notified when SLURM task begins/ends.
    * **--slurm_acct:** SLURM account.
    * **--walltime:** Amount of time allocated for job.
