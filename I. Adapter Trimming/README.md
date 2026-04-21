@@ -4,19 +4,31 @@
 
 ### Overview
 * Performs quality control (adapter trimming and merging) on raw fastqs.
-* The raw fastq files contain information for each Read 1 and Read 2, such as their sequences and base quality scores. If one of the reads has poor quality scores, then it will be discarded and the read will be unpaired. Otherwise, depending on if the reads overlap, the reads will be merged or unmerged.
+* The raw fastq files contain information for each **Read 1** and **Read 2**, such as their sequences and base quality scores. If one of the reads has poor quality scores, then it will be discarded and the read will be unpaired. Otherwise, depending on if the reads overlap, they will be merged or unmerged.
 
-<img src="https://github.com/user-attachments/assets/fbc286ad-1a8c-473e-82e7-5c672a42119e" width="400"/>
+  <img src="https://github.com/user-attachments/assets/96b31246-c87b-482b-8649-53b5c5ded5bb" width="400"/>
+
 
 ### Instructions
-1. Run `write_slurm_cutadapt.py` directly in Bash with the following input commands:
-   * --input_folder
-   * s
+1. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, run `write_slurm_cutadapt.py` directly in Bash with the following input commands:
+   * `--input_folder` = Folder for input raw fastqs.
+   * `--output_folder` = Folder for trimmed fastqs.
+   * `--email` = Email that will be notified when SLURM task begins/ends.
+   * `--slurm_acct` = SLURM account.
+   * `--walltime` = Amount of time allocated for job.
+   * `--mem` = Amount of memory allocated for job.
    
    See example:
    ```
    python3 write_slurm.py --input_folder raw_fastqs --output_folder trimmed_reads --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 1:00:00 --mem 10000
    ```
+   **Output:** 📄 `SBATCHSubArr-CUT_FASTP.sbatch`.
+2. In Bash, run the following commands:
+   ```
+   conda activate B-PSID
+   sbatch SBATCHSubArr-CUT_FASTP.sbatch
+   ```
+   **Output:** 📁 `trimmed_reads`
 
 ### When do I use this script?
 * Run after creating B-PSID conda environment and moving all sequencing files to a 📁 `raw_fastqs` folder.
