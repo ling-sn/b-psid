@@ -1,6 +1,6 @@
 # PART II: Alignment
 > ### Table of contents
-> 1. [STAR alignment](https://github.com/ling-sn/b-psid/edit/main/II.%20Alignment/README.md#star-alignment) :star: **YOU ARE HERE!**
+> 1. [STAR alignment](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/i.%20star_alignment#star-alignment) :star: **YOU ARE HERE!**
 > 2. Realignment
 > 3. BAM splitting
 ## STAR alignment
