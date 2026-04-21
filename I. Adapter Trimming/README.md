@@ -12,8 +12,8 @@
 ### Instructions
 1. Create `raw_fastqs` folder if it doesn't already exist, and upload the remaining starter files to your GLC directory.
 2. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, create an SBATCH by running `write_slurm_cutadapt.py` in Bash with the following input commands:
-   * **--input_folder:** Folder for input raw fastqs.
-   * **--output_folder:** Folder for trimmed fastqs.
+   * **--input_folder:** Name of folder containing input raw fastqs.
+   * **--output_folder:** Name of folder for trimmed fastqs.
    * **--email:** Email that will be notified when SLURM task begins/ends.
    * **--slurm_acct:** SLURM account.
    * **--walltime:** Amount of time allocated for job.
