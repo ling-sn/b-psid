@@ -1,5 +1,5 @@
 # PART I: Adapter Trimming
-### Necessary files
+### Starter files
 <img src="https://github.com/user-attachments/assets/b281ca65-3535-4770-b361-f69a611ed3e5" width="400"/>
 
 ### Overview
@@ -10,7 +10,8 @@
 
 
 ### Instructions
-1. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, create an SBATCH by running `write_slurm_cutadapt.py` in Bash with the following input commands:
+1. Create `raw_fastqs` folder if it doesn't already exist, and upload the remaining starter files to your GLC directory.
+2. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, create an SBATCH by running `write_slurm_cutadapt.py` in Bash with the following input commands:
    * **--input_folder:** Folder for input raw fastqs.
    * **--output_folder:** Folder for trimmed fastqs.
    * **--email:** Email that will be notified when SLURM task begins/ends.
@@ -23,7 +24,7 @@
    python3 write_slurm.py --input_folder raw_fastqs --output_folder trimmed_reads --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 1:00:00 --mem 10000
    ```
    **Output:** 📄 `SBATCHSubArr-CUT_FASTP.sbatch`.
-2. In Bash, run the following commands:
+3. In Bash, run the following commands:
    ```
    conda activate B-PSID
    sbatch SBATCHSubArr-CUT_FASTP.sbatch
