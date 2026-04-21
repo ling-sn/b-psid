@@ -89,3 +89,7 @@ python3 -u run_align.py --input trimmed_reads --output star_aligned --aligner st
      * `GCF_000001405.40_GRCh38.p14_splice_sites.txt`
        
   3. Go to 📁 `star_index` in this repository, then copy `star_index.py` and `star_index.sbatch` into your directory. Finally, run the SBATCH file. 
+
+---
+### Citations
+* `run_align.py` by Chase Weidmann. If you have any questions, please reach out to [chaseaw](https://github.com/chaseaw).
