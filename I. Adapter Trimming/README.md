@@ -23,7 +23,7 @@
    ```
    python3 write_slurm.py --input_folder raw_fastqs --output_folder trimmed_reads --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 1:00:00 --mem 10000
    ```
-   **Output:** 📄 `SBATCHSubArr-CUT_FASTP.sbatch`.
+   **Output:** 📄 `SBATCHSubArr-CUT_FASTP.sbatch`
 3. In Bash, run the following commands:
    ```
    conda activate B-PSID
