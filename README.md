@@ -6,13 +6,19 @@
 
 ### Instructions
 1. Set-up the B-PSID conda environment in GLC.
+   
    * Download `create_env.sbatch` from this repository and upload it to the starting directory of your reads.
    * In Bash, run the command `sbatch create_env.sbatch`. This should take a maximum of 5 minutes to run.
-2. In your starting directory on GLC, create a 📁 `raw_fastqs` folder containing **all** the raw fastq.gz files from Illumina sequencing.
+     
+3. In your starting directory on GLC, create a 📁 `raw_fastqs` folder containing **all** the raw fastq.gz files from Illumina sequencing.
+   
    * Do not add any subfolders.
-4. Come back to this repository and click into the folders in the order listed below. Then, follow the instructions in their READMEs.
+     
+5. Come back to this repository and click into the folders in the order listed below. Then, follow the instructions in their READMEs.
+   
    * 📁 `I. Adapter Trimming`
    * 📁 `II. Alignment`
    * 📁 `III. Calculations`
+     
 ### Citations
 * Zhang et al. BID-seq for transcriptome-wide quantitative sequencing of mRNA pseudouridine at base resolution. _Nature Protocols_ 19, 517–538 (2024). https://doi.org/10.1038/s41596-023-00917-5
