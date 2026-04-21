@@ -11,12 +11,12 @@
 
 ### Instructions
 1. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, run `write_slurm_cutadapt.py` directly in Bash with the following input commands:
-   * `--input_folder` = Folder for input raw fastqs.
-   * `--output_folder` = Folder for trimmed fastqs.
-   * `--email` = Email that will be notified when SLURM task begins/ends.
-   * `--slurm_acct` = SLURM account.
-   * `--walltime` = Amount of time allocated for job.
-   * `--mem` = Amount of memory allocated for job.
+   * **--input_folder:** Folder for input raw fastqs.
+   * **--output_folder:** Folder for trimmed fastqs.
+   * **--email:** Email that will be notified when SLURM task begins/ends.
+   * **--slurm_acct:** SLURM account.
+   * **--walltime:** Amount of time allocated for job.
+   * **--mem:** Amount of memory allocated for job.
    
    See example:
    ```
