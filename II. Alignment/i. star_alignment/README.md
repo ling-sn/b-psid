@@ -13,8 +13,6 @@
   
   <img src="https://github.com/user-attachments/assets/8de821ce-dce6-4050-958b-eca6f8a94a0a" width="200"/>
 
-
-
 ### Instructions
 1. Excluding the 📁 `trimmed_reads` folder (which should already exist), upload the remaining starter files to your GLC directory.
 2. Create an SBATCH by running `write_slurm_alignment.py` in Bash with the following input commands:
@@ -73,10 +71,20 @@ python3 -u run_align.py --input trimmed_reads --output star_aligned --aligner st
   * tRNA online source: [GtRNAdb](https://gtrnadb.ucsc.edu/genomes/eukaryota/Hsapi38/Hsapi38-seq.html)
   * snoRNA online source: [snoRNABase](https://www-snorna.biotoul.fr/browse.php)
  
-* The contaminants index is pre-built and located in its permanent directory `~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants`, which can be directly used with the **--filter-index** parameter.
+* The contaminants index is pre-built and located in its permanent directory `~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants`.
   * If these files are lost, they can be accessed via 📁 `rm_contam` > `contaminants_index` in this repository.
  
 * Alternatively, the contaminants index can be manually created.
-  * Go into 📁 `rm_contam` > `manual`, then copy `contaminants.fa`, `build_index.py`, and `build_index.sbatch` into your GLC directory. Finally, run the SBATCH file.
+  * Go into 📁 `rm_contam` > `manual`, then copy `contaminants.fa`, `build_index.py`, and `build_index.sbatch` into your directory. Finally, run the SBATCH file.
 
-### Creating STAR and contaminants index (optional)
+### STAR index
+* The STAR hg38 genome index is pre-built and located in its permanent directory `~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38`.
+* Alternatively, the genome index can be manually created.
+  1. Create an empty folder called 📁 `star_index_hg38` in your directory.
+  2. In GLC, navigate to `~/umms-RNAlabDATA/Software/genome_indices/hisat2_hg38/hg38p14_tran/` and copy the following 4 files into 📁 `star_index_hg38`:
+
+     * `GCF_000001405.40_GRCh38.p14_exons.txt`
+     * `GCF_000001405.40_GRCh38.p14_genomic.fa`
+     * `GCF_000001405.40_GRCh38.p14_genomic.gtf`
+     * `GCF_000001405.40_GRCh38.p14_splice_sites.txt`
+  3. Go into 📁
