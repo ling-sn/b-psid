@@ -1,7 +1,7 @@
 # PART II: Alignment
 > ### Table of contents
 > 1. [STAR alignment](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/i.%20star_alignment#table-of-contents)
-> 2. Realignment
+> 2. [Realignment](https://github.com/ling-sn/b-psid/edit/main/II.%20Alignment/ii.%20realign_gap/README.md#table-of-contents)
 > 3. BAM splitting
 ### Overview
 * Align trimmed reads with STAR.
