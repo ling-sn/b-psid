@@ -10,7 +10,7 @@
 
 
 ### Instructions
-1. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, run `write_slurm_cutadapt.py` directly in Bash with the following input commands:
+1. To bypass manually writing SLURM tasks for each sample in the 📁 `raw_fastqs` directory, create an SBATCH by running `write_slurm_cutadapt.py` in Bash with the following input commands:
    * **--input_folder:** Folder for input raw fastqs.
    * **--output_folder:** Folder for trimmed fastqs.
    * **--email:** Email that will be notified when SLURM task begins/ends.
