@@ -8,7 +8,7 @@
 * Use Smith-Waterman algorithm during realignment for more accuration deletion-only mapping.
 * Split outputs to obtain separate BAMs for forward and reverse reads.
 ### Instructions
-* Click into the folders in the order listed below. Then, follow the instructions in their READMEs.
+* Click into the folders in the order listed below. Then, follow the instructions in their READMEs. (Alternatively, click the hyperlinks in the Table of Contents above.)
 
   * 📁 `i. star_alignment`
   * 📁 `ii. realign_gap`
