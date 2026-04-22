@@ -21,4 +21,5 @@
    * 📁 `III. Calculations`
      
 ### Citations
+* Kim, K. Q., Burgute, B. D., Tzeng, SC, et al. (2022). N1-methylpseudouridine found within COVID-19 mRNA vaccines produces faithful protein products. _Cell Reports_, 40(9), 1–14. https://doi.org/10.1016/j.celrep.2022.111300
 * Zhang et al. BID-seq for transcriptome-wide quantitative sequencing of mRNA pseudouridine at base resolution. _Nature Protocols_ 19, 517–538 (2024). https://doi.org/10.1038/s41596-023-00917-5
