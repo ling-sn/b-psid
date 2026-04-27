@@ -1,4 +1,8 @@
-## use RNA-SEQ conda environment
+"""
+Created February 2026
+@author: ling-sn
+Use B-PSID conda environment
+"""
 from pathlib import Path
 import traceback
 import argparse
