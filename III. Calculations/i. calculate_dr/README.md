@@ -1,6 +1,6 @@
 # PART III: Calculations
 > ### Table of contents
-> 1. Calculating deletion rates :star: **YOU ARE HERE!**
+> 1. [Calculating deletion rates](https://github.com/ling-sn/b-psid/tree/main/III.%20Calculations/i.%20calculate_dr#table-of-contents) :star: **YOU ARE HERE!**
 > 2. Cleaning TSVs
 ## Calculating deletion rates
 ### Starter files
@@ -49,13 +49,16 @@ Text
 
   in which:
 
+  <img src="https://github.com/user-attachments/assets/0f207398-ca2f-4963-9f65-c554dccd4a46" width="300"/>
+
   | Variable | Name | Meaning
   | --- | --- | --- |
   | $$f$$ | Real deletion rate $$(f > 0)$$ | Ψ modification stoichiometry |
   | $$r$$ | Observed deletion rate $$(0 < r < 1)$$ | Percentage of deletions at given `GenomicModBase` |
   | $$b$$ | Background deletion rate | Baseline deletion rates due to experimental conditions; `fit_b` |
-  | $$s$$ | RT dropout ratio | Ratio of times a site “falls out” when it gets hit by bisulfite; `fit_s` |
+  | $$s$$ | RT dropoff ratio | Ratio of times a site “falls out” when it gets hit by bisulfite; `fit_s` |
   | $$c$$ | Conversion ratio | Maximum amount of times a site can be turned into a deletion; `fit_c` |
+  
 * The observed deletion rate ($$r$$) at each UNUAR site is calculated with the following formula:
 
   $$\large{\frac{\text{Number of deletions}}{\text{Total amount of A, C, T, G, and deletions}}}$$
