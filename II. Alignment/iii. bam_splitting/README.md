@@ -2,7 +2,7 @@
 > ### Table of contents
 > 1. [STAR alignment](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/i.%20star_alignment#table-of-contents)
 > 2. [Realignment](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/ii.%20realign_gap#table-of-contents)
-> 3. BAM splitting :star: **YOU ARE HERE!**
+> 3. [BAM splitting](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/iii.%20bam_splitting#table-of-contents) :star: **YOU ARE HERE!**
 ## BAM splitting
 ### Starter files
 <img src="https://github.com/user-attachments/assets/82916a05-55eb-431b-a59d-f2895005d409" width="400"/>
@@ -21,7 +21,7 @@
 
 ### Understanding the SBATCH
 ```
-Text
+python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
 ```
 * Text
 
