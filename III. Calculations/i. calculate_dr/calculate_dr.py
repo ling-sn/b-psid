@@ -1,4 +1,8 @@
-## Use B-PSID conda environment
+"""
+@author: ling-sn
+Last updated: April 2026
+Use B-PSID conda environment
+"""
 from pathlib import Path
 import traceback
 import argparse
