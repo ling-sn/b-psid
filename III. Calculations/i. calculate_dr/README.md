@@ -6,6 +6,7 @@
   * Store base counts only at sites of interest in a dictionary
   * Append dictionary to list
 * Repeat for all chromosomes, and at end, convert list to dataframe
+* How did we obtain the fwd and rev files? -> split_unuar_tsv
 
 ### Citations
 https://github.com/alimanfoo/pysamstats/blob/master/pysamstats/pileup.py
