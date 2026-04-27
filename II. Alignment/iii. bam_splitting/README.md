@@ -8,8 +8,25 @@
 <img src="https://github.com/user-attachments/assets/82916a05-55eb-431b-a59d-f2895005d409" width="400"/>
 
 ### Overview
-* Since UNUAR sites are located on either the forward or reverse strand, we use BAM splitting to only count base/deletions from one strand for each site.
-  
+* Since UNUAR sites are located on either the forward or reverse strand, we employ BAM splitting to <ins>**only**</ins> count base/deletions from one strand for each site.
+* We obtain `fwd.bam` and `rev.bam` for each BAM that we are interested in investigating downstream.
+
+### Instructions
+1. Create SBATCH
+   ```
+   python3 write_slurm_bam_split.py --email lingsn@umich.edu --slurm_acct cweidman99 --walltime 5:00 --mem 2000 --library RF
+   ```
+
+### When do I use this script?
+* Text
+
+### Understanding the SBATCH
+```
+python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
+```
+* Text
+
+### Explanation of fwd.bam and rev.bam outputs
 * Our libraries are prepared with the NEBNext strand-specific protocol. Since it uses the dUTP method, our reads are in the form "RF".
   * In other words, the first-in-pair is recognized as reverse, while the second-in-pair is recognized as forward or in the direction of the transcript (reference/FASTA).
 
@@ -34,7 +51,7 @@
       samtools view -b -f 144 $DATA > rev1.bam
       ```
       * `-f 144` = Read reverse strand, second-in-pair
-      * 
+        
     * First-in-pair maps to the forward strand
       ```
       samtools view -b -f 64 -F 16 $DATA > rev2.bam
@@ -42,24 +59,9 @@
       * `-f 64` = First-in-pair
       * `-F 16` = Do not include read reverse strand flag
         
-* Overall, obtain these two outputs after BAM splitting:
-  * `fwd.bam` = Reads all have "Pair orientation = F2R1"
-  * `rev.bam` = Reads all have "Pair orientation = F1R2"
-
-### Instructions
-1. Create SBATCH
-   ```
-   python3 write_slurm_bam_split.py --email lingsn@umich.edu --slurm_acct cweidman99 --walltime 5:00 --mem 2000 --library RF
-   ```
-
-### When do I use this script?
-* Text
-
-### Understanding the SBATCH
-```
-python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
-```
-* Text
+* Altogether, we obtain these two outputs after BAM splitting:
+  * `fwd.bam` = All reads have "Pair orientation = F2R1"
+  * `rev.bam` = All reads have "Pair orientation = F1R2"
 
 ---
 ### Citations
