@@ -31,7 +31,7 @@
    conda activate B-PSID
    sbatch split.sbatch
    ```
-   **Output:** 📁 Split BAM files (`fwd.bam` and `rev.bam`). These will be saved in the same locations as the original BAMs, _i.e.,_ in the subfolders of 📁 `realignments`.
+   **Output:** Split BAM files (`fwd.bam` and `rev.bam`). These will be saved in the same locations as the original BAMs, _i.e.,_ in the subfolders of 📁 `realignments`.
 
 ### When do I use this script?
 * After obtaining realignments, run this in the same directory.
