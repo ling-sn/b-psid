@@ -14,7 +14,11 @@
   * As a solution, add a column that stores the remaining TranscriptIDs in a set/list, separated by commas, and name this column “OtherAssocTranscripts.”
   * We drop these pairs when we read in the UNUAR TSV
   * Go back to my presentations to see justifications for hwy
-* Only kept p-value filtering
+* Only kept WT p-value filtering (p ≤ 0.05)
+* Ordered UNUAR sites in descending order by TotalAvgDeletionRate, a weighted average calculation (sum of deletions / sum of coverage)
+
+### Explanation of joining
+* Reference 4/17/26
 
 ### Citations
 * https://pysam.readthedocs.io/en/latest/api.html#pysam.AlignmentFile.pileup
