@@ -42,6 +42,27 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
 * **--folder_name:** Name of folder containing split BAMs.
 * **--fasta:** Path to reference FASTA that was used to build the STAR genome index. This will always be `~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa`.
 
+### Real rate calculation
+* The best-fit parameters from `SupplementaryTable1.xlsx` were plugged into the following equation to estimate the fraction of actual Ψ modification, which is also referred to as "RealRate" in the script.
+  
+  $$f = \large{\frac{b-r}{c \cdot (b+s-s \cdot r -1)}}$$
+
+  in which:
+
+  <img src="https://github.com/user-attachments/assets/0f207398-ca2f-4963-9f65-c554dccd4a46" width="300"/>
+
+  | Variable | Name | Meaning
+  | --- | --- | --- |
+  | $$f$$ | Real deletion rate $$(f > 0)$$ | Ψ modification stoichiometry |
+  | $$r$$ | Observed deletion rate $$(0 < r < 1)$$ | Percentage of deletions at given `GenomicModBase` |
+  | $$b$$ | Background deletion rate | Baseline deletion rates due to experimental conditions; `fit_b` |
+  | $$s$$ | RT dropoff ratio | Ratio of times a site “falls out” when it gets hit by bisulfite; `fit_s` |
+  | $$c$$ | Conversion ratio | Maximum amount of times a site can be turned into a deletion; `fit_c` |
+  
+* The observed deletion rate ($$r$$) at each UNUAR site was calculated with the following formula:
+
+  $$\large{\frac{\text{Number of deletions}}{\text{Total amount of A, C, T, G, and deletions}}}$$
+
 ### UNUAR datasets
 * The following datasets were first merged with a left-join:
   * `UNUAR_motif_sites_mRNA_hg38p14.tsv` contains the GenBank accession number (_Chrom_) and genomic coordinate of the modified base (_GenomicModBase_) for all UNUAR sites in the human genome.
@@ -66,47 +87,16 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
   * **Updated fwd_unuar (no dup):** 187048 rows
   * **Updated rev_unuar (no dup):** 181396 rows
 
-### Real rate calculation
-* The best-fit parameters from `SupplementaryTable1.xlsx` were plugged into the following equation to estimate the fraction of actual Ψ modification, which is also referred to as "RealRate" in the script.
+### Counting algorithm
+* The tool [pysamstats](https://github.com/alimanfoo/pysamstats/blob/master/pysamstats/pileup.py) was used to obtain base and deletion counts for each BAM file.
+  1. In each updated fwd_unuar/rev_unuar file, the genomic coordinates of the UNUAR sites were grouped by chromosome in the following format:
+
+      $${\text{Chr1: (Site1, Site2, Site3)}}$$
   
-  $$f = \large{\frac{b-r}{c \cdot (b+s-s \cdot r -1)}}$$
-
-  in which:
-
-  <img src="https://github.com/user-attachments/assets/0f207398-ca2f-4963-9f65-c554dccd4a46" width="300"/>
-
-  | Variable | Name | Meaning
-  | --- | --- | --- |
-  | $$f$$ | Real deletion rate $$(f > 0)$$ | Ψ modification stoichiometry |
-  | $$r$$ | Observed deletion rate $$(0 < r < 1)$$ | Percentage of deletions at given `GenomicModBase` |
-  | $$b$$ | Background deletion rate | Baseline deletion rates due to experimental conditions; `fit_b` |
-  | $$s$$ | RT dropoff ratio | Ratio of times a site “falls out” when it gets hit by bisulfite; `fit_s` |
-  | $$c$$ | Conversion ratio | Maximum amount of times a site can be turned into a deletion; `fit_c` |
-  
-* The observed deletion rate ($$r$$) at each UNUAR site was calculated with the following formula:
-
-  $$\large{\frac{\text{Number of deletions}}{\text{Total amount of A, C, T, G, and deletions}}}$$
+  2. Pileup traversal in a BAM was called once per chromosome (key) by leveraging the min. and max. coordinate values of their respective sets (value).
+  3. Counts at individual sites of interest were stored in a dictionary, which were then appended to a list.
+  4. After this process was repeated for all sites in each chromosome, the list was converted to a dataframe.
+  5. After this process was completed for both fwd/rev BAMs, the separate count dataframes were concatenated into one.
 ---
 ### Citations
 * `calculate_dr.py` by Sonia Ling. If you have any questions, please reach out to [ling-sn](https://github.com/ling-sn).
-
-
----
-### Overview
-* Use pysamstats to obtain base/del counts for each bam file, and store in dictionary
-* stat_pileup() returns the iterator recs, where “each dict holds data for a single genome position”
-* Call pileup traversal once per chromosome by leveraging min/max values of genomic coordinates for that chrom 
-  * Group sites by chromosome like {Chr1: (Site1, Site2, Site3)}
-  * Store base counts only at sites of interest in a dictionary
-  * Append dictionary to list
-* Repeat for all chromosomes, and at end, convert list to dataframe
-* Afterwards, join fwd and rev counts into one dataframe
-
-<img width="879" height="573" alt="image" src="https://github.com/user-attachments/assets/75a61bd6-c499-4db0-88f0-1cdb91848aca" />
-
-* Use stat_variation_strand() to return an iterator. Only append pileup statistics to results dictionary if pos matches
-
-
-
-### Citations
-https://github.com/alimanfoo/pysamstats/blob/master/pysamstats/pileup.py
