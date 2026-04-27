@@ -5,7 +5,7 @@ import argparse
 import textwrap
 import os
 
-def main(email: str, slurm_acct: str, walltime: str, mem: int):
+def main(email: str, slurm_acct: str, walltime: str, mem: int, library: str):
     '''
     PURPOSE:
     * Goes into folder containing all subfolders for realigned reads,
@@ -67,7 +67,7 @@ def main(email: str, slurm_acct: str, walltime: str, mem: int):
             if subfolder.is_dir():
                 ## Append new tasks to SBATCH
                 with open(output, "a") as f:
-                    task = (f'\n"python3 split.py --bam_folder {subfolder.stem}"')
+                    task = (f'\n"python3 split.py --bam_folder {subfolder.stem} --library_type {library}"')
                     f.write(task)
 
         ## Once all tasks have been added, finish up SBATCH template
@@ -79,15 +79,16 @@ def main(email: str, slurm_acct: str, walltime: str, mem: int):
         raise
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = ("Writes SBATCH script for splitting bams into fwd/rev,"
-                                                    " by using strandedness"))
+    parser = argparse.ArgumentParser(description = ("Writes SBATCH script for splitting bams into" 
+                                                    " fwd/rev by using strandedness"))
     parser.add_argument("--email", default = "<uniqname>@umich.edu")
     parser.add_argument("--slurm_acct", default = "<account>")
     parser.add_argument("--walltime", default = "<time>")
     parser.add_argument("--mem", help = "Memory for job (in MB)", default = "<memory>")
+    parser.add_argument("--library", help = "Specify library type", default = "RF")
 
     args = parser.parse_args()
 
     print("Writing SBATCH script...")
-    main(args.email, args.slurm_acct, args.walltime, args.mem)
+    main(args.email, args.slurm_acct, args.walltime, args.mem, args.library)
     print("Process finished.")
