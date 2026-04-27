@@ -8,7 +8,43 @@
 <img src="https://github.com/user-attachments/assets/82916a05-55eb-431b-a59d-f2895005d409" width="400"/>
 
 ### Overview
-* Text
+* Since UNUAR sites are located on either the forward or reverse strand, we use BAM splitting to only count base/deletions from one strand for each site.
+  
+* Our libraries are prepared with the NEBNext strand-specific protocol. Since it uses the dUTP method, our reads are in the form "RF".
+  * In other words, the first-in-pair is recognized as reverse, while the second-in-pair is recognized as forward or in the direction of the transcript (reference/FASTA).
+
+* We can use samtools flags to obtain specific alignments from each BAM file, and then combine them into separate "forward strand" and "reverse strand" files.
+  * <ins>Forward strand</ins>
+    * Second-in-pair maps to the forward strand
+      ```
+      samtools view -b -f 128 -F 16 $DATA > fwd1.bam
+      ```
+      * `-f 128` = Second-in pair
+      * `-F 16` = Do not include read reverse strand flag
+        
+    * First-in-pair maps to the reverse  strand
+      ```
+      samtools view -b -f 80 $DATA > fwd2.bam
+      ```
+      * `-f 80` = Read reverse strand, first-in-pair
+        
+  * <ins>Reverse strand</ins>
+    * Second-in-pair maps to the reverse strand
+      ```
+      samtools view -b -f 144 $DATA > rev1.bam
+      ```
+      * `-f 144` = Read reverse strand, second-in-pair
+      * 
+    * First-in-pair maps to the forward strand
+      ```
+      samtools view -b -f 64 -F 16 $DATA > rev2.bam
+      ```
+      * `-f 64` = First-in-pair
+      * `-F 16` = Do not include read reverse strand flag
+        
+* Overall, obtain these two outputs after BAM splitting:
+  * `fwd.bam` = Reads all have "Pair orientation = F2R1"
+  * `rev.bam` = Reads all have "Pair orientation = F1R2"
 
 ### Instructions
 1. Create SBATCH
@@ -30,39 +66,4 @@ python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
 * https://dnatech.ucdavis.edu/faqs/which-strand-is-sequenced-for-my-strand-specific-rna-seq-data
 * https://www.biostars.org/p/92935/
 ---
-### DELETE LATER
-* Objective: If UNUAR site is on reverse strand, only consider base/del counts from the reverse strand?
-* We use the NEBNext workflow for library preparation. The description for NEBNext Ultra II RNA states that directional (strand-specific) library prep uses the “dUTP method” (p. 12).
-* When we use the “dUTP method” during second-strand synthesis, the strand with dUTP will not be amplified and thus preserve the strand information for RNA-seq.
-* For paired-end sequencing, the forward read of the resulting sequencing data represents the “anti-sense strand” and the reverse read the “sense strand” of the gene.
-
 ### Overview
-* Due to NEBNext library preparation, our reads are -RF. Meaning that first-in-pair → “reverse” and second-in-pair is in the direction of the transcript (i.e., reference/FASTA) → “forward”
-* Using samtools flags allows us to obtain specific alignments from BAM files, and then combine them into separate “forward strand” and “reverse strand” files.
-  * Forward strand:
-    * Second-in-pair maps to the forward strand
-      ```
-      samtools view -b -f 128 -F 16 $DATA > fwd1.bam
-      ```
-      * -f 128 $=$ Second-in pair
-      * -F 16 $=$ Do not include read reverse strand flag
-    * First-in-pair maps to the reverse  strand
-      ```
-      samtools view -b -f 80 $DATA > fwd2.bam
-      ```
-      * -f 80 $=$ Read reverse strand, first-in-pair
-  * Reverse strand:
-    * Second-in-pair maps to the reverse strand
-      ```
-      samtools view -b -f 144 $DATA > rev1.bam
-      ```
-      * -f 144 $=$ Read reverse strand, second-in-pair
-    * First-in-pair maps to the forward strand
-      ```
-      samtools view -b -f 64 -F 16 $DATA > rev2.bam
-      ```
-      * -f 64 $=$ First-in-pair
-      * -F 16 $=$ Do not include read reverse strand flag
-* Outputs
-  * fwd.bam = Reads all have Pair orientation = F2R1
-  * rev.bam = Reads all have Pair orientation = F1R2
