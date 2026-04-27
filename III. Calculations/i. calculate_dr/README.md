@@ -8,7 +8,8 @@
 
 ### Overview
 * Opens up `fwd.bam` and `rev.bam` separately, and then obtains base and deletion counts for each.
-* After each process concludes, count results are concatenated and deletion rates are calculated.
+* After each process concludes, count results are concatenated into one dataframe and deletion rates are calculated.
+* No TSV filtering occurs at this step of the pipeline.
 
 ### Instructions
 1. Excluding the 📁 `realignments` folder (which should already exist), upload the remaining starter files to your GLC directory.
@@ -36,14 +37,37 @@
 
 ### Understanding the SBATCH
 ```
-Text
+python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa
 ```
-* **Text:** Path to reference FASTA that was used to build the STAR genome index. This will always be `~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa`.
+* **--folder_name:** Name of folder containing split BAMs.
+* **--fasta:** Path to reference FASTA that was used to build the STAR genome index. This will always be `~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa`.
 
-### Datasets & calculations
-* The following two datasets were merged with a left-join:
+### UNUAR datasets
+* The following datasets were first merged with a left-join:
   * `UNUAR_motif_sites_mRNA_hg38p14.tsv` contains the GenBank accession number (_Chrom_) and genomic coordinate of the modified base (_GenomicModBase_) for all UNUAR sites in the human genome.
-  * `SupplementaryTable1.xlsx` contains the best-fit parameters for the calibration curves of 256 UNUAR motifs (_Zhang et al., 533_). They are plugged into the equation below to estimate the fraction of actual Ψ modification, which is also referred to as "RealRate" in the script.
+  * `SupplementaryTable1.xlsx` contains the best-fit parameters for the calibration curves of 256 UNUAR motifs (_Zhang et al., 533_).
+* To accommodate the split BAM structure, this merged dataset was filtered to only contain sites in the 3UTR region, and then split into two datasets by strand type (+/-). 
+  * <ins>**Permanent directories**</ins>: These paths are already included in the code by default, so nothing additional needs to be done.
+    * **fwd_unuar:** `~/umms-RNAlabDATA/Software/B-PsiD_tools/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv`
+    * **rev_unuar:** `~/umms-RNAlabDATA/Software/B-PsiD_tools/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv`
+  * <ins>**Manual**</ins>: If the fwd_unuar and rev_unuar files are missing but you have the original files, run the following code in Bash to create them in your current directory.
+    
+    ```
+    python3 split_unuar_tsv.py
+    ```
+
+* However, there were too many rows with duplicate Chrom and GenomicModbase pairs, so this led to duplicate counts in the output TSVs based on how the counting algorithm was designed.
+  * As a solution, these duplicate pairs were dropped when **fwd_unuar** and **rev_unuar** were read in as dataframes in `calculate_dr.py`.
+  * Because every Chrom and GenomicModBase pair was associated with multiple TranscriptIDs, the transcripts were grouped in a separate column "OtherAssocTranscripts" prior to the pairs (excluding the first occurrence) being dropped.
+* Filtering statistics:
+  * **Original left-joined TSV:** 3425693 rows
+  * **fwd_unuar:** 1057146 rows
+  * **rev_unuar:** 1014095 rows
+  * **Updated fwd_unuar (no dup):** 187048 rows
+  * **Updated rev_unuar (no dup):** 181396 rows
+
+### Real rate calculation
+* The best-fit parameters from `SupplementaryTable1.xlsx` were plugged into the following equation to estimate the fraction of actual Ψ modification, which is also referred to as "RealRate" in the script.
   
   $$f = \large{\frac{b-r}{c \cdot (b+s-s \cdot r -1)}}$$
 
@@ -59,7 +83,7 @@ Text
   | $$s$$ | RT dropoff ratio | Ratio of times a site “falls out” when it gets hit by bisulfite; `fit_s` |
   | $$c$$ | Conversion ratio | Maximum amount of times a site can be turned into a deletion; `fit_c` |
   
-* The observed deletion rate ($$r$$) at each UNUAR site is calculated with the following formula:
+* The observed deletion rate ($$r$$) at each UNUAR site was calculated with the following formula:
 
   $$\large{\frac{\text{Number of deletions}}{\text{Total amount of A, C, T, G, and deletions}}}$$
 ---
@@ -76,24 +100,11 @@ Text
   * Store base counts only at sites of interest in a dictionary
   * Append dictionary to list
 * Repeat for all chromosomes, and at end, convert list to dataframe
-* Permanent directory for UNUAR tsvs
-* How did we obtain the fwd and rev files? -> split_unuar_tsv
-  * fwd_unuar = Dataframe with Ψ sites on forward strand (+)
-  * rev_unuar = Dataframe with Ψ sites on reverse strand (-)
 * Afterwards, join fwd and rev counts into one dataframe
 
 <img width="879" height="573" alt="image" src="https://github.com/user-attachments/assets/75a61bd6-c499-4db0-88f0-1cdb91848aca" />
 
 * Use stat_variation_strand() to return an iterator. Only append pileup statistics to results dictionary if pos matches
-
-* Many rows with duplicate Chrom and GenomicModBase pairs, leading to rows with duplicate base/del counts. Hence, we removed duplicate GenomicModBase + Chrom pairs when we read in the UNUAR tsvs
-  * Start with original left-joined TSV: 3425693 rows
-  * Obtain TSV of rows in region "3UTR" with strand “+” (fwd): 1057146 rows
-  * Obtain TSV of rows in region "3UTR" with strand “-” (rev): 1014095 rows
-* After dropping duplicate rows in fwd and rev:
-  * Updated fwd: 187048 rows
-  * Updated rev: 181396 rows
-* Every position is associated with multiple TranscriptIDs, so we group them in a separate column "OtherAssocTranscripts" before dropping the pairs and keeping only the first one
 
 
 
