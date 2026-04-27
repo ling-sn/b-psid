@@ -89,14 +89,15 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
 
 ### Counting algorithm
 * The tool [pysamstats](https://github.com/alimanfoo/pysamstats/blob/master/pysamstats/pileup.py) was used to obtain base and deletion counts for each BAM file.
-  1. In each updated fwd_unuar/rev_unuar file, the genomic coordinates of the UNUAR sites were grouped by chromosome in the following format:
+  1. For each updated fwd_unuar and rev_unuar file, the genomic coordinates of the UNUAR sites were grouped by chromosome in the following format:
 
       $${\text{Chr1: (Site1, Site2, Site3)}}$$
   
-  2. Pileup traversal in a BAM was called once per chromosome (key) by leveraging the min. and max. coordinate values of their respective sets (value).
-  3. Counts at individual sites of interest were stored in a dictionary, which were then appended to a list.
+  2. Pileup traversal in a BAM was then called once per chromosome (key) by leveraging the min. and max. coordinate values of their respective sets (value).
+  3. Counts at individual sites of interest were stored in a dictionary, which was then appended to a list.
   4. After this process was repeated for all sites in each chromosome, the list was converted to a dataframe.
   5. After this process was completed for both fwd/rev BAMs, the separate count dataframes were concatenated into one.
+  6. Observed deletion and real rates were calculated, leading to an output TSV.
 ---
 ### Citations
 * `calculate_dr.py` by Sonia Ling. If you have any questions, please reach out to [ling-sn](https://github.com/ling-sn).
