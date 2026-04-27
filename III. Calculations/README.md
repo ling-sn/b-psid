@@ -1,6 +1,6 @@
 # PART III: Calculations
 > ### Table of contents
-> 1. Calculating deletion rates
+> 1. [Calculating deletion rates](https://github.com/ling-sn/b-psid/tree/main/III.%20Calculations/i.%20calculate_dr#table-of-contents)
 > 2. Cleaning TSVs
 ### Overview
 * For each sample replicate, obtain base/deletion counts at each UNUAR site and output a TSV.
