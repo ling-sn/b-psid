@@ -77,8 +77,8 @@ python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
       * `-F 16` = Do not include read reverse strand flag
         
 * Altogether, we obtain these two outputs after BAM splitting:
-  * `fwd.bam` = All reads have "Pair orientation = F2R1"
-  * `rev.bam` = All reads have "Pair orientation = F1R2"
+  * `fwd.bam` = All reads have "Pair orientation = F2R1" in IGV
+  * `rev.bam` = All reads have "Pair orientation = F1R2" in IGV
 
 ---
 ### Citations
