@@ -2,7 +2,7 @@
 > ### Table of contents
 > 1. [STAR alignment](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/i.%20star_alignment#table-of-contents)
 > 2. [Realignment](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/ii.%20realign_gap#table-of-contents) :star: **YOU ARE HERE!**
-> 3. BAM splitting
+> 3. [BAM splitting](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/iii.%20bam_splitting#table-of-contents)
 ## Realignment
 ### Starter files
 <img src="https://github.com/user-attachments/assets/a35085c4-a14d-40cf-a4e9-832868e20e7a" width="400"/>
