@@ -9,25 +9,42 @@
 
 ### Overview
 * Since UNUAR sites are located on either the forward or reverse strand, we employ BAM splitting to <ins>**only**</ins> count base/deletions from one strand for each site.
+
 * We obtain `fwd.bam` and `rev.bam` for each BAM that we are interested in investigating downstream.
 
 ### Instructions
-1. Create SBATCH
+1. Excluding the 📁 `realignments` folder (which should already exist), upload the remaining starter files to your GLC directory.
+2. Create an SBATCH by running `write_slurm_bam_split.py` in Bash with the following input commands:
+   * **--email:** Email that will be notified when SLURM task begins/ends.
+   * **--slurm_acct:** SLURM account.
+   * **--walltime:** Amount of time allocated for job.
+   * **--mem:** Amount of memory allocated for job.
+   * **--library:** Specify library type. (Default: RF)
+  
+   See example:
    ```
-   python3 write_slurm_bam_split.py --email lingsn@umich.edu --slurm_acct cweidman99 --walltime 5:00 --mem 2000 --library RF
+   python3 write_slurm_bam_split.py --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 2:00:00 --mem 10000 --library RF
    ```
+   **Output:** 📄 `split.sbatch`
+3. In Bash, run the following commands to obtain the split BAMs:
+   ```
+   conda activate B-PSID
+   sbatch split.sbatch
+   ```
+   **Output:** 📁 Split BAM files (`fwd.bam` and `rev.bam`). These will be saved in the same locations as the original BAMs, _i.e.,_ in the subfolders of 📁 `realignments`.
 
 ### When do I use this script?
-* Text
+* After obtaining realignments, run this in the same directory.
 
 ### Understanding the SBATCH
 ```
 python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
 ```
-* Text
+* **--bam_folder:** Name of folder containing realigned reads.
+* **--library_type:** Specify type based on library preparation method. (Choices = RF, FR)
 
 ### Explanation of fwd.bam and rev.bam outputs
-* Our libraries are prepared with the NEBNext strand-specific protocol. Since it uses the dUTP method, our reads are in the form "RF".
+* Our libraries are prepared with the NEBNext strand-specific protocol. Because this uses the dUTP method, our reads are in the form "RF".
   * In other words, the first-in-pair is recognized as reverse, while the second-in-pair is recognized as forward or in the direction of the transcript (reference/FASTA).
 
 * We can use samtools flags to obtain specific alignments from each BAM file, and then combine them into separate "forward strand" and "reverse strand" files.
@@ -65,7 +82,5 @@ python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
 
 ---
 ### Citations
-* https://dnatech.ucdavis.edu/faqs/which-strand-is-sequenced-for-my-strand-specific-rna-seq-data
-* https://www.biostars.org/p/92935/
----
-### Overview
+* BAM splitting code adapted from a [Biostars](https://www.biostars.org/p/92935) forum post by Istvan Albert.
+* UC Davis DNA Technologies Core. _Which strand is sequenced for my strand-specific RNA-seq data?_ Retrieved April 27, 2026, from https://dnatech.ucdavis.edu/faqs/which-strand-is-sequenced-for-my-strand-specific-rna-seq-data
