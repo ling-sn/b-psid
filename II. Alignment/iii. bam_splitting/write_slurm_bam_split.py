@@ -84,8 +84,10 @@ if __name__ == "__main__":
     parser.add_argument("--email", default = "<uniqname>@umich.edu")
     parser.add_argument("--slurm_acct", default = "<account>")
     parser.add_argument("--walltime", default = "<time>")
-    parser.add_argument("--mem", help = "Memory for job (in MB)", default = "<memory>")
-    parser.add_argument("--library", help = "Specify library type", default = "RF")
+    parser.add_argument("--mem", help = "Memory for job (in MB)", 
+                        default = "<memory>")
+    parser.add_argument("--library", help = "Specify library type", 
+                        choices = ["RF", "FR"], default = "RF")
 
     args = parser.parse_args()
 
