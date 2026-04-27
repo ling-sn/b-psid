@@ -43,7 +43,7 @@ python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
 * **--bam_folder:** Name of folder containing realigned reads.
 * **--library_type:** Specify type based on library preparation method. (Choices = RF, FR)
 
-### Explanation of fwd.bam and rev.bam outputs
+### Explanation of fwd/rev outputs
 * Our libraries are prepared with the NEBNext strand-specific protocol. Because this uses the dUTP method, our reads are in the form "RF".
   * In other words, the first-in-pair is recognized as reverse, while the second-in-pair is recognized as forward or in the direction of the transcript (reference/FASTA).
 
