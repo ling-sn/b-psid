@@ -43,7 +43,7 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
 * **--fasta:** Path to reference FASTA that was used to build the STAR genome index. This will always be `~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa`.
 
 ### Real rate calculation
-* The best-fit parameters from `SupplementaryTable1.xlsx` were plugged into the following equation to estimate the fraction of actual Ψ modification, which is also referred to as "RealRate" in the script.
+* The best-fit parameters from `SupplementaryTable1.xlsx` were plugged into the following equation to estimate the fraction of actual Ψ modification, which was also referred to as "RealRate" in the script.
   
   $$f = \large{\frac{b-r}{c \cdot (b+s-s \cdot r -1)}}$$
 
@@ -56,30 +56,34 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
   | $$f$$ | Real deletion rate $$(f > 0)$$ | Ψ modification stoichiometry |
   | $$r$$ | Observed deletion rate $$(0 < r < 1)$$ | Percentage of deletions at given `GenomicModBase` |
   | $$b$$ | Background deletion rate | Baseline deletion rates due to experimental conditions; `fit_b` |
-  | $$s$$ | RT dropoff ratio | Ratio of times a site “falls out” when it gets hit by bisulfite; `fit_s` |
-  | $$c$$ | Conversion ratio | Maximum amount of times a site can be turned into a deletion; `fit_c` |
+  | $$s$$ | RT dropoff ratio | Ratio of times RT "hits" a bisulfite site but no deletion occurs; `fit_s` |
+  | $$c$$ | Conversion ratio | Maximum amount of times a deletion would occur at a site; `fit_c` |
   
 * The observed deletion rate ($$r$$) at each UNUAR site was calculated with the following formula:
 
-  $$\large{\frac{\text{Number of deletions}}{\text{Total amount of A, C, T, G, and deletions}}}$$
+  $$\large{\frac{\text{Number of deletions}}{\text{Total amount of A, C, G, T, and deletions}}}$$
 
 ### UNUAR datasets
-* Initially, the following datasets were first merged with a left-join:
+* Initially, the following datasets were merged with a left-join:
   * `UNUAR_motif_sites_mRNA_hg38p14.tsv` contains the GenBank accession number (_Chrom_) and genomic coordinate of the modified base (_GenomicModBase_) for all UNUAR sites in the human genome.
   * `SupplementaryTable1.xlsx` contains the best-fit parameters for the calibration curves of 256 UNUAR motifs (_Zhang et al., 533_).
-* To accommodate the split BAM structure, this merged dataset was filtered to only contain sites in the 3UTR region, and then split into two datasets by strand type (+/-). 
-  * <ins>**Permanent directories**</ins>: These paths are already included in the code by default, so nothing additional needs to be done.
-    * **fwd_unuar:** `~/umms-RNAlabDATA/Software/B-PsiD_tools/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv`
-    * **rev_unuar:** `~/umms-RNAlabDATA/Software/B-PsiD_tools/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv`
-  * <ins>**Manual**</ins>: If the fwd_unuar and rev_unuar files are missing but you have the original files, run the following code in Bash to create them in your current directory.
+* To accommodate the split BAM structure, this merged dataset was then filtered to only contain sites in the 3UTR region, and then split into two datasets by strand type (+/-). 
+  * <ins>**Permanent directories**</ins>: These paths are included in the code by default, so nothing additional needs to be done.
+    * **fwd_unuar:** Contains UNUAR sites on + strand
+
+      `~/umms-RNAlabDATA/Software/B-PsiD_tools/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv`
+    * **rev_unuar:** Contains UNUAR sites on - strand
+    
+      `~/umms-RNAlabDATA/Software/B-PsiD_tools/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv`
+  * <ins>**Manual**</ins>: If fwd_unuar and rev_unuar are missing but you have the original files, run the following code in Bash to create them in your current directory.
     
     ```
     python3 split_unuar_tsv.py
     ```
 
-* Because there were too many rows with duplicate Chrom and GenomicModbase pairs in this dataframe, there were duplicate counts in the output TSVs based on how the counting algorithm was designed.
+* However, because there were many rows with duplicate Chrom and GenomicModbase pairs in this dataframe, there were also duplicate counts in the output TSVs based on how the counting algorithm was designed.
   * As a solution, duplicate pairs were dropped when **fwd_unuar** and **rev_unuar** were read in as dataframes in `calculate_dr.py`.
-  * Because every Chrom and GenomicModBase pair was associated with multiple TranscriptIDs, the transcripts were grouped in a separate column "OtherAssocTranscripts" prior to the pairs (excluding the first occurrence) being dropped.
+  * Each Chrom and GenomicModBase pair was associated with multiple TranscriptIDs, so all transcripts were grouped in a separate column "OtherAssocTranscripts" prior to the pairs (excluding the first occurrence) being dropped.
 * Filtering statistics:
   * **Original left-joined TSV:** 3425693 rows
   * **fwd_unuar:** 1057146 rows
@@ -89,15 +93,13 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
 
 ### Counting algorithm
 * The tool [pysamstats](https://github.com/alimanfoo/pysamstats/blob/master/pysamstats/pileup.py) was used to obtain base and deletion counts for each BAM file.
-  1. For each updated fwd_unuar and rev_unuar file, the genomic coordinates of the UNUAR sites were grouped by chromosome in the following format:
-
+  1. For each fwd_unuar and rev_unuar file, the genomic coordinates of the UNUAR sites were grouped by chromosome in a dictionary:
       $${\text{Chr1: (Site1, Site2, Site3)}}$$
-  
-  2. Pileup traversal in a BAM was then called once per chromosome (key) by leveraging the min. and max. coordinate values of their respective sets (value).
+  2. Pileup traversal in a given BAM input was then called once per chromosome (key) by leveraging the min. and max. coordinate values of their respective sets (value).
   3. Counts at individual sites of interest were stored in a dictionary, which was then appended to a list.
   4. After this process was repeated for all sites in each chromosome, the list was converted to a dataframe.
   5. After this process was completed for both fwd/rev BAMs, the separate count dataframes were concatenated into one.
-  6. Observed deletion and real rates were calculated, leading to an output TSV.
+  6. Observed deletion and real rates were calculated, and output TSVs were obtained per sample replicate.
 ---
 ### Citations
 * `calculate_dr.py` by Sonia Ling. If you have any questions, please reach out to [ling-sn](https://github.com/ling-sn).
