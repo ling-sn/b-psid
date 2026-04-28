@@ -24,5 +24,12 @@
 * Kim, K. Q., Burgute, B. D., Tzeng, SC, et al. (2022). N1-methylpseudouridine found within COVID-19 mRNA vaccines produces faithful protein products. _Cell Reports_, 40(9), 1–14. https://doi.org/10.1016/j.celrep.2022.111300
 * Zhang et al. BID-seq for transcriptome-wide quantitative sequencing of mRNA pseudouridine at base resolution. _Nature Protocols_ 19, 517–538 (2024). https://doi.org/10.1038/s41596-023-00917-5
 ---
-### TO DO (delete later)
-* Add visual for BAM splitting
+### To-do list
+* **bam_splitting**
+  - [ ] Add visual in README
+* **calculate_dr**
+  - [ ] Only count single-nt deletions instead of multi-nt ones (default behavior)
+* **clean_tsv**
+  - [ ] Replace Fisher's Exact Test with rate ratio calculations and LASSO regression
+* **Other**
+  - [ ] Create Snakemake pipeline for B-PsiD
