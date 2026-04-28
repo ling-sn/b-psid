@@ -1,3 +1,33 @@
+# PART III: Calculations
+> ### Table of contents
+> 1. [Calculating deletion rates](https://github.com/ling-sn/b-psid/tree/main/III.%20Calculations/i.%20calculate_dr#table-of-contents)
+> 2. Cleaning TSVs :star: **YOU ARE HERE!**
+## Cleaning TSVs
+### Starter files
+<img src="https://github.com/user-attachments/assets/0010b96f-b977-4f74-b812-79632984dc1d" width="400"/>
+
+### Overview
+* Text
+
+### Instructions
+1. Text
+
+### When do I use this script?
+* After obtaining calculated deletion rates, run this in the same directory.
+
+### Understanding the SBATCH
+```
+Text
+```
+* **Text:** Text
+---
+### Citations
+* `clean_tsv.py` by Sonia Ling. If you have any questions, please reach out to [ling-sn](https://github.com/ling-sn).
+
+
+
+---
+
 ### Summary
 - Cleans TSV outputs from D.R. calculations
 - Formats data for graphing
