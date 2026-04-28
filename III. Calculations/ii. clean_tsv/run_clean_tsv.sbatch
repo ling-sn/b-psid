@@ -24,7 +24,7 @@
 # This requires a conda environment with samtools and pysam (B-PSID)
 # 
 # To call this script:
-# sbatch clean_tsv.sbatch
+# sbatch run_clean_tsv.sbatch
 ################################################################################
 
 module purge
