@@ -62,5 +62,3 @@
 
 ### Citations
 * `clean_tsv.py` by Sonia Ling. If you have any questions, please reach out to [ling-sn](https://github.com/ling-sn).
-* Heger, A., Marshall, J., & Jacobs, K. _Pysam manual_. Retrieved April 28, 2026, from https://pysam.readthedocs.io/en/latest/api.html#pysam.AlignmentFile.pileup
-* Ordered UNUAR sites in descending order by TotalAvgDeletionRate, a weighted average calculation (sum of deletions / sum of coverage)
