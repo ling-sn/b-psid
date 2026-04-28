@@ -8,9 +8,9 @@
 
 ### Overview
 * Cleans TSV outputs from D.R. calculations via merging and calculation of summary statistics / $p$-values.
-  * Merges replicates for each sample and calculates weighted averages/standard deviations.
-  * Merges BS and NBS samples, calculates $p$-values with Fisher's Exact Test, and filters UNUAR sites by WT $p$-value ($p \le 0.05$).
-  * Merges sample groups (WT/7KO/7LKO) together to obtain all UNUAR sites in cytoplasm (`Cyto.tsv`) or nucleus (`Nuc.tsv`).
+  1. Merges replicates for each sample and calculates weighted averages/standard deviations.
+  2. Merges BS and NBS samples, calculates $p$-values with Fisher's Exact Test, and filters UNUAR sites by WT $p$-value ($p \le 0.05$).
+  3. Merges sample groups (WT/7KO/7LKO) together to obtain all UNUAR sites in cytoplasm (`Cyto.tsv`) or nucleus (`Nuc.tsv`).
 
 ### Instructions
 1. Excluding the 📁 `calculations` folder (which should already exist), upload the remaining starter files to your GLC directory.
