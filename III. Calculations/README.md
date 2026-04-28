@@ -1,7 +1,7 @@
 # PART III: Calculations
 > ### Table of contents
 > 1. [Calculating deletion rates](https://github.com/ling-sn/b-psid/tree/main/III.%20Calculations/i.%20calculate_dr#table-of-contents)
-> 2. Cleaning TSVs
+> 2. [Cleaning TSVs](https://github.com/ling-sn/b-psid/blob/main/III.%20Calculations/ii.%20clean_tsv/README.md#table-of-contents)
 ### Overview
 * For each sample replicate, obtain base/deletion counts at each UNUAR site and output a TSV.
 * Merge TSVs based on certain criteria, calculate summary statistics, and conduct Fisher's Exact Test to filter UNUAR sites by p-value.
