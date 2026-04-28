@@ -100,6 +100,7 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
   4. After this process was repeated for all sites in each chromosome, the list was converted to a dataframe.
   5. After this process was completed for both fwd/rev BAMs, the separate count dataframes were concatenated into one.
   6. Observed deletion and real rates were calculated, and output TSVs were obtained per sample replicate.
+     
 * The base and deletion counts in the output TSV may not match up with the counts in IGV because secondary alignments were automatically filtered out by pysamstats.
   * This is default behavior in pysam, which is the base tool of pysamstats. See the `flag_filter` parameter in the manual for details.
   * Secondary alignments are reads that align reasonably well to more than one place. Including them could lead to an artificial inflation of base and deletion counts, and in turn, inaccurate deletion rates.
