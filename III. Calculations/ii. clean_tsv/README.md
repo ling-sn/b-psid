@@ -1,7 +1,7 @@
 # PART III: Calculations
 > ### Table of contents
 > 1. [Calculating deletion rates](https://github.com/ling-sn/b-psid/tree/main/III.%20Calculations/i.%20calculate_dr#table-of-contents)
-> 2. Cleaning TSVs :star: **YOU ARE HERE!**
+> 2. [Cleaning TSVs](https://github.com/ling-sn/b-psid/blob/main/III.%20Calculations/ii.%20clean_tsv/README.md#table-of-contents) :star: **YOU ARE HERE!**
 ## Cleaning TSVs
 ### Starter files
 <img src="https://github.com/user-attachments/assets/0010b96f-b977-4f74-b812-79632984dc1d" width="400"/>
