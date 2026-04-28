@@ -67,7 +67,7 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
 * Initially, the following datasets were merged with a left-join:
   * `UNUAR_motif_sites_mRNA_hg38p14.tsv` contains the GenBank accession number (_Chrom_) and genomic coordinate of the modified base (_GenomicModBase_) for all UNUAR sites in the human genome.
   * `SupplementaryTable1.xlsx` contains the best-fit parameters for the calibration curves of 256 UNUAR motifs (_Zhang et al., 533_).
-* To accommodate the split BAM structure, this merged dataset was then filtered to only contain sites in the 3UTR region, and then split into two datasets by strand type (+/-). 
+* To accommodate the split BAM structure, this merged dataset was filtered to only contain sites in the 3UTR region, and then split into two datasets by strand type (+/-). 
   * <ins>**Permanent directories**</ins>: These paths are included in the code by default, so nothing additional needs to be done.
     * **fwd_unuar:** Contains UNUAR sites on + strand
 
@@ -81,7 +81,7 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
     python3 split_unuar_tsv.py
     ```
 
-* However, because there were many rows with duplicate Chrom and GenomicModbase pairs in this dataframe, there were also duplicate counts in the output TSVs based on how the counting algorithm was designed.
+* Because there were many rows with duplicate Chrom and GenomicModbase pairs in this dataframe, there were also duplicate counts in the output TSVs based on how the counting algorithm was designed.
   * As a solution, duplicate pairs were dropped when **fwd_unuar** and **rev_unuar** were read in as dataframes in `calculate_dr.py`.
   * Each Chrom and GenomicModBase pair was associated with multiple TranscriptIDs, so all transcripts were grouped in a separate column "OtherAssocTranscripts" prior to the pairs (excluding the first occurrence) being dropped.
 * Filtering statistics:
