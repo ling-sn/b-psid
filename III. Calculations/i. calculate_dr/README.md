@@ -19,11 +19,11 @@
    * **--walltime:** Amount of time allocated for job.
    * **--mem:** Amount of memory allocated for job.
    * **--fa:** Path to reference FASTA.
-   * **--rep:** Index number of replicate in file naming structure (0-based) after splitting by the separator (usually "-"). For example, if the naming structure is like KEH-Rep1-7KO-HEK293T-Cyto-BS, then the index number of the replicate would be 1.
+   * **--rep:** Index number of replicate in file naming structure (0-based).
   
    See example:
    ```
-   python3 write_slurm_dr.py --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 1:00:00 --mem 5000 --fa ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa
+   python3 write_slurm_dr.py --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 1:00:00 --mem 5000 --fa ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa --rep 1
    ```
    **Output:** 📄 `run_calculate_dr.sbatch`
 3. In Bash, run the following commands to obtain the output TSVs:
@@ -42,6 +42,7 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
 ```
 * **--folder_name:** Name of folder containing split BAMs.
 * **--fasta:** Path to reference FASTA that was used to build the STAR genome index. This will always be `~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa`.
+* **--rep_index:** 0-based index of replicate position after splitting filename by a separator (usually "-"). For example, if the naming structure is KEH-Rep1-7KO-HEK293T-Cyto-BS, then the index number of the replicate would be 1.
 
 ### Real rate calculation
 * The best-fit parameters from `SupplementaryTable1.xlsx` were plugged into the following equation to estimate the fraction of actual Ψ modification, which was also referred to as "RealRate" in the script.
