@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument("--mem", help = "Memory for job", required = True)
     parser.add_argument("--fa", help = "Directory to FASTA file of reference genome", 
                         required = True)
-    parser.add_argument("--rep", help = "Index number of replicate in file naming structure",
+    parser.add_argument("--rep", help = "Index number of replicate in file naming structure (0-based)",
                         required = True)
 
     args = parser.parse_args()
