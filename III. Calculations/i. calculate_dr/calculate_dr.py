@@ -41,7 +41,8 @@ class BaseDelCounter:
       updated_transcripts = [(key[0], key[1], ", ".join(str(x) for x in value)) 
                              for key, value in all_transcripts.items()]
       df_transcripts = pd.DataFrame(updated_transcripts, 
-                                    columns = ["Chrom", "GenomicModBase", "AllAssocTranscripts"])
+                                    columns = ["Chrom", "GenomicModBase", 
+                                               "AllAssocTranscripts"])
       
       ## Keep only RealRate >= 0.3
       # rr_pattern = key["RealRate"]
@@ -256,14 +257,14 @@ class PrepData:
       'KEH-Rep1-7KO-HEK293T-Cyto-BS' -> '7KO-Cyto'
       """
       try:
-         match = re.match(r"^.*(7KO|7LKO|WT)(?:.*)(-.*)(?:-.*)", folder_name)
+         match = re.match(r"(7KO|7LKO|WT)(?:.*)(Cyto|Nuc)", folder_name)
       except Exception as e:
          print(f"Failed to RegEx match input folder to group: {e}")
          traceback.print_exc()
          raise
-      return match.group(1) + match.group(2)
+      return match.group(1) + "-" + match.group(2)
 
-def main(folder_name: str, fasta: str):
+def main(folder_name: str, fasta: str, rep_index: int):
    """
    PURPOSE: 
    Opens .bam in folder and runs calculations
@@ -342,10 +343,14 @@ def main(folder_name: str, fasta: str):
 if __name__ == "__main__":
    parser = argparse.ArgumentParser(description = "Calculates observed and real deletion rates" 
                                                   "for every UNUAR site in a BAM file.")
-   parser.add_argument("--folder_name", help = "Name of realignments folder", required = True)
-   parser.add_argument("--fasta", help = "Directory to FASTA file", required = True)
+   parser.add_argument("--folder_name", help = "Name of realignments folder", 
+                       required = True)
+   parser.add_argument("--fasta", help = "Directory to FASTA file", 
+                       required = True)
+   parser.add_argument("--rep_index", help = "Index number of replicate in file naming structure", 
+                       required = True)
    args = parser.parse_args()
 
    print("Calculating deletion rates...")
-   main(args.folder_name, args.fasta)
+   main(args.folder_name, args.fasta, args.rep_index)
    print("Process finished.")
