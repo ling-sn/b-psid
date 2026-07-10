@@ -5,7 +5,7 @@ import argparse
 import textwrap
 import os
 
-def main(email, slurm_acct, walltime, mem, fa):
+def main(email, slurm_acct, walltime, mem, fa, rep):
     """
     PURPOSE:
     1. Goes into each sample group folder and obtains all subfolder names.
@@ -78,7 +78,7 @@ def main(email, slurm_acct, walltime, mem, fa):
         ## Append new tasks to SBATCH
         with open(output, "a") as f:
             for subf in subfolders:
-                task = f'\n"python3 calculate_dr.py --folder_name {subf} --fasta {fa}"'
+                task = f'\n"python3 calculate_dr.py --folder_name {subf} --fasta {fa} --rep_index {rep}"'
                 f.write(task)
         
         ## Once all tasks have been added, finish up SBATCH template
@@ -95,10 +95,13 @@ if __name__ == "__main__":
     parser.add_argument("--slurm_acct", default = "<account>")
     parser.add_argument("--walltime", required = True)
     parser.add_argument("--mem", help = "Memory for job", required = True)
-    parser.add_argument("--fa", help = "Directory to FASTA file of reference genome", required = True)
+    parser.add_argument("--fa", help = "Directory to FASTA file of reference genome", 
+                        required = True)
+    parser.add_argument("--rep", help = "Index number of replicate in file naming structure",
+                        required = True)
 
     args = parser.parse_args()
 
     print("Writing SBATCH script...")
-    main(args.email, args.slurm_acct, args.walltime, args.mem, args.fa)
+    main(args.email, args.slurm_acct, args.walltime, args.mem, args.fa, args.rep)
     print("Process finished.")
