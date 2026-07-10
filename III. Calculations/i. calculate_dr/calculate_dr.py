@@ -216,7 +216,7 @@ class BaseDelCounter:
       return counts
 
 class PrepData:
-   def make_key(self, folder_name: str, base_key: str) -> str:
+   def make_key(self, folder_name: str, rep_index: int, base_key: str) -> str:
       """
       PURPOSE:
       Modifies names of dictionary keys based on the Rep # (detected via RegEx)
@@ -229,8 +229,8 @@ class PrepData:
       Output: 
          Rep1_Deletions_BS
       """
-      rep = re.search(r"Rep\d+", str(folder_name))
-      prefix = rep.group(0) + "_"
+      rep = re.search(r"\d+", folder_name.split("-")[rep_index])
+      prefix = "Rep" + rep.group(0) + "_"
       
       for sample in ["BS", "NBS"]:
          if f"-{sample}" in str(folder_name):
@@ -301,7 +301,7 @@ def main(folder_name: str, fasta: str, rep_index: int):
          processed_folder = current_path/"calculations"/group_name
          processed_folder.mkdir(exist_ok = True, parents = True)
          
-         key = {base_key: prep.make_key(folder_name, base_key)
+         key = {base_key: prep.make_key(folder_name, rep_index, base_key)
                           for base_key in ["A", "C", "G", "T",
                                            "Deletions",
                                            "TotalCoverage",
@@ -347,7 +347,8 @@ if __name__ == "__main__":
                        required = True)
    parser.add_argument("--fasta", help = "Directory to FASTA file", 
                        required = True)
-   parser.add_argument("--rep_index", help = "Index number of replicate in file naming structure", 
+   parser.add_argument("--rep_index", help = "Index number of replicate in file" 
+                                             "naming structure (0-based)", 
                        required = True)
    args = parser.parse_args()
 
