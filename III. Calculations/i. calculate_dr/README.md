@@ -19,6 +19,7 @@
    * **--walltime:** Amount of time allocated for job.
    * **--mem:** Amount of memory allocated for job.
    * **--fa:** Path to reference FASTA.
+   * **--rep:** Index number of replicate in file naming structure (0-based) after splitting by the separator (usually "-"). For example, if the naming structure is like KEH-Rep1-7KO-HEK293T-Cyto-BS, then the index number of the replicate would be 1.
   
    See example:
    ```
