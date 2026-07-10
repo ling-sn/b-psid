@@ -56,7 +56,7 @@
   * If a site was on the reverse strand, the A count was used for the test.
   * If a site was on the forward strand, the T count was used for the test.
 * However, while Fisher’s Exact Test assumes that marginal sums are fixed, these assumptions were not met in our experiment because sequencing counts from the genome were random.
-  * Therefore, this test will be replaced with rate ratio calculations in the future (July 2026). 
+  * Therefore, this test will be replaced with rate ratio calculations in the future (sometime later in 2026). 
 
 ---
 
