@@ -30,6 +30,6 @@
 * **calculate_dr**
   - [ ] Only count single-nt deletions instead of multi-nt ones (default behavior)
 * **clean_tsv**
-  - [ ] Replace Fisher's Exact Test with rate ratio calculations and LASSO regression
+  - [ ] Replace Fisher's Exact Test with rate ratio calculations (Poisson) and LASSO regression
 * **Other**
   - [ ] Create Snakemake pipeline for B-PsiD
