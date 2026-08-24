@@ -265,7 +265,7 @@ class PrepData:
          raise
       return match.group(1) + "-" + match.group(2)
 
-def main(folder_name: str, fasta: str, rep_index: int):
+def main(folder_name: str, fasta: str, rep_index: str):
    """
    PURPOSE: 
    Opens .bam in folder and runs calculations
@@ -302,6 +302,7 @@ def main(folder_name: str, fasta: str, rep_index: int):
          processed_folder = current_path/"calculations"/group_name
          processed_folder.mkdir(exist_ok = True, parents = True)
          
+         rep_index = int(rep_index)
          key = {base_key: prep.make_key(folder_name, rep_index, base_key)
                           for base_key in ["A", "C", "G", "T",
                                            "Deletions",
