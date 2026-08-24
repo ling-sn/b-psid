@@ -132,6 +132,7 @@ class BaseDelCounter:
          if read.is_secondary or read.is_duplicate:
             continue
          cigar = read.cigarstring
+         print("CIGAR STRING:", cigar, "\n")
          del_info = re.search(r"(\d+)D", str(cigar))
          if del_info and int(del_info.group(1)) == 1:
             deletions += 1
@@ -191,8 +192,8 @@ class BaseDelCounter:
                      "Chrom": chrom,
                      "GenomicModBase": stats["pos"],
                      **{base: stats[base] for base in base_keys},
-                     "Deletions": stats["deletions"]
-                     # "Deletions": self.count_single_dels(chrom, pos, bamfile)
+                     # "Deletions": stats["deletions"]
+                     "Deletions": self.count_single_dels(chrom, pos, bamfile)
                   }
                )
             
@@ -257,7 +258,7 @@ class PrepData:
       'KEH-Rep1-7KO-HEK293T-Cyto-BS' -> '7KO-Cyto'
       """
       try:
-         match = re.match(r"(7KO|7LKO|WT)(?:.*)(Cyto|Nuc)", folder_name)
+         match = re.search(r"(7KO|7LKO|WT)(?:.*)(Cyto|Nuc)", folder_name)
       except Exception as e:
          print(f"Failed to RegEx match input folder to group: {e}")
          traceback.print_exc()
