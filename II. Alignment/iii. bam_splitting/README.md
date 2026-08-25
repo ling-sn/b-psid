@@ -23,7 +23,7 @@
   
    See example:
    ```
-   python3 write_slurm_bam_split.py --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 2:00:00 --mem 10000 --library RF
+   python3 write_slurm_bam_split.py --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 3:00 --mem 3 --library RF
    ```
    **Output:** 📄 `split.sbatch`
 3. In Bash, run the following commands to obtain the split BAMs:
