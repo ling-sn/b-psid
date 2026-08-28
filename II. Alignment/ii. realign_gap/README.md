@@ -25,7 +25,7 @@
 
    See example:
    ```
-   python3 write_slurm_realignment.py --star_folder star_aligned --fasta ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 30:00 --mem 4000
+   python3 write_slurm_realignment.py --star_folder star_aligned --fasta ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38/GCF_000001405.40_GRCh38.p14_genomic.fa --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 10:00 --mem 4000
    ```
    **Output:** 📄 `realignGap.sbatch`
 3. In Bash, run the following commands to obtain the realigned files:
