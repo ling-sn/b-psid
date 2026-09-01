@@ -103,13 +103,12 @@ class BaseDelCounter:
       return df_calc
 
    def count_single_dels(self, chrom: str, 
-                         pos: int, 
-                         bamfile: pysam.AlignmentFile) -> int:
+                     pos: int, 
+                     bamfile: pysam.AlignmentFile) -> int:
       """
       PURPOSE:
       1. Obtain all reads at specific genomic coordinate.
-      2. If read has 1D (single-nt deletion) in its CIGAR 
-         string, append deletion count.
+      2. If read has no deletion before and/or after, append deletion count.
          -> We only consider deletions of the central U in
             the UNUAR motif.
       3. Skip all reads that (i) don't have deletions or
