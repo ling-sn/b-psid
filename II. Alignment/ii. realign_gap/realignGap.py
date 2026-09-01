@@ -235,7 +235,7 @@ def run_realign(input_bam_name, output_bam_name, fasta_dir, discard):
         raise
 
 def bam_index(output_bam_name):
-    sorted_bam = output_bam_name.with_suffix(".sorted.bam")
+    sorted_bam = output_bam_name.with_name(f"{output_bam_name.stem}_sorted.bam")
     try:
         subprocess.run(["samtools", "sort", 
                         "-o", str(sorted_bam),
