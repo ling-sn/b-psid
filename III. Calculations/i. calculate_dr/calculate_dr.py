@@ -316,7 +316,7 @@ def main(folder_name: str, fasta: str, rep_index: str):
          
          ## Obtain base-del counts for fwd/rev separately
          for type, unuar_dict in zip(types, unuar_dicts):
-            bam = input_dir/f"{type}.sorted.bam"
+            bam = input_dir/f"{type}_sorted.bam"
             counts = counter.process_bam(bam, unuar_dict, fasta_dir)
             all_counts.append(counts)
          
