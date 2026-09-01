@@ -11,7 +11,8 @@ import subprocess
 class SplitBAM:
    def merge_bams(self, bam1: Path, bam2: Path, output: Path):
       try:
-         sorted_output = f"{output.parent}_sorted.bam"
+         sorted_output = output.with_name(f"{output.stem}_sorted.bam")
+         
          subprocess.run(
             [
                "samtools", "merge",
