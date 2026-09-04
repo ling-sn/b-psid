@@ -18,8 +18,12 @@ from multiprocessing import Pool
 pd.options.mode.chained_assignment = None
 
 class BaseDelCounter:
-   def create_tsv(self, df_calc: pd.DataFrame, key: dict, 
-                  folder_name: str, output_tsv_name: str):
+   def create_tsv(
+      self, df_calc: pd.DataFrame, 
+      key: dict, 
+      folder_name: str,
+      output_tsv_name: str
+   ):
       """
       PURPOSE:
       Apply filter conditions based on filename
@@ -70,8 +74,11 @@ class BaseDelCounter:
       
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
-   def calc_rate(self, df_original: pd.DataFrame, df_count: pd.DataFrame, 
-                 key: dict) -> pd.DataFrame:
+   def calc_rate(
+      self, df_original: pd.DataFrame, 
+      df_count: pd.DataFrame, 
+      key: dict
+   ) -> pd.DataFrame:
       ## Calculate observed deletion rates
       coverage_list = [col for col in df_count.columns
                        if re.match("(A|C|G|T|Deletions)$", col)]
@@ -102,9 +109,11 @@ class BaseDelCounter:
                                           "RealRate": key["RealRate"]})
       return df_calc
 
-   def count_single_dels(self, chrom: str, 
-                     pos: int, 
-                     bamfile: pysam.AlignmentFile) -> int:
+   def count_single_dels(
+      self, chrom: str, 
+      pos: int, 
+      bamfile: pysam.AlignmentFile
+   ) -> int:
       """
       PURPOSE:
       1. Obtain all reads at specific genomic coordinate.
@@ -142,8 +151,12 @@ class BaseDelCounter:
       
       return deletions
 
-   def count_base(self, unuar_dict: dict, input_bam_name: Path,
-                  fasta_dir: Path, results: list):
+   def count_base(
+      self, unuar_dict: dict, 
+      input_bam_name: Path,
+      fasta_dir: Path, 
+      results: list
+   ):
       """
       PURPOSE:
       Counts number of bases and deletions for each UNUAR site 
@@ -204,7 +217,11 @@ class BaseDelCounter:
          traceback.print_exc()
          raise
 
-   def process_bam(self, bam: Path, unuar_dict: dict, fasta_dir: Path) -> pd.DataFrame:
+   def process_bam(
+      self, bam: Path, 
+      unuar_dict: dict, 
+      fasta_dir: Path
+   ) -> pd.DataFrame:
       ## Turn string from list back into filepath
       input_bam_name = Path(bam)
       
@@ -240,8 +257,11 @@ class PrepData:
       
       return prefix + base_key + suffix
 
-   def create_agg_dict(self, df: pd.DataFrame, 
-                       group1_col: str|list, group2_col: str) -> dict:
+   def create_agg_dict(
+      self, df: pd.DataFrame, 
+      group1_col: str|list, 
+      group2_col: str
+   ) -> dict:
       if group2_col == "GenomicModBase":
          df = (df[[group1_col, group2_col]])
       genome_coord = df.groupby(group1_col)
