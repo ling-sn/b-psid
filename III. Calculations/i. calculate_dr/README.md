@@ -19,7 +19,7 @@
    * **--walltime:** Amount of time allocated for job.
    * **--mem:** Amount of memory allocated for job.
    * **--fa:** Path to reference FASTA.
-   * **--rep:** Index number of replicate in file naming structure (0-based).
+   * **--rep:** Index number of replicate in file naming structure. This is 0-based, meaning that the first index is 0, the second index is 1, etc.
   
    See example:
    ```
