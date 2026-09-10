@@ -115,41 +115,42 @@ class BaseDelCounter:
       bamfile: pysam.AlignmentFile
    ) -> int:
       """
-      PURPOSE:
-      1. Obtain all reads at specific genomic coordinate.
-      2. If read has 1D (single-nt deletion) in its CIGAR 
-         string, append deletion count.
-         -> We only consider deletions of the central U in
-            the UNUAR motif.
-      3. Skip all reads that (i) don't have deletions or
-         (ii) have multi-nt deletions.
-      ---
-      NOTES:
-      * pos is 1-based, but base pysam is 0-based.
-      * bamfile.fetch() obtains ALL reads overlapping the 
-        specified position.
-      * We can extract deletion info from CIGAR strings by 
-        searching for digits followed by a D.
-        -> EXAMPLE: Given CIGAR string 4M1I3M4D9M, we can
-           extract 4D which indicates there are 4 deletions.
-      * If deletions == 0, return None so null rows can be
-        properly dropped later (outside this func).
+      Python uses 0-based half-open intervals, and pos is the 
+      1-based genomic coordinate of the central U:
+      * U = pos - 3 -> UNUAR start
+      * N = pos - 2
+      * U = pos - 1
+      * A = pos
+      * R = pos + 1 -> UNUAR end
+      * Interval end = (UNUAR end) + 1 -> included to account for half-open interval
+      Hence, to cover the entire UNUAR site, we inspect [pos - 3, pos + 2).
       """
+      CENTRAL_U = pos - 1
+      UNUAR_START = CENTRAL_U - 2
+      UNUAR_END = CENTRAL_U + 2
+      INTERVAL_END = UNUAR_END + 1
       deletions = 0
+      not_true_del = False
 
-      for read in bamfile.fetch(chrom, pos - 1, pos):
-         if read.is_secondary or read.is_duplicate:
-            continue
-         cigar = read.cigarstring
-         print("CIGAR STRING:", cigar, "\n")
-         del_info = re.search(r"(\d+)D", str(cigar))
-         if del_info and int(del_info.group(1)) == 1:
-            deletions += 1
-         
-      if (deletions == 0):
-         return None
-      
-      return deletions
+      for pileupcolumn in bamfile.pileup(chrom, UNUAR_START, INTERVAL_END):
+         ## Only inspect reads with deletions at position
+         deletions_only = (pileupread for pileupread in pileupcolumn.pileups if pileupread.is_del)
+
+         ## Don't filter out bases by any base quality threshold
+         pileupcolumn.set_min_base_quality(0)
+
+         for pileupread in deletions_only:      
+            if (pileupcolumn.pos != CENTRAL_U):
+               ## Exit early
+               not_true_del = True
+               break
+            else:
+               deletions += 1
+
+         if not is_true_del:
+            ## Reset deletions since this is not a high-confidence UNUAR site
+            deletions = 0
+            break
 
    def count_base(
       self, unuar_dict: dict, 
