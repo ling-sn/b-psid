@@ -109,48 +109,50 @@ class BaseDelCounter:
                                           "RealRate": key["RealRate"]})
       return df_calc
 
+   def has_deletion_at(
+      self, read: pysam.AlignedSegment, 
+      target_pos: int
+   ) -> bool:
+      for q_pos, ref_pos, cigar_op in read.get_aligned_pairs(with_cigar = True):
+         if ref_pos == target_pos:
+            ## Deletion = Query position is None, CIGAR operator is 2
+            return q_pos is None and cigar_op == 2
+      return False
+
    def count_single_dels(
       self, chrom: str, 
       pos: int, 
       bamfile: pysam.AlignmentFile
    ) -> int:
       """
-      Python uses 0-based half-open intervals, and pos is the 
-      1-based genomic coordinate of the central U:
-      * U = pos - 3 -> UNUAR start
-      * N = pos - 2
-      * U = pos - 1
-      * A = pos
-      * R = pos + 1 -> UNUAR end
-      * Interval end = (UNUAR end) + 1 -> included to account for half-open interval
-      Hence, to cover the entire UNUAR site, we inspect [pos - 3, pos + 2).
+      PURPOSE:
+      Given a specific UNUAR site...
+      1. Filter out reads that have multi-nt deletions spanning CENTRAL_U
+         (implicitly, only keep single-nt ones).
+      2. Count the number of deletions at CENTRAL_U.
       """
       CENTRAL_U = pos - 1
-      UNUAR_START = CENTRAL_U - 2
-      UNUAR_END = CENTRAL_U + 2
-      INTERVAL_END = UNUAR_END + 1
+      MINUS_1_U = CENTRAL_U - 1
+      PLUS_1_U = CENTRAL_U + 1
+      filtered_reads = [
+         pileupread for pileupcolumn in bamfile.pileup(chrom, CENTRAL_U, PLUS_1_U)
+         if pileupcolumn.reference_pos == CENTRAL_U
+
+         ## Access pileupreads from specified column (CENTRAL_U) and ensure there is a del
+         for pileupread in pileupcolumn.pileups
+         if pileupread.is_del
+
+         ## Extract AlignmentSegment object from pileupread for input into get_aligned_pairs()
+         and not self.has_deletion_at(pileupread.alignment, MINUS_1_U)
+         and not self.has_deletion_at(pileupread.alignment, PLUS_1_U)
+      ]
+
+      ## Count up deletions
       deletions = 0
-      not_true_del = False
-
-      for pileupcolumn in bamfile.pileup(chrom, UNUAR_START, INTERVAL_END):
-         ## Only inspect reads with deletions at position
-         deletions_only = (pileupread for pileupread in pileupcolumn.pileups if pileupread.is_del)
-
-         ## Don't filter out bases by any base quality threshold
-         pileupcolumn.set_min_base_quality(0)
-
-         for pileupread in deletions_only:      
-            if (pileupcolumn.pos != CENTRAL_U):
-               ## Exit early
-               not_true_del = True
-               break
-            else:
-               deletions += 1
-
-         if not is_true_del:
-            ## Reset deletions since this is not a high-confidence UNUAR site
-            deletions = 0
-            break
+      for pileupread in filtered_reads:      
+         if pileupread.is_del:
+            deletions += 1
+      return deletions
 
    def count_base(
       self, unuar_dict: dict, 
