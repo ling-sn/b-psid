@@ -150,7 +150,7 @@ class BaseDelCounter:
       ## Count up deletions
       deletions = 0
       for pileupread in filtered_reads:      
-         if pileupread.is_del:
+         if pileupread.is_del and not pileupread.is_refskip:
             deletions += 1
       return deletions
 
