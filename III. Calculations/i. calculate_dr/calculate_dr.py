@@ -149,8 +149,12 @@ class BaseDelCounter:
 
       ## Count up deletions
       deletions = 0
-      for pileupread in filtered_reads:      
-         if pileupread.is_del and not pileupread.is_refskip:
+      for pileupread in filtered_reads:
+         if (
+            pileupread.is_del 
+            and not pileupread.is_refskip
+            and pileupread.indel == 0 # Ensures splices won't be counted as dels
+         ):
             deletions += 1
       return deletions
 
