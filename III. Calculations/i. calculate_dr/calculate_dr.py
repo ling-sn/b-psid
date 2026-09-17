@@ -135,7 +135,8 @@ class BaseDelCounter:
       MINUS_1_U = CENTRAL_U - 1
       PLUS_1_U = CENTRAL_U + 1
       filtered_reads = [
-         pileupread for pileupcolumn in bamfile.pileup(chrom, CENTRAL_U, PLUS_1_U)
+         pileupread for pileupcolumn 
+         in bamfile.pileup(chrom, CENTRAL_U, PLUS_1_U, min_base_quality = 0)
          if pileupcolumn.reference_pos == CENTRAL_U
 
          ## Access pileupreads from specified column (CENTRAL_U) and ensure there is a del
