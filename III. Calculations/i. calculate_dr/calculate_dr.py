@@ -284,6 +284,9 @@ class PrepData:
       ---
       EXAMPLE: 
       'KEH-Rep1-7KO-HEK293T-Cyto-BS' -> '7KO-Cyto'
+      ---
+      REQUIRES:
+      * folder_name should contain the text (7KO|7LKO|WT) before (Cyto|Nuc)
       """
       try:
          match = re.search(r"(7KO|7LKO|WT)(?:.*)(Cyto|Nuc)", folder_name)
