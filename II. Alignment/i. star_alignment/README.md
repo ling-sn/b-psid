@@ -31,7 +31,7 @@
 
    See example:
    ```
-   python3 write_slurm_alignment.py --input_folder trimmed_reads --output_folder star_aligned --aligner_type star --genome_idx ~/umms-RNAlabDATA/Software/genome_indices/STAR_GRCh38_GCF_000001405.40_GRCh38.p14_primary --filter_idx ~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants/contaminants_index --library RF --two_pass --emit_dedup SBATCHSubArr-DEDUP.sbatch --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 10:00:00 --mem 50000
+   python3 write_slurm_alignment.py --input_folder trimmed_reads --output_folder star_aligned --aligner_type star --genome_idx ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38 --filter_idx ~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants/contaminants_index --library RF --two_pass --emit_dedup SBATCHSubArr-DEDUP.sbatch --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 10:00:00 --mem 50000
    ```
    **Output:** 📄 `SBATCHSubArr-Align-STAR.sbatch`
 3. In Bash, run the following commands to obtain STAR aligned files:
@@ -51,7 +51,7 @@
 
 ### Understanding the SBATCH
 ```
-python3 -u run_align.py --input trimmed_reads --output star_aligned --aligner star --index ~/umms-RNAlabDATA/Software/genome_indices/STAR_GRCh38_GCF_000001405.40_GRCh38.p14_primary -C 2 -L RF -S KEH-Rep1-7LKO-HEK293T-Cyto-NBS --filter_index ~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants/contaminants_index -T --emit_dedup_slurm SBATCHSubArr-DEDUP.sbatch
+python3 -u run_align.py --input trimmed_reads --output star_aligned --aligner star --index ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38 -C 2 -L RF -S KEH-Rep1-7LKO-HEK293T-Cyto-NBS --filter_index ~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants/contaminants_index -T --emit_dedup_slurm SBATCHSubArr-DEDUP.sbatch
 ```
 * **--input:** Name of folder containing trimmed reads.
 * **--output:** Name of folder for STAR aligned outputs.
@@ -78,7 +78,7 @@ python3 -u run_align.py --input trimmed_reads --output star_aligned --aligner st
   * Go into 📁 `rm_contam` > `manual`, then copy `contaminants.fa`, `build_index.py`, and `build_index.sbatch` into your directory. Finally, run the SBATCH file.
 
 ### STAR index
-* The STAR hg38 genome index is pre-built and located in its permanent directory `~/umms-RNAlabDATA/Software/genome_indices/STAR_GRCh38_GCF_000001405.40_GRCh38.p14_primary`.
+* The STAR hg38 genome index is pre-built and located in its permanent directory `~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38`.
 * Alternatively, the genome index can be manually created.
   1. Create an empty folder called 📁 `star_index_hg38` in your directory.
   2. In GLC, navigate to `~/umms-RNAlabDATA/Software/genome_indices/hisat2_hg38/hg38p14_tran/` and copy the following 4 files into 📁 `star_index_hg38`:
