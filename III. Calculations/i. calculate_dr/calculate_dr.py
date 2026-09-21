@@ -222,7 +222,8 @@ class BaseDelCounter:
                end = max(unuar_dict[chrom]) + 1,
                one_based = True,
                truncate = False,
-               no_dup = True
+               no_dup = True,
+               min_baseq = 0
             ):
                pos = stats["pos"]
 
