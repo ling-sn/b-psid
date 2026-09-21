@@ -39,14 +39,21 @@ class BaseDelCounter:
       prep = PrepData()
       
       ## Collect all associated transcripts for each (Chrom, GenomicModBase) pair
-      all_transcripts = prep.create_agg_dict(df_calc, 
-                                             ["Chrom", "GenomicModBase"], 
-                                             "TranscriptID")
-      updated_transcripts = [(key[0], key[1], ", ".join(str(x) for x in value)) 
-                             for key, value in all_transcripts.items()]
-      df_transcripts = pd.DataFrame(updated_transcripts, 
-                                    columns = ["Chrom", "GenomicModBase", 
-                                               "AllAssocTranscripts"])
+      all_transcripts = prep.create_agg_dict(
+         df_calc, 
+         ["Chrom", "GenomicModBase"], 
+         "TranscriptID"
+      )
+      updated_transcripts = [
+         (key[0], key[1], ", ".join(str(x) for x in value)) 
+         for key, value in all_transcripts.items()
+      ]
+      df_transcripts = pd.DataFrame(
+         updated_transcripts, 
+         columns = [
+            "Chrom", "GenomicModBase", "AllAssocTranscripts"
+         ]
+      )
       
       ## Keep only RealRate >= 0.3
       # rr_pattern = key["RealRate"]
@@ -66,9 +73,11 @@ class BaseDelCounter:
       
       ## Output final TSV
       df_final = (
-         pd.merge(df_draft, df_transcripts,
-                  how = "left",
-                  on = ["Chrom", "GenomicModBase"])
+         pd.merge(
+            df_draft, df_transcripts,
+            how = "left",
+            on = ["Chrom", "GenomicModBase"]
+         )
       )
       df_final.insert(17, "AllAssocTranscripts", df_final.pop("AllAssocTranscripts"))
       
@@ -80,33 +89,45 @@ class BaseDelCounter:
       key: dict
    ) -> pd.DataFrame:
       ## Calculate observed deletion rates
-      coverage_list = [col for col in df_count.columns
-                       if re.match("(A|C|G|T|Deletions)$", col)]
+      coverage_list = [
+         col for col in df_count.columns
+         if re.match("(A|C|G|T|Deletions)$", col)
+      ]
       df_count["TotalCoverage"] = df_count[coverage_list].sum(axis = 1)
       df_count["DeletionRate"] = df_count["Deletions"] / df_count["TotalCoverage"]
       
       ## Calculate real deletion rates
       count_cols = (df_count.columns.tolist())[3:]
       df_calc = (
-         pd.merge(df_original, df_count, how = "left", 
-                  on = ["Chrom", "GenomicModBase"])
+         pd.merge(
+            df_original, df_count, how = "left", 
+            on = ["Chrom", "GenomicModBase"]
+         )
          .dropna(subset = count_cols, how = "all")
       )
       df_calc["Deletions"] = df_calc["Deletions"].fillna(0) 
       num = df_calc["fit_b"] - df_calc["DeletionRate"]
-      denom = (df_calc["fit_c"] * (df_calc["fit_b"] + df_calc["fit_s"] -
-               df_calc["fit_s"] * df_calc["DeletionRate"] - 1))
+      denom = (
+         df_calc["fit_c"] * (
+            df_calc["fit_b"] + df_calc["fit_s"] -
+            df_calc["fit_s"] * df_calc["DeletionRate"] - 1
+         )
+      )
       df_calc["RealRate"] = num/denom
       
       ## Rename columns
-      df_calc = df_calc.rename(columns = {"A": key["A"], 
-                                          "C": key["C"], 
-                                          "G": key["G"], 
-                                          "T": key["T"],
-                                          "Deletions": key["Deletions"],
-                                          "TotalCoverage": key["TotalCoverage"],
-                                          "DeletionRate": key["DeletionRate"], 
-                                          "RealRate": key["RealRate"]})
+      df_calc = df_calc.rename(
+         columns = {
+            "A": key["A"], 
+            "C": key["C"], 
+            "G": key["G"], 
+            "T": key["T"],
+            "Deletions": key["Deletions"],
+            "TotalCoverage": key["TotalCoverage"],
+            "DeletionRate": key["DeletionRate"], 
+            "RealRate": key["RealRate"]
+         }
+      )
       return df_calc
 
    def has_deletion_at(
