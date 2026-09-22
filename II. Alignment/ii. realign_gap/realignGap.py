@@ -170,7 +170,8 @@ def split_cigar(cigar, split_points):
     return new_cigar
 
 def run_realign(input_bam_name, output_bam_name, fasta_dir, discard):
-    fafile = pysam.FastaFile(fasta_dir) ## specify input FASTA file
+    ## Specify input FASTA file
+    fafile = pysam.FastaFile(fasta_dir)
     bamfile = pysam.AlignmentFile(input_bam_name, "rb")
     outfile = pysam.AlignmentFile(output_bam_name, "wb", template=bamfile)
     
@@ -238,24 +239,28 @@ def bam_index(output_bam_name):
     sorted_bam = output_bam_name.with_name(f"{output_bam_name.stem}_sorted.bam")
     try:
         ## Sort .bam
-        subprocess.run(["samtools", "sort", 
-                        "-o", str(sorted_bam),
-                        str(output_bam_name)],
-                        check = True,
-                        capture_output = True,
-                        text = True)
+        subprocess.run(
+            ["samtools", "sort", "-o", str(sorted_bam), str(output_bam_name)],
+            check = True,
+            capture_output = True,
+            text = True
+        )
         
         ## Create .bai from .bam
-        subprocess.run(["samtools", "index", str(sorted_bam)],
-                        check = True,
-                        capture_output = True,
-                        text = True)
+        subprocess.run(
+            ["samtools", "index", str(sorted_bam)],
+            check = True,
+            capture_output = True,
+            text = True
+        )
         
         ## Remove unsorted .bam
-        subprocess.run(["rm", str(output_bam_name)],
-                        check = True,
-                        capture_output = True,
-                        text = True)
+        subprocess.run(
+            ["rm", str(output_bam_name)],
+            check = True,
+            capture_output = True,
+            text = True
+        )
     except subprocess.CalledProcessError as e:
         print(f"Failed to convert {output_bam_name.name} to .bai: {e}")
         print("STDERR:", e.stderr)
@@ -279,10 +284,12 @@ def main(star_folder, subf, fasta_dir, discard):
             ## Sort dedup .bam if not indexed already
             bai_exists = list(subfolder.glob("*.bai"))
             if not bai_exists:
-               subprocess.run(["samtools", "index", str(input_bam_name)],
-                               check = True,
-                               capture_output = True,
-                               text = True)
+                subprocess.run(
+                    ["samtools", "index", str(input_bam_name)],
+                    check = True,
+                    capture_output = True,
+                    text = True
+                )
 
             ## Run realignment, then sort and index new .bam
             run_realign(input_bam_name, output_bam_name, fasta_dir, discard)
