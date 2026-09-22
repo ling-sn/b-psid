@@ -5,7 +5,7 @@
 > 3. [BAM splitting](https://github.com/ling-sn/b-psid/tree/main/II.%20Alignment/iii.%20bam_splitting#table-of-contents)
 ### Overview
 * Align trimmed reads with STAR.
-* Use Smith-Waterman algorithm during realignment for more accuration deletion-only mapping.
+* Use Smith-Waterman algorithm during realignment for more accurate deletion-only mapping.
 * Split outputs to obtain separate BAMs for forward and reverse reads.
 ### Instructions
 * Click into the folders in the order listed below. Then, follow the instructions in their READMEs. (Alternatively, click the hyperlinks in the Table of Contents above.)
