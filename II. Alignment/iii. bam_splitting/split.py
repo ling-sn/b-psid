@@ -14,17 +14,17 @@ class SplitBAM:
          sorted_output = output.with_name(f"{output.stem}_sorted.bam")
          
          subprocess.run(
-            [
-               "samtools", "merge",
-               "-f", str(output),
-               str(bam1), str(bam2)
-            ],
+            ["samtools", "merge", "-f", str(output), str(bam1), str(bam2)],
             check = True
          )
-         subprocess.run(["samtools", "sort", str(output), "-o", 
-                         str(sorted_output)], check = True)
-         subprocess.run(["samtools", "index", str(sorted_output)], 
-                        check = True)
+         subprocess.run(
+            ["samtools", "sort", str(output), "-o", str(sorted_output)], 
+            check = True
+         )
+         subprocess.run(
+            ["samtools", "index", str(sorted_output)], 
+            check = True
+         )
 
       except Exception as e:
          print(f"Failed to merge {bam1.name} and {bam2.name}: {e}")
@@ -36,11 +36,7 @@ class SplitBAM:
          if not output.exists():
             with open(output, "wb") as f:
                subprocess.run(
-                  [
-                     "samtools", "view", "-b",
-                     "-f", str(small_f),
-                     bam
-                  ],
+                  ["samtools", "view", "-b", "-f", str(small_f), bam],
                   stdout = f,
                   check = True
                )
@@ -55,12 +51,8 @@ class SplitBAM:
          if not output.exists():
             with open(output, "wb") as f:
                subprocess.run(
-                  [
-                     "samtools", "view", "-b",
-                     "-f", str(small_f),
-                     "-F", str(big_F),
-                     bam
-                  ],
+                  ["samtools", "view", "-b", "-f", str(small_f), 
+                   "-F", str(big_F), bam],
                   stdout = f,
                   check = True
                )
@@ -148,12 +140,9 @@ def main(bam_folder: str, library_type: str):
       * Clean up intermediate files
       """
       subprocess.run(
-         [
-            "rm",
-            str(directories[0]), str(directories[1]),
-            str(directories[2]), str(directories[3]),
-            str(directories[4]), str(directories[5])
-         ]
+         ["rm", str(directories[0]), str(directories[1]),
+          str(directories[2]), str(directories[3]),
+          str(directories[4]), str(directories[5])]
       )
 
    except Exception as e:
@@ -162,10 +151,22 @@ def main(bam_folder: str, library_type: str):
       raise
 
 if __name__ == "__main__":
-   parser = argparse.ArgumentParser(description = ("Splits alignment BAM into separate files"
-                                                   " (forward and reverse) by detecting strandedness"))
-   parser.add_argument("--bam_folder", help = "Path to folder with BAM file", required = True)
-   parser.add_argument("--library_type", choices = ["RF", "FR"], default = "RF")
+   parser = argparse.ArgumentParser(
+      description = (
+         "Splits alignment BAM into separate files"
+         " (forward and reverse) by detecting strandedness"
+      )
+   )
+   parser.add_argument(
+      "--bam_folder", 
+      help = "Path to folder with BAM file", 
+      required = True
+   )
+   parser.add_argument(
+      "--library_type", 
+      choices = ["RF", "FR"], 
+      default = "RF"
+   )
    args = parser.parse_args()
 
    print("Splitting BAM files...")
