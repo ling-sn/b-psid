@@ -237,16 +237,21 @@ def run_realign(input_bam_name, output_bam_name, fasta_dir, discard):
 def bam_index(output_bam_name):
     sorted_bam = output_bam_name.with_name(f"{output_bam_name.stem}_sorted.bam")
     try:
+        ## Sort .bam
         subprocess.run(["samtools", "sort", 
                         "-o", str(sorted_bam),
                         str(output_bam_name)],
                         check = True,
                         capture_output = True,
                         text = True)
-        subprocess.run(["samtools", "index", str(sorted_bam)], ## create .bai from .bam
+        
+        ## Create .bai from .bam
+        subprocess.run(["samtools", "index", str(sorted_bam)],
                         check = True,
                         capture_output = True,
                         text = True)
+        
+        ## Remove unsorted .bam
         subprocess.run(["rm", str(output_bam_name)],
                         check = True,
                         capture_output = True,
@@ -258,7 +263,6 @@ def bam_index(output_bam_name):
         traceback.print_exc()
         raise
 
-## Main function
 def main(star_folder, subf, fasta_dir, discard):
     current_path = Path.cwd()
     subfolder = current_path/star_folder/subf
@@ -272,15 +276,15 @@ def main(star_folder, subf, fasta_dir, discard):
             input_bam_name = next(bam for bam in subfolder.glob("*_dedup.bam"))
             output_bam_name = processed_folder/f"{input_bam_name.stem}_realigned.bam"
 
-            ## Sort .bam if not indexed already
+            ## Sort dedup .bam if not indexed already
             bai_exists = list(subfolder.glob("*.bai"))
             if not bai_exists:
-               subprocess.run(["samtools", "index", str(input_bam_name)], ## create .bai from .bam
+               subprocess.run(["samtools", "index", str(input_bam_name)],
                                check = True,
                                capture_output = True,
                                text = True)
 
-            ## Run realignment
+            ## Run realignment, then sort and index new .bam
             run_realign(input_bam_name, output_bam_name, fasta_dir, discard)
             bam_index(output_bam_name)
 
@@ -290,14 +294,31 @@ def main(star_folder, subf, fasta_dir, discard):
         raise
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "Realigns BAM files in BID-Seq pipeline.")
-    parser.add_argument("--star_folder", help = "Name of overall STAR aligned folder containing subfolders",
-                        required = True)
-    parser.add_argument("--subf", help = "Name of STAR aligned subfolder that you wish to realign", 
-                        required = True)
-    parser.add_argument("--fasta_dir", help = "Path of reference fasta file", required = True)
-    parser.add_argument("--discard", action = argparse.BooleanOptionalAction, default = False, 
-                        help = "Write discarded reads into file for debugging. Use '--no-discard' to disable and '--discard' to enable.")
+    parser = argparse.ArgumentParser(
+        description = "Realigns BAM files in BID-Seq pipeline."
+    )
+    parser.add_argument(
+        "--star_folder", 
+        help = "Name of overall STAR aligned folder containing subfolders",
+        required = True
+    )
+    parser.add_argument(
+        "--subf", 
+        help = "Name of STAR aligned subfolder that you wish to realign", 
+        required = True
+    )
+    parser.add_argument(
+        "--fasta_dir", 
+        help = "Path of reference fasta file", 
+        required = True
+    )
+    parser.add_argument(
+        "--discard", 
+        action = argparse.BooleanOptionalAction, 
+        default = False, 
+        help = "Write discarded reads into file for debugging." 
+        "Use '--no-discard' to disable and '--discard' to enable."
+    )
     args = parser.parse_args()
 
     print("Starting realignment...")
