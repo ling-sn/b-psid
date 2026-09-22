@@ -28,7 +28,7 @@
 * **bam_splitting**
   - [ ] Add visual in README
 * **calculate_dr**
-  - [ ] Only count single-nt deletions instead of multi-nt ones (default behavior)
+  - [x] Only count single-nt deletions instead of multi-nt ones (default behavior)
 * **clean_tsv**
   - [ ] Replace Fisher's Exact Test with rate ratio calculations (Poisson) and LASSO regression
 * **Other**
