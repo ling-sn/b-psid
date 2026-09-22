@@ -396,15 +396,26 @@ def main(folder_name: str, fasta: str, rep_index: str):
       raise
 
 if __name__ == "__main__":
-   parser = argparse.ArgumentParser(description = "Calculates observed and real deletion rates" 
-                                                  "for every UNUAR site in a BAM file.")
-   parser.add_argument("--folder_name", help = "Name of realignments folder", 
-                       required = True)
-   parser.add_argument("--fasta", help = "Directory to FASTA file", 
-                       required = True)
-   parser.add_argument("--rep_index", help = "Index number of replicate in file" 
-                                             "naming structure (0-based)", 
-                       required = True)
+   parser = argparse.ArgumentParser(
+      description = "Calculates observed and real deletion rates" 
+      "for every UNUAR site in a BAM file."
+   )
+   parser.add_argument(
+      "--folder_name", 
+      help = "Name of realignments folder", 
+      required = True
+   )
+   parser.add_argument(
+      "--fasta", 
+      help = "Directory to FASTA file", 
+      required = True
+   )
+   parser.add_argument(
+      "--rep_index", 
+      help = "Index number of replicate in file" 
+      "naming structure (0-based)", 
+      required = True
+   )
    args = parser.parse_args()
 
    print("Calculating deletion rates...")
