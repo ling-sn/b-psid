@@ -19,6 +19,7 @@ def star_index(overhang):
    ## First, check if index hasn't been created yet
    if len(list(Path(genome_dir).glob("*"))) == STARTING_FILE_COUNT:
       try:
+         ## If not, then create STAR index
          cmd = [
             "STAR", "--runThreadN", str(THREADS),
             "--runMode", "genomeGenerate",
