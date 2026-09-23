@@ -92,4 +92,4 @@ python3 -u run_align.py --input trimmed_reads --output star_aligned --aligner st
 * If you prefer to use another STAR index, ensure that chromosome names are in the NCBI standard format (NC_XXXXXX.ver) to ensure that downstream processes will work properly.
 ---
 ### Citations
-* `run_align.py` by Chase Weidmann. If you have any questions, please reach out to [chaseaw](https://github.com/chaseaw).
+* `run_align.py` and `parallel_dedup.py` by Chase Weidmann. If you have any questions, please reach out to [chaseaw](https://github.com/chaseaw).
