@@ -20,20 +20,12 @@ pd.options.mode.chained_assignment = None
 class BaseDelCounter:
    def create_tsv(
       self, df_calc: pd.DataFrame, 
-      key: dict, 
-      folder_name: str,
+      key: dict,
       output_tsv_name: str
    ):
       """
       PURPOSE:
-      Apply filter conditions based on filename
-      ---
-      WT:
-      * BS files must have DeletionRate values of >= 0.3
-      * NBS files must have DeletionRate values of <= 0.3
-      ---
-      Mutation (PUS7KO):
-      * BS files must have DeletionRate values of <= 0.3
+      Clean final dataframe and output as .tsv
       """
       ## Initialize class
       prep = PrepData()
@@ -54,22 +46,10 @@ class BaseDelCounter:
             "Chrom", "GenomicModBase", "AllAssocTranscripts"
          ]
       )
-      
-      ## Keep only RealRate >= 0.3
-      # rr_pattern = key["RealRate"]
-      # kept_rr = df_draft[df_draft[rr_pattern].ge(0.3)]
 
       ## Sort rows by deletion rate
       dr_pattern = key["DeletionRate"]
       df_draft = df_calc.sort_values(by = dr_pattern, ascending = False)
-
-      # ## Only filter files if WT or 7KO
-      # if (
-      #       re.search(fr"WT.*-NBS$", str(folder_name))
-      #       or
-      #       re.search(fr"7KO.*-BS$", str(folder_name))
-      # ):
-      #    df_draft = df_draft[df_draft[dr_pattern].le(0.3)]
       
       ## Output final TSV
       df_final = (
@@ -160,11 +140,13 @@ class BaseDelCounter:
          in bamfile.pileup(chrom, CENTRAL_U, PLUS_1_U, min_base_quality = 0)
          if pileupcolumn.reference_pos == CENTRAL_U
 
-         ## Access pileupreads from specified column (CENTRAL_U) and ensure there is a del
+         ## Access pileupreads from specified column (CENTRAL_U) 
+         ## and ensure there is del
          for pileupread in pileupcolumn.pileups
          if pileupread.is_del
 
-         ## Extract AlignmentSegment object from pileupread for input into get_aligned_pairs()
+         ## Extract AlignmentSegment object from pileupread for
+         ## input into get_aligned_pairs()
          and not self.has_deletion_at(pileupread.alignment, MINUS_1_U)
          and not self.has_deletion_at(pileupread.alignment, PLUS_1_U)
       ]
@@ -328,14 +310,22 @@ def main(folder_name: str, fasta: str, rep_index: str):
    fasta_dir = Path(fasta).expanduser()
    
    fwd = (
-      pd.read_csv(Path("/nfs/turbo/umms-RNAlabDATA/Software/B-PsiD_tools"
-                  "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv"), 
-                  sep = "\t")
+      pd.read_csv(
+         Path(
+            "/nfs/turbo/umms-RNAlabDATA/Software/B-PsiD_tools"
+            "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_fwd.tsv"
+         ), 
+         sep = "\t"
+      )
    )
    rev = (
-      pd.read_csv(Path("/nfs/turbo/umms-RNAlabDATA/Software/B-PsiD_tools"
-                  "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv"), 
-                  sep = "\t")
+      pd.read_csv(
+         Path(
+            "/nfs/turbo/umms-RNAlabDATA/Software/B-PsiD_tools"
+            "/B-PsiD_UNUAR_motif_sites_mRNA_hg38_rev.tsv"
+         ), 
+         sep = "\t"
+      )
    )
    
    ## Initialize classes
@@ -356,12 +346,16 @@ def main(folder_name: str, fasta: str, rep_index: str):
          processed_folder.mkdir(exist_ok = True, parents = True)
          
          rep_index = int(rep_index)
-         key = {base_key: prep.make_key(folder_name, rep_index, base_key)
-                          for base_key in ["A", "C", "G", "T",
-                                           "Deletions",
-                                           "TotalCoverage",
-                                           "DeletionRate",
-                                           "RealRate"]}
+         key = {
+            base_key: prep.make_key(folder_name, rep_index, base_key)
+            for base_key in [
+               "A", "C", "G", "T",
+               "Deletions",
+               "TotalCoverage",
+               "DeletionRate",
+               "RealRate"
+            ]
+         }
          
          types = ["fwd", "rev"]
          unuar_dicts = [fwd_unuar, rev_unuar]
