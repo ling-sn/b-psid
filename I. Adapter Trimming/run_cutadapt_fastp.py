@@ -348,9 +348,20 @@ if __name__ == "__main__":
             r2_p2 = os.path.join(pass2_dir, f"{sample}_cutadapt_R2.fastq.gz")
 
             sample_dir = os.path.join(args.output, sample)
-            emit_fastqs(sample, r1_p2, r2_p2, sample_dir, prefix="cutadapt")
-            emit_json(os.path.join(pass1_dir, f"{sample}_cutadapt.json"), os.path.join(sample_dir, f"{sample}_cutadapt_pass1.json"))
-            emit_json(os.path.join(pass2_dir, f"{sample}_cutadapt.json"), os.path.join(sample_dir, f"{sample}_cutadapt_pass2.json"))		
+            emit_fastqs(
+               sample, 
+               r1_p2, r2_p2, 
+               sample_dir, 
+               prefix = "cutadapt"
+            )
+            emit_json(
+               os.path.join(pass1_dir, f"{sample}_cutadapt.json"), 
+               os.path.join(sample_dir, f"{sample}_cutadapt_pass1.json")
+            )
+            emit_json(
+               os.path.join(pass2_dir, f"{sample}_cutadapt.json"), 
+               os.path.join(sample_dir, f"{sample}_cutadapt_pass2.json")
+            )
 
          # -------------------------
          # MODE 1: cutadapt only
@@ -400,6 +411,7 @@ if __name__ == "__main__":
             os.path.join(sample_dir, f"{sample}_fastp_R1.fastq.gz"),
             os.path.join(sample_dir, f"{sample}_cutadapt_fastp_R1.fastq.gz")
          )
+         
          os.rename(
             os.path.join(sample_dir, f"{sample}_fastp_R2.fastq.gz"),
             os.path.join(sample_dir, f"{sample}_cutadapt_fastp_R2.fastq.gz")
