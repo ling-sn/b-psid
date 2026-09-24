@@ -25,54 +25,61 @@ class FilterTSV:
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
       df_merged = self.iteratively_merge(df_list, "inner")
       
-      """
-      Add NCBI links
-      """
-      df_merged["TranscriptID"] = df_merged["TranscriptID"].str.replace("rna-", "", regex = False)
+      ## Add NCBI links
+      df_merged["TranscriptID"] = (
+         df_merged["TranscriptID"]
+         .str.replace("rna-", "", regex = False)
+      )
       df_merged["NCBILink"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df_merged["TranscriptID"]
       df_merged.insert(18, "NCBILink", df_merged.pop("NCBILink"))
       
-      """
-      Obtain gene name
-      """
+      ## Obtain gene name
       MAX_THREADS = 20
       threads = min(MAX_THREADS, len(df_merged["NCBILink"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
          df_merged["Gene"] = list(executor.map(self.obtain_gene, df_merged["NCBILink"]))
       df_merged.insert(0, "Gene", df_merged.pop("Gene"))
       
-      """
-      1. Sort rows by TotalAvgDeletionRate for WT-BS sample (descending order)
-      2. Move all important rows (TotalAvg, Std, PvaluePass) to end of dataframe
-      """
-      df_merged.sort_values(by = "WT_TotalAvgDeletionRate_BS",
-                            ascending = False, inplace = True)
-      important_cols = [col for col in df_merged.columns if 
-                        re.search("(TotalAvgDeletionRate|StdDeletionRate|Pvalue_Pass)", 
-                        col)]
+      ## 1. Sort rows by TotalAvgDeletionRate for WT-BS sample (descending order)
+      ## 2. Move all important rows (TotalAvg, Std, PvaluePass) to end of dataframe
+      df_merged.sort_values(
+         by = "WT_TotalAvgDeletionRate_BS",
+         ascending = False, 
+         inplace = True
+      )
+      important_cols = [
+         col for col in df_merged.columns 
+         if re.search(
+            "(TotalAvgDeletionRate|StdDeletionRate|Pvalue_Pass)", col
+         )
+      ]
       diff_cols = list(df_merged.columns.difference(important_cols, sort = False))
       new_col_order = diff_cols + important_cols
       df_merged = df_merged[new_col_order]
       
-      """
-      1. Create output name
-         e.g., 7KO-Cyto-Pvals + 7LKO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
-      2. Save merged dataframe as TSV
-      """
+      ## 1. Create output name
+      ##    e.g., 7KO-Cyto-Pvals + 7LKO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
+      ## 2. Save merged dataframe as TSV
       output_name = (matches[0].stem).split("-")[1]
       merged_dir = final_dir/f"{output_name}.tsv"
       df_merged.to_csv(merged_dir, sep = "\t", index = False)
   
-   def match_cols(self, merged_colnames: list, rep: str, basedel: str) -> list:
+   def match_cols(
+      self, merged_colnames: list, rep: str, basedel: str
+   ) -> list:
       col_list = []
       for sample in ["BS", "NBS"]:
-         match = next(col for col in merged_colnames
-                      if re.search(f"{rep}_{basedel}_{sample}", col))
+         match = next(
+            col for col in merged_colnames
+            if re.search(f"{rep}_{basedel}_{sample}", col)
+         )
          col_list.append(match)
       return col_list
   
-   def fisher_test(self, df_merged: pd.DataFrame,
-                   wt_7ko_7lko: str) -> pd.DataFrame:
+   def fisher_test(
+      self, df_merged: pd.DataFrame,
+      wt_7ko_7lko: str
+   ) -> pd.DataFrame:
       try:
          ## Rename columns with WT/7KO/7LKO prefix
          selected_cols = (df_merged.columns.tolist())[18:]
@@ -136,7 +143,10 @@ class FilterTSV:
          traceback.print_exc()
          raise
 
-   def calc_pval(self, df_merged: pd.DataFrame, sample: str, pvals_dir: Path):
+   def calc_pval(
+      self, df_merged: pd.DataFrame, 
+      sample: str, pvals_dir: Path
+   ):
       """
       PART I:
       Calculate p-values for each replicate
@@ -164,19 +174,25 @@ class FilterTSV:
       output_dir = pvals_dir/f"{sample}-Pvals.tsv"
       df_pval.to_csv(output_dir, sep = "\t", index = False)
 
-   def calc_avg_std(self, df: pd.DataFrame, 
-                    avg_col: str, 
-                    std_col: str) -> pd.DataFrame:
-      del_col = [col for col in df.columns 
-                 if re.search("_Deletions_", col)]
-      cov_col = [col for col in df.columns
-                 if re.search("_TotalCoverage_", col)]
-      dr_col = [col for col in df.columns 
-                if re.search("_DeletionRate_", col)]
+   def calc_avg_std(
+      self, df: pd.DataFrame, 
+      avg_col: str, std_col: str
+   ) -> pd.DataFrame:
+      del_col = [
+         col for col in df.columns 
+         if re.search("_Deletions_", col)
+      ]
+      cov_col = [
+         col for col in df.columns
+         if re.search("_TotalCoverage_", col)
+      ]
+      dr_col = [
+         col for col in df.columns 
+         if re.search("_DeletionRate_", col)
+      ]
       df[avg_col] = df[del_col].sum(axis = 1) / df[cov_col].sum(axis = 1)
       df[std_col] = df[dr_col].std(axis = 1)
       return df
-
 
    def iteratively_merge(self, list_of_dfs: list, merge_type: str):
       df1_colnames = list_of_dfs[0].columns.tolist()
@@ -185,15 +201,19 @@ class FilterTSV:
 
       for df in list_of_dfs[1:]:
          if not df.empty:
-            merged = pd.merge(merged, df,
-                              on = selected_colnames,
-                              how = merge_type)
+            merged = pd.merge(
+               merged, df,
+               on = selected_colnames,
+               how = merge_type
+            )
    
       return merged
 
-   def merge_reps(self, suffix: str, 
-                  tsv_list: list, 
-                  subfolder: Path) -> pd.DataFrame:
+   def merge_reps(
+      self, suffix: str, 
+      tsv_list: list, 
+      subfolder: Path
+   ) -> pd.DataFrame:
       """
       1. Search TSVs for matching suffix in filename
       2. Put them in list
@@ -220,9 +240,11 @@ class FilterTSV:
          name = col_start + f"_{type}DeletionRate_" + col_end
          avg_std_colnames.append(name)
 
-      calc_merged = self.calc_avg_std(merged, 
-                                      avg_std_colnames[0], 
-                                      avg_std_colnames[1])
+      calc_merged = self.calc_avg_std(
+         merged, 
+         avg_std_colnames[0], 
+         avg_std_colnames[1]
+      )
       calc_merged = (
          calc_merged.drop_duplicates()
          .sort_values(by = avg_std_colnames[0], ascending = False)
