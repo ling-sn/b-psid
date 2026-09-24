@@ -2,7 +2,7 @@
 '''
 Created December 2025
 @author: chasew and chat GPT 5.2
-Runs cutadapt and fastP
+* Runs cutadapt and fastP.
 '''
 import os, sys, argparse
 import subprocess
