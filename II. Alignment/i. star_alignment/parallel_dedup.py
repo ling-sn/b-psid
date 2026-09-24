@@ -207,9 +207,9 @@ if __name__ == "__main__":
       description = "Deduplicate an aligned BAM using umi_tools"
    )
 
-   ## Required input
+   ## Required arguments
    required = parser.add_argument_group(
-      "Required Input", 
+      "Required Arguments", 
       "Specify input and output directories."
    )
    required.add_argument(
