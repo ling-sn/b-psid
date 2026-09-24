@@ -25,7 +25,7 @@ class BaseDelCounter:
    ):
       """
       PURPOSE:
-      Clean final dataframe and output as .tsv
+      Sort final dataframe and output as .tsv
       """
       ## Initialize class
       prep = PrepData()
