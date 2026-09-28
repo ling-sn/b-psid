@@ -12,7 +12,8 @@
   
   > "Alignment software usually uses a seed alignment algorithm to increase alignment speed; however, this also affects pairwise alignment accuracy, especially for bases near deletion signatures. To solve this, we integrated the Smith-Waterman local alignment algorithm into the pipeline for realignment. Reads that contained any mismatch, deletion, insertion, soft-clip or splicing were further processed by the realignment tool in the BID-pipe package. By setting the penalty of gap open and gap extension as −3 and −2, respectively, deletion signatures can have a higher priority in the alignment" (_Zhang et al., 520_).
 
-  <img src="https://github.com/user-attachments/assets/a64d90a1-1cf7-4e93-8205-058c1c15279b" width="400"/>
+  <img src="https://github.com/user-attachments/assets/9dfa7698-7c3a-4ce3-ab63-2b2f8d371d6c" width="400"/>
+  
 ### Instructions
 1. Excluding the 📁 `star_aligned` folder (which should already exist), upload the remaining starter files to your GLC directory.
 2. Create an SBATCH by running `write_slurm_realignment.py` in Bash with the following input commands:
