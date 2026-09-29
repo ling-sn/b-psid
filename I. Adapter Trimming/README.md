@@ -27,7 +27,7 @@
    * **--email:** Email that will be notified when SLURM task begins/ends.
    * **--slurm_acct:** SLURM account.
    * **--walltime:** Amount of time allocated for job.
-   * **--mem:** Amount of memory allocated for job.
+   * **--mem:** Amount of memory (in MB) allocated for job.
    
    See example:
    ```
