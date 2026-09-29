@@ -11,8 +11,7 @@
 * Aligns trimmed reads with [STAR](https://github.com/alexdobin/STAR) using hg38 as the reference genome.
 * During alignment, mapped contaminant RNAs are obtained with a FASTA and only the unmapped reads (mRNA) are used for downstream analysis.
   
-  <img src="https://github.com/user-attachments/assets/88a0cbdc-c38a-453e-8f6f-c19700a506ae" width="250"/>
-
+  <img src="https://github.com/user-attachments/assets/174d2bed-6395-4eef-9292-354727d01f10" width="250"/>
 
 ### Instructions
 1. Excluding the 📁 `trimmed_reads` folder (which should already exist), upload the remaining starter files to your GLC directory.
