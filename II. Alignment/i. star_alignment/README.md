@@ -8,7 +8,7 @@
 <img src="https://github.com/user-attachments/assets/a952f05f-8174-4efc-bf71-19d750776d53" width="400"/>
 
 ### Overview
-* Aligns trimmed reads with [STAR](https://github.com/alexdobin/STAR) using hg38 as the reference genome.
+* Aligns trimmed reads with [STAR](https://github.com/alexdobin/STAR) using hg38 as the reference genome, followed by UMI deduplication.
 * During alignment, mapped contaminant RNAs are obtained with a FASTA and only the unmapped reads (mRNA, lncRNA) are used for downstream analysis.
   
   <img src="https://github.com/user-attachments/assets/38c26f49-d4b6-4c23-b013-81e550cba103" width="250"/>
