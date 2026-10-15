@@ -14,6 +14,8 @@
 
 * Trimmed reads are aligned with [STAR](https://github.com/alexdobin/STAR) using hg38 as the reference genome, followed by UMI deduplication.
 
+  <img src="https://github.com/user-attachments/assets/7b47a1e4-5787-4f1a-b13c-4f95d45c3142" width="600"/>
+
 ### Instructions
 1. Excluding the 📁 `trimmed_reads` folder (which should already exist), upload the remaining starter files to your GLC directory.
 2. Create an SBATCH by running `write_slurm_alignment.py` in Bash with the following input commands:
