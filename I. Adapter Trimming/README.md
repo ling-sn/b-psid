@@ -6,6 +6,9 @@
 * Performs quality control, or adapter trimming and fastq pre-processing (fastp), on raw fastqs.
   
   i. **Adapter trimming**
+  
+  <img src="https://github.com/user-attachments/assets/9a9979bf-f53c-496f-b6e2-57a0124f8bbc" width="400"/>
+  
     * STAR two-pass adapter removal from 3' ends.
       * 1st pass = Targets barcode primer sequences
       * 2nd pass = Targets remaining tn5 chimeric sequences
@@ -13,6 +16,9 @@
     * Fastq outputs are in the R1 and R2 format (**suffix:** `cutadapt_R#.fastq.gz`), and are retained for debugging purposes.
   
   ii. **Fastp**
+  
+  <img src="https://github.com/user-attachments/assets/37496efa-8f8b-4897-aacc-ecf34f8a6b86" width="400"/>
+
     * Extracts UMI from 5' end of both reads.
     * Performs quality trimming from 5' → 3' ends, and corrects mismatches.
     * Orphaned/unpaired reads and reads with >30% remaining bases below Q15 are discarded.
