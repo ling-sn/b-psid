@@ -48,6 +48,9 @@ python3 split.py --bam_folder KEH-Rep1-7LKO-HEK293T-Cyto-NBS --library_type RF
   * In other words, the first-in-pair is recognized as reverse, while the second-in-pair is recognized as forward or in the direction of the transcript (reference/FASTA).
 
 * We can use samtools flags to obtain specific alignments from each BAM file, and then combine them into separate "forward strand" and "reverse strand" files.
+  
+  <img src="https://github.com/user-attachments/assets/755cd9ea-8af8-40c5-a7dc-73cf032fe580" width="500"/>
+  
   * <ins>Forward strand</ins>
     * Second-in-pair maps to the forward strand
       ```
