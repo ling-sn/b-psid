@@ -102,11 +102,19 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
   4. After this process was repeated for all sites in each chromosome, the list was converted to a dataframe.
   5. After this process was completed for both fwd/rev BAMs, the separate count dataframes were concatenated into one.
   6. Observed deletion and real rates were calculated, and output TSVs were obtained per sample replicate.
-     
-* The base and deletion counts in the output TSV may not match up with the counts in IGV because secondary alignments were automatically filtered out by pysamstats.
-  * This is default behavior in pysam, which is the base tool of pysamstats. See the `flag_filter` parameter in the manual for details.
-  * Secondary alignments are reads that align reasonably well to more than one place. Including them could lead to an artificial inflation of base and deletion counts, and in turn, inaccurate deletion rates.
-  * During STAR alignment, the primary alignment is the first top-scoring alignment that STAR finds.
+
+* What measures were taken to ensure that base and deletion counts in the output TSV matched with the counts in IGV?
+  * **On the pipeline end:**
+    * The minimum quality score for bases and deletions was set to 0.
+  * **On the user end (IGV):**
+    * Filter out secondary alignments.
+      * These are reads that align reasonably well to more than one place. Including them could lead to an artificial inflation of base and deletion counts, and in turn, inaccurate deletion rates.
+        * During STAR alignment, the primary alignment is the first top-scoring alignment that STAR finds.
+      * Secondary alignments were automatically filtered out by pysam, the base tool of pysamstats. See the `flag_filter` parameter in the [manual](https://pysam.readthedocs.io/en/latest/api.html#pysam.AlignmentFile.pileup) for details.
+    * Select "View as pairs", as this pipeline assumes paired-end reads.
+* Since PUS7 modifications are only expected to occur at the central U of each UNUAR site, only single-nucleotide deletions were counted, while ambiguous multi-nucleotide deletions were ignored.
+    
+    <img src="https://github.com/user-attachments/assets/7418a169-24a9-43cb-ab61-b44c75ac0c5a" width="300"/>
 ---
 ### Citations
 * `calculate_dr.py` by Sonia Ling. If you have any questions, please reach out to [ling-sn](https://github.com/ling-sn).
