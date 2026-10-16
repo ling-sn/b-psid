@@ -26,10 +26,11 @@
 ---
 ### To-do list
 * **bam_splitting**
-  - [ ] Add visual in README
+  - [x] Add visual in README
 * **calculate_dr**
   - [x] Only count single-nt deletions instead of multi-nt ones (default behavior)
 * **clean_tsv**
-  - [ ] Replace Fisher's Exact Test with rate ratio calculations (Poisson) and LASSO regression
+  - [ ] Update Fisher's Exact Test
+  - [ ] Add rate ratios
 * **Other**
   - [ ] Create Snakemake pipeline for B-PsiD
