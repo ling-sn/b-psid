@@ -9,8 +9,8 @@
 
 ### Overview
 * Since UNUAR sites are located on either the forward or reverse strand, we employ BAM splitting to <ins>**only**</ins> count base/deletions from one strand for each site.
-
-* We obtain `fwd.bam` and `rev.bam` for each BAM that we are interested in investigating downstream.
+  * This script results in a `fwd.bam` and `rev.bam` for each BAM we are interested in investigating downstream.
+* BAM splitting is primarily helpful for validation purposes, such as manually checking base and deletion counts in IGV.
 
 ### Instructions
 1. Excluding the 📁 `realignments` folder (which should already exist), upload the remaining starter files to your GLC directory.
