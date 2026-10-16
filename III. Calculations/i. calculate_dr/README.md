@@ -114,7 +114,7 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
     * Select "View as pairs", as this pipeline assumes paired-end reads.
 * Since PUS7 modifications are only expected to occur at the central U of each UNUAR site, only single-nucleotide deletions were counted, while ambiguous multi-nucleotide deletions were ignored.
     
-    <img src="https://github.com/user-attachments/assets/7418a169-24a9-43cb-ab61-b44c75ac0c5a" width="300"/>
+    <img src="https://github.com/user-attachments/assets/7418a169-24a9-43cb-ab61-b44c75ac0c5a" width="275"/>
 ---
 ### Citations
 * `calculate_dr.py` by Sonia Ling. If you have any questions, please reach out to [ling-sn](https://github.com/ling-sn).
