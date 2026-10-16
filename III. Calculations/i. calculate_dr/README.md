@@ -103,7 +103,7 @@ python3 calculate_dr.py --folder_name KEH-Rep1-7LKO-HEK293T-Cyto-NBS --fasta ~/u
   5. After this process was completed for both fwd/rev BAMs, the separate count dataframes were concatenated into one.
   6. Observed deletion and real rates were calculated, and output TSVs were obtained per sample replicate.
 
-* What measures were taken to ensure that base and deletion counts in the output TSV matched with the counts in IGV?
+* To ensure that base and deletion counts in the output TSV matched with the counts in IGV:
   * **On the pipeline end:**
     * The minimum quality score for bases and deletions was set to 0.
   * **On the user end (IGV):**
