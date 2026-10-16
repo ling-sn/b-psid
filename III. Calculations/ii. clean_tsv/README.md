@@ -53,7 +53,7 @@
 * We used Fisher's Exact Test to determine if modifications at each UNUAR site were significant $(p \le 10^{-4})$.
   * For each site, we used frequency counts in a 2x2 table (see above) to determine if there were significant differences between $\color{#699271} \verb|%| \textbf{ deletions in BS}$ vs. $\color{#B4584E}\verb|%|\textbf{ deletions in NBS}$. Specifically, was there a significantly higher proportion of deletions, and thus modifications, in the BS-treated sample?
   * The critical value was the amount of T bases in the BS sample.
-    * As such, the test was in the "less-than" direction because we wanted to minimize T bases and implicitly maximize deletions in our BS samples.
+    * As such, the test was in the "less-than" direction because we wanted to minimize T bases and implicitly maximize deletions in those samples.
 * For sites on the reverse strand (-), T bases were counted as A bases.
   * If a site was on the reverse strand, the A count was used for the test.
   * If a site was on the forward strand, the T count was used for the test.
