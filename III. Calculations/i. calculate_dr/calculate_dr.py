@@ -274,6 +274,27 @@ class PrepData:
       group1_col: str|list, 
       group2_col: str
    ) -> dict:
+      """
+      PURPOSE:
+      Creates a dictionary where key = (group1_col) and values = {group2_col}.
+      Since multiple values can map to the same key, they are collapsed into a set.
+      ---
+      EXAMPLE #1: group1_col is a str
+      Inputs:
+         group1_col = "Chrom"
+         group2_col = "GenomicModBase"
+      Output:
+         {'NC_00000X.10': {12345678, 24681012},
+          'NC_00000X.11': {87654321}...}
+      ---
+      EXAMPLE #2: group1_col is a list
+      Inputs:
+         group1_col = ["Chrom", "GenomicModBase"]
+         group2_col = "TranscriptID"
+      Output:
+         {('NC_00000X.10', 12345678): {'Transcript1', 'Transcript2'},
+          ('NC_00000X.11', 87654321): {'Transcript3'}...}
+      """
       if group2_col == "GenomicModBase":
          df = (df[[group1_col, group2_col]])
       genome_coord = df.groupby(group1_col)
