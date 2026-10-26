@@ -48,15 +48,15 @@
    <img src="https://github.com/user-attachments/assets/0e191601-86e1-4cb0-beb5-946267bc97e1" width="400"/>
 
 ### Fisher's Exact Test
-<img src="https://github.com/user-attachments/assets/d0150acf-56d2-491e-ae25-692627d1c275" width="300"/>
+<img src="https://github.com/user-attachments/assets/1daa2ebb-9dcd-46d3-88b8-2bb7bac28ecf" width="250"/>
 
-* For each UNUAR site, we used this test to determine if there were significant differences between $\color{darkseagreen} \verb|%| \textbf{ deletions in BS}$ vs. $\color{lightcoral}\verb|%|\textbf{ deletions in NBS}$.
-  * The test was in the "less-than" direction because we wanted to minimize T bases (and implicitly maximize deletions) in our BS-treated samples.
+* We used Fisher's Exact Test to determine if modifications at each UNUAR site were significant $(p \le 10^{-4})$.
+  * For each site, we used frequency counts in a 2x2 table (see above) to determine if there were significant differences between $\color{#699271} \verb|%| \textbf{ deletions in BS}$ vs. $\color{#B4584E}\verb|%|\textbf{ deletions in NBS}$. Specifically, was there a significantly higher proportion of deletions, and thus modifications, in the BS-treated sample?
+  * The critical value was the amount of T bases in the BS sample.
+    * As such, the test was in the "less-than" direction because we wanted to minimize T bases and implicitly maximize deletions in those samples.
 * For sites on the reverse strand (-), T bases were counted as A bases.
   * If a site was on the reverse strand, the A count was used for the test.
   * If a site was on the forward strand, the T count was used for the test.
-* However, while Fisher’s Exact Test assumes that marginal sums are fixed, these assumptions were not met in our experiment because sequencing counts from the genome were random.
-  * Therefore, this test will be replaced with rate ratio calculations in the future (sometime later in 2026). 
 
 ---
 

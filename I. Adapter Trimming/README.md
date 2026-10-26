@@ -3,11 +3,27 @@
 <img src="https://github.com/user-attachments/assets/b281ca65-3535-4770-b361-f69a611ed3e5" width="400"/>
 
 ### Overview
-* Performs quality control (adapter trimming and merging) on raw fastqs.
-* The raw fastqs contain information for each **Read 1** and **Read 2**, such as their sequences and base quality scores. If one of the reads has poor quality scores, then it will be discarded and the read will stay unpaired. Otherwise, depending on whether the reads overlap, they will be merged or unmerged.
+* Performs quality control, or adapter trimming and fastq pre-processing (fastp), on raw fastqs.
+  
+  i. **Adapter trimming**
+  
+  <img src="https://github.com/user-attachments/assets/9a9979bf-f53c-496f-b6e2-57a0124f8bbc" width="400"/>
+  
+    * STAR two-pass adapter removal from 3' ends.
+      * 1st pass = Targets barcode primer sequences
+      * 2nd pass = Targets remaining tn5 chimeric sequences
+    * Reads <30 nt after trimming are discarded.
+    * Fastq outputs are in the R1 and R2 format (**suffix:** `cutadapt_R#.fastq.gz`), and are retained for debugging purposes.
+  
+  ii. **Fastp**
+  
+  <img src="https://github.com/user-attachments/assets/37496efa-8f8b-4897-aacc-ecf34f8a6b86" width="400"/>
 
-  <img src="https://github.com/user-attachments/assets/96b31246-c87b-482b-8649-53b5c5ded5bb" width="400"/>
-
+    * Extracts UMI from 5' end of both reads.
+    * Performs quality trimming from 5' → 3' ends, and corrects mismatches.
+    * Orphaned/unpaired reads and reads with >30% remaining bases below Q15 are discarded.
+    * Fastq outputs remain in the R1 and R2 format (**suffix:** `cutadapt_fastp_R#.fastq.gz`) because no merging occurs.
+      * These files contain sequences and base quality scores.
 
 ### Instructions
 1. Create `raw_fastqs` folder if it doesn't already exist, and upload the remaining starter files to your GLC directory.
@@ -17,7 +33,7 @@
    * **--email:** Email that will be notified when SLURM task begins/ends.
    * **--slurm_acct:** SLURM account.
    * **--walltime:** Amount of time allocated for job.
-   * **--mem:** Amount of memory allocated for job.
+   * **--mem:** Amount of memory (in MB) allocated for job.
    
    See example:
    ```
