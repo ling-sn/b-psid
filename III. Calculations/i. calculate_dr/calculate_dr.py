@@ -173,16 +173,18 @@ class BaseDelCounter:
       Counts number of bases and deletions for each UNUAR site 
       in each chromosome.
       ---
-      VARIABLES:
-      * chrom: Value in "Chrom" column (e.g., NW_018654708.1)
-      * mod_base: Value in "GenomicModBase" column (e.g., 373)
-      * **base_ct: Unpacks base_ct dict
+      INPUTS:
+         unuar_dict: Dictionary where key = (Chrom) & value = {set of GenomicModBase}
+         input_bam_name: fwd.sorted.bam or rev.sorted.bam (sorted outputs from .bam splitting)
+         fasta_dir: Path to reference fasta
+         results: Empty list
       ---
       PYSAMSTATS:
       Description
       * pysamstats.stat_variation() returns an iterator for dict objects,
         where each dict holds data for different sites
       Arguments
+      * chrom: Value in "Chrom" column (e.g., NW_018654708.1)
       * start, end: 1-based genomic coordinates (half-open interval)
       * truncate: Ensures only positions within range are returned
       * no_dup: Don't count reads marked as duplicates
@@ -218,8 +220,7 @@ class BaseDelCounter:
                      {
                         "Chrom": chrom,
                         "GenomicModBase": stats["pos"],
-                        **{base: stats[base] for base in base_keys},
-                        # "Deletions": stats["deletions"]
+                        **{base: stats[base] for base in base_keys}, # Unpack base_ct dict
                         "Deletions": self.count_single_dels(chrom, pos, bamfile)
                      }
                   )
@@ -239,11 +240,6 @@ class BaseDelCounter:
       """
       PURPOSE:
       Obtain base and deletion counts for every UNUAR site using pysamstats.
-      ---
-      VARIABLES:
-         bam: fwd.sorted.bam or rev.sorted.bam (sorted outputs from .bam splitting)
-         unuar_dict: Dictionary where key = (Chrom) & value = {set of GenomicModBase}
-         fasta_dir: Path to reference fasta
       """
       ## Turn string from list back into filepath
       input_bam_name = Path(bam)
