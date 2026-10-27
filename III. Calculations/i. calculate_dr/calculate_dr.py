@@ -181,11 +181,12 @@ class BaseDelCounter:
       PYSAMSTATS:
       Description
       * pysamstats.stat_variation() returns an iterator for dict objects,
-      where each dict holds data for different sites
+        where each dict holds data for different sites
       Arguments
       * start, end: 1-based genomic coordinates (half-open interval)
       * truncate: Ensures only positions within range are returned
       * no_dup: Don't count reads marked as duplicates
+      * min_baseq: Minimum base quality to be considered as a count
       """
       bamfile = pysam.AlignmentFile(input_bam_name, "rb")
       fastafile = FastaFile(fasta_dir) 
