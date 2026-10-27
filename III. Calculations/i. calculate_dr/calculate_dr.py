@@ -240,7 +240,7 @@ class BaseDelCounter:
       Obtain base and deletion counts for every UNUAR site using pysamstats.
       ---
       VARIABLES:
-         bam: fwd.bam or rev.bam (outputs from .bam splitting)
+         bam: fwd.sorted.bam or rev.sorted.bam (sorted outputs from .bam splitting)
          unuar_dict: Dictionary where key = (Chrom) & value = {set of GenomicModBase}
          fasta_dir: Path to reference fasta
       """
