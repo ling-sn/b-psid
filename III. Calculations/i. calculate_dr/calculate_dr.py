@@ -68,6 +68,15 @@ class BaseDelCounter:
       df_count: pd.DataFrame, 
       key: dict
    ) -> pd.DataFrame:
+      """
+      PURPOSE:
+      Calculate original and converted deletion rates (RealRate) at each UNUAR site
+      ---
+      INPUTS:
+         df_original: Full dataframe with both fwd/rev UNUAR site information
+         df_count: Dataframe of base and deletion counts for each UNUAR site (combined fwd/rev)
+         key: Dictionary where key = original string (e.g., 'A') & value = output from make_key()
+      """
       ## Calculate observed deletion rates
       coverage_list = [
          col for col in df_count.columns
