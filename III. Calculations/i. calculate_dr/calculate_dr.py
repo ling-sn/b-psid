@@ -234,6 +234,15 @@ class BaseDelCounter:
       unuar_dict: dict, 
       fasta_dir: Path
    ) -> pd.DataFrame:
+      """
+      PURPOSE:
+      Obtain base and deletion counts for every UNUAR site using pysamstats.
+      ---
+      VARIABLES:
+         bam: fwd.bam or rev.bam (outputs from .bam splitting)
+         unuar_dict: Dictionary where key = (Chrom) & value = {set of GenomicModBase}
+         fasta_dir: Path to reference fasta
+      """
       ## Turn string from list back into filepath
       input_bam_name = Path(bam)
       
