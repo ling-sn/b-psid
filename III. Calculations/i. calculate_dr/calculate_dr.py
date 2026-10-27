@@ -192,36 +192,37 @@ class BaseDelCounter:
       fastafile = FastaFile(fasta_dir) 
 
       try:
-         for chrom in unuar_dict:
-            ## Values in unuar_sites already stored in set (faster)
-            positions = unuar_dict[chrom]
-            base_keys = ["A", "C", "G", "T"]
+         if not results:
+            for chrom in unuar_dict:
+               ## Values in unuar_sites already stored in set (faster)
+               positions = unuar_dict[chrom]
+               base_keys = ["A", "C", "G", "T"]
 
-            for stats in pysamstats.stat_variation(
-               bamfile,
-               fastafile,
-               chrom,
-               start = min(unuar_dict[chrom]),
-               end = max(unuar_dict[chrom]) + 1,
-               one_based = True,
-               truncate = False,
-               no_dup = True,
-               min_baseq = 0
-            ):
-               pos = stats["pos"]
+               for stats in pysamstats.stat_variation(
+                  bamfile,
+                  fastafile,
+                  chrom,
+                  start = min(unuar_dict[chrom]),
+                  end = max(unuar_dict[chrom]) + 1,
+                  one_based = True,
+                  truncate = False,
+                  no_dup = True,
+                  min_baseq = 0
+               ):
+                  pos = stats["pos"]
 
-               if pos not in positions:
-                  continue
+                  if pos not in positions:
+                     continue
 
-               results.append(
-                  {
-                     "Chrom": chrom,
-                     "GenomicModBase": stats["pos"],
-                     **{base: stats[base] for base in base_keys},
-                     # "Deletions": stats["deletions"]
-                     "Deletions": self.count_single_dels(chrom, pos, bamfile)
-                  }
-               )
+                  results.append(
+                     {
+                        "Chrom": chrom,
+                        "GenomicModBase": stats["pos"],
+                        **{base: stats[base] for base in base_keys},
+                        # "Deletions": stats["deletions"]
+                        "Deletions": self.count_single_dels(chrom, pos, bamfile)
+                     }
+                  )
             
          bamfile.close()
       except Exception as e:
