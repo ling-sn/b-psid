@@ -39,7 +39,7 @@ class BaseDelCounter:
       
       ## Collapse all transcripts into one string separated by commas
       updated_transcripts = [
-         (key[0], key[1], ", ".join(str(x) for x in value)) 
+         (key[0], key[1], ", ".join(sorted(value))) 
          for key, value in all_transcripts.items()
       ]
       
