@@ -62,6 +62,9 @@ class BaseDelCounter:
             how = "left",
             on = ["Chrom", "GenomicModBase"]
          )
+      ).drop_duplicates(
+         subset = ["Chrom", "GenomicModBase"],
+         keep = "first"
       )
       df_final.insert(17, "AllAssocTranscripts", df_final.pop("AllAssocTranscripts"))
       
