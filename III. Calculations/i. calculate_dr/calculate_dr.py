@@ -36,10 +36,14 @@ class BaseDelCounter:
          ["Chrom", "GenomicModBase"], 
          "TranscriptID"
       )
+      
+      ## Collapse all transcripts into one string separated by commas
       updated_transcripts = [
          (key[0], key[1], ", ".join(str(x) for x in value)) 
          for key, value in all_transcripts.items()
       ]
+      
+      ## Convert set of Chrom, GenomicModBase, and transcript list into df
       df_transcripts = pd.DataFrame(
          updated_transcripts, 
          columns = [
