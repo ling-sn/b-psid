@@ -96,14 +96,40 @@ class MergeTSV:
       return merged
       
 class FilterTSV:
-   # def calc_rr(self):
-   #    # 1. Make new columns in datafrane
-   #    # 2. Calculate rate ratios for each site
-   #    # num_bs_dels
-   #    # total_bs
-   #    # num_nbs_dels
-   #    # total_nbs
-   #    # RateRatio
+   def calc_rr(self, df, sample_type):
+      """
+      PURPOSE:
+      Calculate rate ratios for each UNUAR site, 
+      and return the updated dataframe.
+      """
+      ## Collect lists of corresponding counts (Deletions/TotalCoverage
+      ## for BS/NBS samples) and store them in a dictionary
+      all_cols = {}
+      
+      for count_type, treatment in zip(
+         ["Deletions", "TotalCoverage"], ["BS", "NBS"]
+      ):
+         list_name = (f"{treatment}_{count_type}_cols").lower()
+         selected_cols = [
+            col for col in 
+            re.search(f"^{sample_type}_Rep(\d+)_{count_type}_{treatment}$")
+         ] 
+         all_cols[list_name] = selected_cols
+      
+      ## Create required columns
+      # (i) BS
+      df["num_bs_dels"] = df[all_cols["bs_deletions_cols"]].sum(axis = 1)
+      df["total_bs"] = df[all_cols["bs_totalcoverage_cols"]].sum(axis = 1)
+      df["bs_ratio"] = df["num_bs_dels"] / df["total_bs"]
+      
+      # (ii) NBS
+      df["num_nbs_dels"] = df[all_cols["nbs_deletions_cols"]].sum(axis = 1)
+      df["total_nbs"] = df[all_cols["nbs_totalcoverage_cols"]].sum(axis = 1)
+      df["nbs_ratio"] = df["num_nbs_dels"] / df["total_nbs"]
+      
+      ## Calculate rate ratios
+      df["RateRatio"] = df["bs_ratio"] / df["nbs_ratio"]
+      
       
 def main():
    """
@@ -164,8 +190,12 @@ def main():
             
       ## Calculate p-value for each merged subfolder dataframe
       for location in ["Cyto", "Nuc"]:
-         ko_folder = "7KO-" + location
-         # filtertsv.calc_rr()
+         # Open up 7KO dataframe
+         knockout_df = all_merged["7KO-" + location]
+         filtertsv.calc_rr(knockout_df, "7KO")
+         
+         # Open up WT datafarme
+         wt_df = all_merged["WT-" + location]
 
       ## After p-value calculations, create final merged ouputs
       pvals_tsv = list(pvals_dir.glob("*.tsv"))
