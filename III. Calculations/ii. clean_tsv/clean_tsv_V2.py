@@ -177,26 +177,6 @@ class FilterTSV:
       output_dir = pvals_dir/f"{sample}-Pvals.tsv"
       df_pval.to_csv(output_dir, sep = "\t", index = False)
 
-   def calc_avg_std(
-      self, df: pd.DataFrame, 
-      avg_col: str, std_col: str
-   ) -> pd.DataFrame:
-      del_col = [
-         col for col in df.columns 
-         if re.search("_Deletions_", col)
-      ]
-      cov_col = [
-         col for col in df.columns
-         if re.search("_TotalCoverage_", col)
-      ]
-      dr_col = [
-         col for col in df.columns 
-         if re.search("_DeletionRate_", col)
-      ]
-      df[avg_col] = df[del_col].sum(axis = 1) / df[cov_col].sum(axis = 1)
-      df[std_col] = df[dr_col].std(axis = 1)
-      return df
-
    def iteratively_merge(self, list_of_dfs: list, merge_type: str):
       df1_colnames = list_of_dfs[0].columns.tolist()
       selected_colnames = df1_colnames[0:18]
@@ -214,45 +194,19 @@ class FilterTSV:
 
    def merge_reps(
       self, suffix: str, 
-      tsv_list: list, 
-      subfolder: Path
+      tsv_list: list
    ) -> pd.DataFrame:
       """
       1. Search TSVs for matching suffix in filename
       2. Put them in list
       3. Read in as pandas dataframes
-      4. Iteratively merge dataframes
+      4. Iteratively merge dataframes with outer join (do not drop rows yet)
+      5. Drop rows that are completely identical
       """
       matches = [tsv for tsv in tsv_list if re.search(suffix, tsv.stem)]
       df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
-      merged = self.iteratively_merge(df_list, "outer")
-      
-      """
-      1. Define col_start and col_end so that concatenation
-         results in examples like:
-         a. 7KO_TotalAvgDeletionRate_BS
-         b. 7KO_StdDeletionRate_BS
-      2. Create TotalAvgDeletionRate and StdDeletionRate columns
-         in merged df
-      """
-      col_start = subfolder.name.split("-")[0]
-      col_end = suffix.split("-")[1]
-      
-      avg_std_colnames = []
-      for type in ["TotalAvg", "Std"]:
-         name = col_start + f"_{type}DeletionRate_" + col_end
-         avg_std_colnames.append(name)
-
-      calc_merged = self.calc_avg_std(
-         merged, 
-         avg_std_colnames[0], 
-         avg_std_colnames[1]
-      )
-      calc_merged = (
-         calc_merged.drop_duplicates()
-         .sort_values(by = avg_std_colnames[0], ascending = False)
-      )
-      return calc_merged
+      merged = self.iteratively_merge(df_list, "outer").drop_duplicates()
+      return merged
 
 def main():
    """
@@ -268,9 +222,8 @@ def main():
    try: 
       ## Create output folder directories
       processed_folder = current_path/"merged"
-      pvals_dir = processed_folder/"pvals"
       final_dir = processed_folder/"final_outputs"
-      for dirname in [processed_folder, pvals_dir, final_dir]:
+      for dirname in [processed_folder, final_dir]:
          dirname.mkdir(exist_ok = True, parents = True)
 
       all_merged = {}
@@ -279,11 +232,11 @@ def main():
             ## Collect paths of .tsv files and put in list
             tsv_list = sorted(
                subfolder.glob("*.tsv"),
-               ## Order by replicate integer
+               # Order by replicate integer
                key = lambda x: int(re.search(r"Rep(\d+)", x.name).group(1))
             )
 
-            ## Merge by replicate (Rep 1-3), and calc. D.R. avg/std
+            ## Merge by replicate (Rep 1-3)
             merged_bs_nbs = []
             for suffix in ["-BS", "-NBS"]:
                merged = filtertsv.merge_reps(suffix, tsv_list, subfolder)
@@ -305,9 +258,13 @@ def main():
             else:
                df_merged = df1
             
+            """
+            EXAMPLE:
+            subfolder.name = 7KO-Cyto
+            """
             all_merged[subfolder.name] = df_merged
             
-      ## Calculate p-value
+      ## Calculate p-value for each merged subfolder dataframe
       for sample in all_merged:
          filtertsv.calc_pval(all_merged[sample], sample, pvals_dir)
 
