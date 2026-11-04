@@ -163,12 +163,14 @@ class FilterTSV:
       pval_list = [col for col in df_pval.columns 
                    if re.search("_Pvalue$", col)]
       if wt_7ko_7lko == "WT":
+         # Cutoff taken from Zhang et al. (2024)
+         CUTOFF = 0.0001
          pval_cutoff_name = f"{wt_7ko_7lko}_Pvalue_Pass"
-         df_pval[pval_cutoff_name] = (df_pval[pval_list] <= 0.05).sum(axis = 1)    
+         df_pval[pval_cutoff_name] = (df_pval[pval_list] <= CUTOFF).sum(axis = 1)    
          count_cutoff = df_pval[pval_cutoff_name].ge(1)
          df_pval = df_pval.loc[count_cutoff]           
       # else:
-      #    df_pval[pval_cutoff_name] = (df_pval[pval_list] > 0.05).sum(axis = 1)
+      #    df_pval[pval_cutoff_name] = (df_pval[pval_list] > CUTOFF).sum(axis = 1)
 
       ## Save as output
       output_dir = pvals_dir/f"{sample}-Pvals.tsv"
