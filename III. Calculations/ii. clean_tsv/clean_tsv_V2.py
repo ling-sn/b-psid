@@ -14,56 +14,39 @@ import concurrent.futures
 from bs4 import BeautifulSoup
 pd.options.mode.chained_assignment = None
 
-class MergeTSV:
+class MergeData:
    def obtain_gene(self, url: str):
       page = requests.get(url)
       soup = BeautifulSoup(page.content, "html.parser")
       gene = soup.find("span", class_= "gn")
       return gene.text
    
-   def merge_all(self, matching_name, pvals_tsv, final_dir):
-      matches = [tsv for tsv in pvals_tsv if re.search(matching_name, tsv.stem)]
-      df_list = [pd.read_csv(str(file), sep = "\t") for file in matches]
-      df_merged = self.iteratively_merge(df_list, "inner")
-      
+   def clean_tsv(self, df, location, final_dir):
+      """
+      PURPOSE:
+      * Add NCBI links to main Transcript ID.
+      * Explicitly list gene associated with Transcript IDs at UNUAR site.
+      """
       ## Add NCBI links
-      df_merged["TranscriptID"] = (
-         df_merged["TranscriptID"]
+      df["TranscriptID"] = (
+         df["TranscriptID"]
          .str.replace("rna-", "", regex = False)
       )
-      df_merged["NCBILink"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df_merged["TranscriptID"]
-      df_merged.insert(18, "NCBILink", df_merged.pop("NCBILink"))
+      df["NCBILink"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df["TranscriptID"]
+      df.insert(18, "NCBILink", df.pop("NCBILink"))
       
       ## Obtain gene name
       MAX_THREADS = 20
-      threads = min(MAX_THREADS, len(df_merged["NCBILink"]))
+      threads = min(MAX_THREADS, len(df["NCBILink"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
-         df_merged["Gene"] = list(executor.map(self.obtain_gene, df_merged["NCBILink"]))
-      df_merged.insert(0, "Gene", df_merged.pop("Gene"))
-      
-      ## 1. Sort rows by TotalAvgDeletionRate for WT-BS sample (descending order)
-      ## 2. Move all important rows (TotalAvg, Std, PvaluePass) to end of dataframe
-      df_merged.sort_values(
-         by = "WT_TotalAvgDeletionRate_BS",
-         ascending = False, 
-         inplace = True
-      )
-      important_cols = [
-         col for col in df_merged.columns 
-         if re.search(
-            "(TotalAvgDeletionRate|StdDeletionRate|Pvalue_Pass)", col
-         )
-      ]
-      diff_cols = list(df_merged.columns.difference(important_cols, sort = False))
-      new_col_order = diff_cols + important_cols
-      df_merged = df_merged[new_col_order]
+         df["Gene"] = list(executor.map(self.obtain_gene, df["NCBILink"]))
+      df.insert(0, "Gene", df.pop("Gene"))
       
       ## 1. Create output name
       ##    e.g., 7KO-Cyto-Pvals + 7LKO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
       ## 2. Save merged dataframe as TSV
-      output_name = (matches[0].stem).split("-")[1]
-      merged_dir = final_dir/f"{output_name}.tsv"
-      df_merged.to_csv(merged_dir, sep = "\t", index = False)
+      merged_dir = final_dir/f"{location}.tsv"
+      df.to_csv(merged_dir, sep = "\t", index = False)
       
    def iteratively_merge(self, list_of_dfs: list, merge_type: str):
       df1_colnames = list_of_dfs[0].columns.tolist()
@@ -156,15 +139,13 @@ def main():
    start_dir = current_path/"calculations"
 
    ## Initialize classes
-   mergetsv = MergeTSV()
+   mergedata = MergeData()
    filtertsv = FilterTSV()
 
    try: 
       ## Create output folder directories
-      processed_folder = current_path/"merged"
-      final_dir = processed_folder/"final_outputs"
-      for dirname in [processed_folder, final_dir]:
-         dirname.mkdir(exist_ok = True, parents = True)
+      final_dir = current_path/"final_outputs"
+      final_dir.mkdir(exist_ok = True, parents = True)
 
       all_merged = {}
       for subfolder in start_dir.iterdir():
@@ -179,7 +160,7 @@ def main():
             ## Merge by replicate (Rep 1-3)
             merged_bs_nbs = []
             for suffix in ["-BS", "-NBS"]:
-               merged = mergetsv.merge_reps(suffix, tsv_list, subfolder)
+               merged = mergedata.merge_reps(suffix, tsv_list, subfolder)
                merged_bs_nbs.append(merged)
             
             ## Merge by BS-NBS
@@ -205,8 +186,8 @@ def main():
             all_merged[subfolder.name] = df_merged
             
       ## Collect WT dataframes with filtered rate ratios
-      all_wt_df = {}
       for location in ["Cyto", "Nuc"]:
+         ## Implicitly ignore 7LKO and only handle 7KO and WT data
          # (i) Open up 7KO dataframe 
          # (ii) Calculate rate ratios
          knockout_df = filtertsv.calc_rr(
@@ -221,14 +202,9 @@ def main():
             all_merged["WT-" + location], "WT"
          )
          filtered_wt_df = wt_df[wt_df["RateRatio"] >= top5_perc]
-         all_wt_df[location] = filtered_wt_df
          
-
-      ## After p-value calculations, create final merged ouputs
-      pvals_tsv = list(pvals_dir.glob("*.tsv"))
-
-      for matching_name in ["-Cyto-Pvals", "-Nuc-Pvals"]:
-         mergetsv.merge_all(matching_name, pvals_tsv, final_dir)
+         ## After rate ratio filtering, create final outputs
+         mergedata.clean_tsv(filtered_wt_df, location, final_dir)
 
    except Exception as e:
       print(f"Failed to create merged .tsv file: {e}")
