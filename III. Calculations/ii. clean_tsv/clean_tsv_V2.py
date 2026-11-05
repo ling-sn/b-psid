@@ -7,6 +7,7 @@ MAIN CHANGE: Use rate ratio distribution instead of Fisher's Exact Test
 from pathlib import Path
 import traceback
 import pandas as pd
+import numpy as np
 import re
 import requests
 import concurrent.futures
@@ -130,6 +131,21 @@ class FilterTSV:
       ## Calculate rate ratios
       df["RateRatio"] = df["bs_ratio"] / df["nbs_ratio"]
       
+      if (sample_type == "7KO"):
+         df.sort_values(
+            by = "RateRatio",
+            ascending = True, 
+            inplace = True
+         )
+         return df
+      
+      df.sort_values(
+         by = "RateRatio",
+         ascending = False, 
+         inplace = True
+      )
+      
+      return df
       
 def main():
    """
@@ -190,9 +206,11 @@ def main():
             
       ## Calculate p-value for each merged subfolder dataframe
       for location in ["Cyto", "Nuc"]:
-         # Open up 7KO dataframe
-         knockout_df = all_merged["7KO-" + location]
-         filtertsv.calc_rr(knockout_df, "7KO")
+         # Open up 7KO dataframe and calculate rate ratios
+         knockout_df = filtertsv.calc_rr(
+            all_merged["7KO-" + location], "7KO"
+         )
+         knockout_df 
          
          # Open up WT datafarme
          wt_df = all_merged["WT-" + location]
