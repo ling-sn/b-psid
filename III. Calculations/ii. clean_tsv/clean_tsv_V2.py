@@ -204,16 +204,25 @@ def main():
             """
             all_merged[subfolder.name] = df_merged
             
-      ## Calculate p-value for each merged subfolder dataframe
+      ## Collect WT dataframes with filtered rate ratios
+      all_wt_df = {}
       for location in ["Cyto", "Nuc"]:
-         # Open up 7KO dataframe and calculate rate ratios
+         # (i) Open up 7KO dataframe 
+         # (ii) Calculate rate ratios
          knockout_df = filtertsv.calc_rr(
             all_merged["7KO-" + location], "7KO"
          )
-         knockout_df 
+         top5_perc = knockout_df["RateRatio"].quantile(0.95)
          
-         # Open up WT datafarme
-         wt_df = all_merged["WT-" + location]
+         # (i) Open up WT dataframe
+         # (ii) Calculate rate ratios
+         # (iii) Only keep rate ratios >= 95th percentile from 7KO distribution
+         wt_df = filtertsv.calc_rr(
+            all_merged["WT-" + location], "WT"
+         )
+         filtered_wt_df = wt_df[wt_df["RateRatio"] >= top5_perc]
+         all_wt_df[location] = filtered_wt_df
+         
 
       ## After p-value calculations, create final merged ouputs
       pvals_tsv = list(pvals_dir.glob("*.tsv"))
