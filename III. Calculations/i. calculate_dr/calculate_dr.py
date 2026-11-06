@@ -30,6 +30,12 @@ class BaseDelCounter:
       ## Initialize class
       prep = PrepData()
       
+      ## Remove "rna-" prefix in all transcripts
+      df_calc["TranscriptID"] = (
+         df_calc["TranscriptID"]
+         .str.replace("rna-", "", regex = False)
+      )
+      
       ## Collect all associated transcripts for each (Chrom, GenomicModBase) pair
       all_transcripts = prep.create_agg_dict(
          df_calc, 
