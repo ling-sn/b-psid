@@ -42,9 +42,7 @@ class MergeData:
          df["Gene"] = list(executor.map(self.obtain_gene, df["NCBILink"]))
       df.insert(0, "Gene", df.pop("Gene"))
       
-      ## 1. Create output name
-      ##    e.g., 7KO-Cyto-Pvals + 7LKO-Cyto-Pvals + WT-Cyto-Pvals -> Cyto
-      ## 2. Save merged dataframe as TSV
+      ## Save merged dataframe as TSV
       merged_dir = final_dir/f"{location}.tsv"
       df.to_csv(merged_dir, sep = "\t", index = False)
       
