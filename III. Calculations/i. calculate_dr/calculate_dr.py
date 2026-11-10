@@ -59,15 +59,22 @@ class BaseDelCounter:
             "Chrom", "GenomicModBase", "AllAssocTranscripts"
          ]
       )
+      
+      ## Ensure that main transcript is included in AllAssocTranscripts
+      df_transcripts["AllAssocTranscripts"] = (
+         df_transcripts["AllAssocTranscripts"] + 
+         ", " + 
+         df_transcripts["TranscriptID"]
+      )
 
       ## Sort rows by deletion rate
       dr_pattern = key["DeletionRate"]
-      df_draft = df_calc.sort_values(by = dr_pattern, ascending = False)
+      df_calc.sort_values(by = dr_pattern, ascending = False, inplace = True)
       
       ## Output final TSV
       df_final = (
          pd.merge(
-            df_draft, df_transcripts,
+            df_calc, df_transcripts,
             how = "left",
             on = ["Chrom", "GenomicModBase"]
          )
