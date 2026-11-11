@@ -66,6 +66,7 @@ class BaseDelCounter:
          ", " + 
          df_transcripts["TranscriptID"]
       )
+      df_transcripts.drop(columns = "TranscriptID", inplace = True)
 
       ## Sort rows by deletion rate
       dr_pattern = key["DeletionRate"]
