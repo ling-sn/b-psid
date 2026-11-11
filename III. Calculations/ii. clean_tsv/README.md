@@ -20,7 +20,11 @@
    * `#SBATCH --time=30:00`
    * `#SBATCH --mem=30000m`
      
-4. In Bash, run the following commands to obtain the output TSVs:
+   Additionally, scroll down and edit the following line:
+
+   <img src="https://github.com/user-attachments/assets/422a03cd-f528-46c0-adce-0e50b4437739" width="400"/>
+  
+5. In Bash, run the following commands to obtain the output TSVs:
    ```
    conda activate B-PSID
    sbatch run_clean_tsv.sbatch
