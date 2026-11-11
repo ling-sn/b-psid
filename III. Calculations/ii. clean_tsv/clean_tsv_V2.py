@@ -9,17 +9,59 @@ import traceback
 import pandas as pd
 import numpy as np
 import re
-import requests
 import concurrent.futures
-from bs4 import BeautifulSoup
+import Bio
+from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
 class MergeData:
-   def obtain_gene(self, url: str):
-      page = requests.get(url)
-      soup = BeautifulSoup(page.content, "html.parser")
-      gene = soup.find("span", class_= "gn")
-      return gene.text
+   def obtain_gene(self, transcripts_str: str):
+      """
+      PURPOSE:
+      Use list of transcripts associated with the UNUAR site to find
+      the most commonly associated gene (mode). If there are:
+         * Multiple modes: Return the corresponding genes.
+         * No mode: Return first gene in list.
+      """
+      Entrez.email = "your.email@example.com" ## CHANGE THIS
+      
+      all_transcripts = transcripts_str.split(", ")
+      all_genes = []
+      for transcript in all_transcripts:
+         """
+         I. Obtain nucleotide ID
+         """
+         with Entrez.esearch(
+            db = "nucleotide", term = transcript
+         ) as handle:
+            nucleotide_record = Entrez.read(handle)
+            nucleotide_id = nucleotide_record["IdList"][0]
+
+         """
+         II. Obtain gene ID
+            * gene_record[0]: gene_record is a list with one item
+            * LinkSetDb[0]: LinkSetDb is a list with one item
+            * ["Link"][0]["Id"]: Within the Link dict, select the value for Id
+         """
+         with Entrez.elink(
+            dbfrom = "nucleotide", db = "gene", id = nucleotide_id
+         ) as handle:
+            gene_record = Entrez.read(handle)
+            gene_id = gene_record[0]["LinkSetDb"][0]["Link"][0]["Id"]
+            
+         """
+         III. Query the database
+            * gene_summary["DocumentSummarySet"]: Select DocumentSummarySet key from dict
+            * ["DocumentSummary"][0]: DocumentSummary key returns a list with one item
+            * ["Name"]: Obtain gene name
+         """
+         with Entrez.esummary(
+            db = "gene", id = gene_id
+         ) as handle:
+            gene_summary = Entrez.read(handle)
+            gene_name = gene_summary["DocumentSummarySet"]["DocumentSummary"][0]["Name"]
+
+         all_genes.append(gene_name)
    
    def clean_tsv(self, df, location, final_dir):
       """
@@ -37,9 +79,9 @@ class MergeData:
       
       ## Obtain gene name
       MAX_THREADS = 20
-      threads = min(MAX_THREADS, len(df["NCBILink"]))
+      threads = min(MAX_THREADS, len(df["AllAssocTranscripts"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
-         df["Gene"] = list(executor.map(self.obtain_gene, df["NCBILink"]))
+         df["Gene"] = list(executor.map(self.obtain_gene, df["AllAssocTranscripts"]))
       df.insert(0, "Gene", df.pop("Gene"))
       
       ## Save merged dataframe as TSV
@@ -210,6 +252,6 @@ def main():
       raise
     
 if __name__ == "__main__":
-   print("Filtering .tsv files...")
+   print("Cleaning .tsv files...")
    main()
    print("Process finished.")
