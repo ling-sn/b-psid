@@ -83,7 +83,7 @@ class BaseDelCounter:
          subset = ["Chrom", "GenomicModBase"],
          keep = "first"
       )
-      df_final.insert(17, "AllAssocTranscripts", df_final.pop("AllAssocTranscripts"))
+      df_final.insert(0, "AllAssocTranscripts", df_final.pop("AllAssocTranscripts"))
       
       df_final.to_csv(output_tsv_name, sep = "\t", index = False)
 
