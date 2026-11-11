@@ -32,6 +32,6 @@ eval "$(conda shell.bash hook)"
 conda activate ~/miniconda3/envs/B-PSID
 
 declare -a tasks=(
-"python3 clean_tsv.py"
+"python3 clean_tsv.py --email YOUR_UNIQNAME@umich.edu"
 )
 eval ${tasks[$SLURM_ARRAY_TASK_ID]}
