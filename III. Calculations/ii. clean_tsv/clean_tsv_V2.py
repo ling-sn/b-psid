@@ -6,8 +6,8 @@ MAIN CHANGE: Use rate ratio distribution instead of Fisher's Exact Test
 """
 from pathlib import Path
 import traceback
+import argparse
 import pandas as pd
-import numpy as np
 import re
 import concurrent.futures
 import Bio
@@ -15,7 +15,7 @@ from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
 class MergeData:
-   def obtain_gene(self, transcripts_str: str):
+   def obtain_gene(self, email: str, transcripts_str: str):
       """
       PURPOSE:
       Use list of transcripts associated with the UNUAR site to find
@@ -23,8 +23,10 @@ class MergeData:
          * Multiple modes: Return the corresponding genes.
          * No mode: Return first gene in list.
       """
-      Entrez.email = "your.email@example.com" ## CHANGE THIS
+      ## Provide identity to access Entrez
+      Entrez.email = email
       
+      ## Iterate through each transcript in AllAssocTranscripts
       all_transcripts = transcripts_str.split(", ")
       all_genes = []
       for transcript in all_transcripts:
@@ -63,7 +65,12 @@ class MergeData:
 
          all_genes.append(gene_name)
    
-   def clean_tsv(self, df, location, final_dir):
+   def clean_tsv(
+      self, df: pd.DataFrame, 
+      location: str, 
+      email: str,
+      final_dir: Path
+   ):
       """
       PURPOSE:
       * Add NCBI links to main Transcript ID.
@@ -74,14 +81,16 @@ class MergeData:
          df["TranscriptID"]
          .str.replace("rna-", "", regex = False)
       )
-      df["NCBILink"] = "https://www.ncbi.nlm.nih.gov/gene/?term=" + df["TranscriptID"]
-      df.insert(18, "NCBILink", df.pop("NCBILink"))
       
       ## Obtain gene name
       MAX_THREADS = 20
       threads = min(MAX_THREADS, len(df["AllAssocTranscripts"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
-         df["Gene"] = list(executor.map(self.obtain_gene, df["AllAssocTranscripts"]))
+         df["Gene"] = list(
+            executor.map(
+               self.obtain_gene, email, df["AllAssocTranscripts"]
+            )
+         )
       df.insert(0, "Gene", df.pop("Gene"))
       
       ## Save merged dataframe as TSV
@@ -170,7 +179,7 @@ class FilterTSV:
       
       return df
       
-def main():
+def main(email: str):
    """
    PURPOSE:
    Filters .tsv files in grouped folders
@@ -244,7 +253,7 @@ def main():
          filtered_wt_df = wt_df[wt_df["RateRatio"] >= top5_perc]
          
          ## After rate ratio filtering, create final outputs
-         mergedata.clean_tsv(filtered_wt_df, location, final_dir)
+         mergedata.clean_tsv(filtered_wt_df, location, email, final_dir)
 
    except Exception as e:
       print(f"Failed to create merged .tsv file: {e}")
@@ -252,6 +261,15 @@ def main():
       raise
     
 if __name__ == "__main__":
+   parser = argparse.ArgumentParser(
+      description = "Merges and cleans dataframes from deletion rate calculation."
+   )
+   parser.add_argument(
+      "--email", 
+      default = "<uniqname>@umich.edu"
+   )
+   args = parser.parse_args()
+   
    print("Cleaning .tsv files...")
-   main()
+   main(args.email)
    print("Process finished.")
