@@ -18,8 +18,13 @@ class MergeData:
    def obtain_mane(self, email: str, genes_str: str):
       """
       PURPOSE:
-      Obtain MANE transcripts for 
+      Obtain all MANE transcripts given a list of genes.
+      * MANE = Transcript that is most representative of a certain gene
       """
+      ## Provide identity to access Entrez
+      Entrez.email = email
+      
+      ## Iterate through each gene to obtain all associated MANE transcripts
       
    
    def obtain_all_genes(self, email: str, transcripts_str: str):
@@ -93,13 +98,13 @@ class MergeData:
                self.obtain_all_genes, email, df["AllAssocTranscripts"]
             )
          )
-         df["MANE"] = list(
+         df["MANETranscripts"] = list(
             executor.map(
                self.obtain_mane, email, df["AllAssocGenes"]
             )
          )
       df.insert(0, "AllAssocGenes", df.pop("AllAssocGenes"))
-      df.insert(2, "MANE", df.pop("MANE"))
+      df.insert(2, "MANETranscripts", df.pop("MANETranscripts"))
       
       ## Save merged dataframe as TSV
       merged_dir = final_dir/f"{location}.tsv"
