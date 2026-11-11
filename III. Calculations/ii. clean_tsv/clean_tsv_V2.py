@@ -15,6 +15,13 @@ from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
 class MergeData:
+   def obtain_mane(self, email: str, genes_str: str):
+      """
+      PURPOSE:
+      Obtain MANE transcripts for 
+      """
+      
+   
    def obtain_all_genes(self, email: str, transcripts_str: str):
       """
       PURPOSE:
@@ -61,7 +68,8 @@ class MergeData:
             gene_summary = Entrez.read(handle)
             gene_name = gene_summary["DocumentSummarySet"]["DocumentSummary"][0]["Name"]
 
-         all_genes.append(gene_name)
+         if not gene_name in all_genes:
+            all_genes.append(gene_name)
          
       combined_genes = ", ".join(all_genes)
       return combined_genes
@@ -85,7 +93,13 @@ class MergeData:
                self.obtain_all_genes, email, df["AllAssocTranscripts"]
             )
          )
+         df["MANE"] = list(
+            executor.map(
+               self.obtain_mane, email, df["AllAssocGenes"]
+            )
+         )
       df.insert(0, "AllAssocGenes", df.pop("AllAssocGenes"))
+      df.insert(2, "MANE", df.pop("MANE"))
       
       ## Save merged dataframe as TSV
       merged_dir = final_dir/f"{location}.tsv"
