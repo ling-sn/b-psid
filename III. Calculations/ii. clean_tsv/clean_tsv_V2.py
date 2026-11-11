@@ -15,18 +15,16 @@ from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
 class MergeData:
-   def obtain_gene(self, email: str, transcripts_str: str):
+   def obtain_all_genes(self, email: str, transcripts_str: str):
       """
       PURPOSE:
       Use list of transcripts associated with the UNUAR site to find
-      the most commonly associated gene (mode). If there are:
-         * Multiple modes: Return the corresponding genes.
-         * No mode: Return first gene in list.
+      all associated genes.
       """
       ## Provide identity to access Entrez
       Entrez.email = email
       
-      ## Iterate through each transcript in AllAssocTranscripts
+      ## Iterate through each transcript to obtain all associated genes
       all_transcripts = transcripts_str.split(", ")
       all_genes = []
       for transcript in all_transcripts:
@@ -64,6 +62,9 @@ class MergeData:
             gene_name = gene_summary["DocumentSummarySet"]["DocumentSummary"][0]["Name"]
 
          all_genes.append(gene_name)
+         
+      combined_genes = ", ".join(all_genes)
+      return combined_genes
    
    def clean_tsv(
       self, df: pd.DataFrame, 
@@ -73,25 +74,18 @@ class MergeData:
    ):
       """
       PURPOSE:
-      * Add NCBI links to main Transcript ID.
-      * Explicitly list gene associated with Transcript IDs at UNUAR site.
+      Explicitly list all genes associated with transcripts at UNUAR site.
       """
-      ## Add NCBI links
-      df["TranscriptID"] = (
-         df["TranscriptID"]
-         .str.replace("rna-", "", regex = False)
-      )
-      
-      ## Obtain gene name
+      ## Obtain all associated genes
       MAX_THREADS = 20
       threads = min(MAX_THREADS, len(df["AllAssocTranscripts"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
-         df["Gene"] = list(
+         df["AllAssocGenes"] = list(
             executor.map(
-               self.obtain_gene, email, df["AllAssocTranscripts"]
+               self.obtain_all_genes, email, df["AllAssocTranscripts"]
             )
          )
-      df.insert(0, "Gene", df.pop("Gene"))
+      df.insert(0, "AllAssocGenes", df.pop("AllAssocGenes"))
       
       ## Save merged dataframe as TSV
       merged_dir = final_dir/f"{location}.tsv"
