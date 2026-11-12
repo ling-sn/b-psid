@@ -14,7 +14,7 @@ import Bio
 from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
-class MergeData:
+class SearchDb:
    def obtain_mane(
       self, email: str, 
       genes_str: str
@@ -124,7 +124,8 @@ class MergeData:
          
       combined_genes = ", ".join(all_genes)
       return combined_genes
-   
+
+class MergeData:   
    def clean_tsv(
       self, df: pd.DataFrame, 
       location: str, 
@@ -135,18 +136,21 @@ class MergeData:
       PURPOSE:
       Explicitly list all genes associated with transcripts at UNUAR site.
       """
+      ## Initialize class
+      searchdb = SearchDb()
+      
       ## Obtain all associated genes
       MAX_THREADS = 20
       threads = min(MAX_THREADS, len(df["AllAssocTranscripts"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
          df["AllAssocGenes"] = list(
             executor.map(
-               self.obtain_all_genes, email, df["AllAssocTranscripts"]
+               searchdb.obtain_all_genes, email, df["AllAssocTranscripts"]
             )
          )
          df["MANETranscripts"] = list(
             executor.map(
-               self.obtain_mane, email, df["AllAssocGenes"]
+               searchdb.obtain_mane, email, df["AllAssocGenes"]
             )
          )
       df.insert(0, "AllAssocGenes", df.pop("AllAssocGenes"))
