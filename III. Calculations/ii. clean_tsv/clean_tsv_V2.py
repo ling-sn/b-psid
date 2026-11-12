@@ -25,7 +25,40 @@ class MergeData:
       Entrez.email = email
       
       ## Iterate through each gene to obtain all associated MANE transcripts
-      
+      all_genes = genes_str.split(", ")
+      all_combos = {} # Create dictionary for gene + MANE transcript pairs
+      for gene_name in all_genes:
+         """
+         EXAMPLE QUERY:
+         Homo sapiens[organism] AND PRPF4[gene] AND MANE_select[keyword]
+         * Homo sapiens[organism] = Restrict to transcripts found in humans
+         * PRPF4[gene] = Specify name of gene
+         * MANE_select[keyword] = Return only the MANE transcript
+         """
+         query = (
+            f"Homo sapiens[organism] AND {gene_name}[gene] AND MANE_select[keyword]"
+         )
+
+         with Entrez.esearch(
+            db = "nucleotide",
+            term = query
+         ) as handle:
+            record = Entrez.read(handle)
+
+         ## MANE only returns one transcript
+         transcript_id = record["IdList"][0]
+
+         with Entrez.esummary(
+            db = "nucleotide",
+            id = transcript_id
+         ) as handle:
+            summary = Entrez.read(handle)
+         
+         ## summary[0] = There is only one item (dict) in the list
+         ## ["AccessionVersion"] = Key in dictionary corresponding to MANE transcript
+         mane_transcript = summary[0]["AccessionVersion"]
+         all_combos[gene_name] = mane_transcript
+      return [all_combos]
    
    def obtain_all_genes(self, email: str, transcripts_str: str):
       """
