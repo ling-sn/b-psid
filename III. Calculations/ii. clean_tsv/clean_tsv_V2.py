@@ -14,7 +14,7 @@ import Bio
 from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
-class SearchDb:
+class SearchDB:
    def obtain_mane(
       self, email: str, 
       genes_str: str
@@ -137,7 +137,7 @@ class MergeData:
       Explicitly list all genes associated with transcripts at UNUAR site.
       """
       ## Initialize class
-      searchdb = SearchDb()
+      searchdb = SearchDB()
       
       ## Obtain all associated genes
       MAX_THREADS = 20
