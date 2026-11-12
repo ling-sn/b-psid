@@ -334,7 +334,7 @@ if __name__ == "__main__":
    )
    parser.add_argument(
       "--email", 
-      default = "<uniqname>@umich.edu"
+      default = "YOUR_UNIQNAME@umich.edu"
    )
    args = parser.parse_args()
    
