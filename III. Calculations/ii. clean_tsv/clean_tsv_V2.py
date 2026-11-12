@@ -15,7 +15,10 @@ from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
 class MergeData:
-   def obtain_mane(self, email: str, genes_str: str):
+   def obtain_mane(
+      self, email: str, 
+      genes_str: str
+   ):
       """
       PURPOSE:
       Obtain all MANE transcripts given a list of genes.
@@ -29,16 +32,20 @@ class MergeData:
       all_combos = {} # Create dictionary for gene + MANE transcript pairs
       for gene_name in all_genes:
          """
-         EXAMPLE QUERY:
-         Homo sapiens[organism] AND PRPF4[gene] AND MANE_select[keyword]
-         * Homo sapiens[organism] = Restrict to transcripts found in humans
-         * PRPF4[gene] = Specify name of gene
-         * MANE_select[keyword] = Return only the MANE transcript
+         I. Query the database
+            EXAMPLE:
+            Homo sapiens[organism] AND PRPF4[gene] AND MANE_select[keyword]
+            * Homo sapiens[organism] = Restrict to transcripts found in humans
+            * PRPF4[gene] = Specify name of gene
+            * MANE_select[keyword] = Return only the MANE transcript
          """
          query = (
             f"Homo sapiens[organism] AND {gene_name}[gene] AND MANE_select[keyword]"
          )
 
+         """
+         II. Obtain transcript ID number
+         """
          with Entrez.esearch(
             db = "nucleotide",
             term = query
@@ -48,19 +55,25 @@ class MergeData:
          ## MANE only returns one transcript
          transcript_id = record["IdList"][0]
 
+         """
+         III. Obtain MANE transcript from ID number
+            * summary[0] = There is only one item (dict) in the list
+            * ["AccessionVersion"] = Key in dict corresponding to MANE transcript
+         """
          with Entrez.esummary(
             db = "nucleotide",
             id = transcript_id
          ) as handle:
             summary = Entrez.read(handle)
-         
-         ## summary[0] = There is only one item (dict) in the list
-         ## ["AccessionVersion"] = Key in dictionary corresponding to MANE transcript
          mane_transcript = summary[0]["AccessionVersion"]
          all_combos[gene_name] = mane_transcript
+         
       return [all_combos]
    
-   def obtain_all_genes(self, email: str, transcripts_str: str):
+   def obtain_all_genes(
+      self, email: str, 
+      transcripts_str: str
+   ):
       """
       PURPOSE:
       Use list of transcripts associated with the UNUAR site to find
@@ -143,7 +156,10 @@ class MergeData:
       merged_dir = final_dir/f"{location}.tsv"
       df.to_csv(merged_dir, sep = "\t", index = False)
       
-   def iteratively_merge(self, list_of_dfs: list, merge_type: str):
+   def iteratively_merge(
+      self, list_of_dfs: list, 
+      merge_type: str
+   ):
       df1_colnames = list_of_dfs[0].columns.tolist()
       selected_colnames = df1_colnames[0:18]
       merged = list_of_dfs[0]
@@ -175,7 +191,10 @@ class MergeData:
       return merged
       
 class FilterTSV:
-   def calc_rr(self, df, sample_type):
+   def calc_rr(
+      self, df: pd.DataFrame, 
+      sample_type: str
+   ):
       """
       PURPOSE:
       Calculate rate ratios for each UNUAR site, 
@@ -222,7 +241,6 @@ class FilterTSV:
          ascending = False, 
          inplace = True
       )
-      
       return df
       
 def main(email: str):
