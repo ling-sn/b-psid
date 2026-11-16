@@ -204,22 +204,28 @@ class FilterTSV:
    ):
       """
       PURPOSE:
-      Calculate rate ratios for each UNUAR site, 
-      and return the updated dataframe.
+      Calculate rate ratios for each UNUAR site, and return the 
+      updated dataframe.
+      ---
+      PART I:
+      Collect lists of corresponding count columns and store them
+      in a dictionary.
+      * BS Deletions
+      * BS TotalCoverage
+      * NBS Deletions
+      * NBS TotalCoverage
       """
-      ## Collect lists of corresponding counts (Deletions/TotalCoverage
-      ## for BS/NBS samples) and store them in a dictionary
       all_cols = {}
       
       for treatment, count_type in zip(
          ["BS", "NBS"], ["Deletions", "TotalCoverage"]
       ):
-         list_name = (f"{treatment}_{count_type}_cols").lower()
+         key_name = (f"{treatment}_{count_type}_cols").lower()
          selected_cols = [
             col for col in 
             re.search(rf"^{sample_type}_Rep(\d+)_{count_type}_{treatment}$")
          ] 
-         all_cols[list_name] = selected_cols
+         all_cols[key_name] = selected_cols
       
       ## Create required columns
       # (i) BS
