@@ -217,7 +217,7 @@ class FilterTSV:
          list_name = (f"{treatment}_{count_type}_cols").lower()
          selected_cols = [
             col for col in 
-            re.search(f"^{sample_type}_Rep(\d+)_{count_type}_{treatment}$")
+            re.search(rf"^{sample_type}_Rep(\d+)_{count_type}_{treatment}$")
          ] 
          all_cols[list_name] = selected_cols
       
