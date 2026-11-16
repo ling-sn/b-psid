@@ -211,8 +211,8 @@ class FilterTSV:
       ## for BS/NBS samples) and store them in a dictionary
       all_cols = {}
       
-      for count_type, treatment in zip(
-         ["Deletions", "TotalCoverage"], ["BS", "NBS"]
+      for treatment, count_type in zip(
+         ["BS", "NBS"], ["Deletions", "TotalCoverage"]
       ):
          list_name = (f"{treatment}_{count_type}_cols").lower()
          selected_cols = [
@@ -232,10 +232,11 @@ class FilterTSV:
       df["total_nbs"] = df[all_cols["nbs_totalcoverage_cols"]].sum(axis = 1)
       df["nbs_ratio"] = df["num_nbs_dels"] / df["total_nbs"]
       
-      ## Calculate rate ratios
+      ## Calculate rate ratios (R.R.)
       df["RateRatio"] = df["bs_ratio"] / df["nbs_ratio"]
       
       if (sample_type == "7KO"):
+         # Sort 7KO R.R. distribution from lowest -> highest
          df.sort_values(
             by = "RateRatio",
             ascending = True, 
@@ -243,6 +244,7 @@ class FilterTSV:
          )
          return df
       
+      # If not 7KO, sort from highest -> lowest
       df.sort_values(
          by = "RateRatio",
          ascending = False, 
