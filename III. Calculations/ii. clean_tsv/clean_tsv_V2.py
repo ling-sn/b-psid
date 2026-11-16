@@ -68,6 +68,9 @@ class SearchDB:
          mane_transcript = summary[0]["AccessionVersion"]
          all_combos[gene_name] = mane_transcript
          
+      """
+      IV. Obtain dictionary enclosed in a list
+      """
       return [all_combos]
    
    def obtain_all_genes(
