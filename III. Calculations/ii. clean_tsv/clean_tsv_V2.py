@@ -227,30 +227,31 @@ class FilterTSV:
          ] 
          all_cols[key_name] = selected_cols
       
-      ## Create required columns
-      # (i) BS
+      """
+      PART II: 
+      Create columns required for calculating rate ratios (RR).
+      
+      RR = [(BS deletions) / (Total BS)] ÷ [(NBS deletions) / (Total NBS)]
+      * (High) RR > 1.0: BS deletion ratio is greater than NBS deletion ratio
+      * (Low) RR < 1.0: BS deletion ratio is less than NBS deletion ratio
+      """
+      # (i) BS deletion ratio
       df["num_bs_dels"] = df[all_cols["bs_deletions_cols"]].sum(axis = 1)
       df["total_bs"] = df[all_cols["bs_totalcoverage_cols"]].sum(axis = 1)
       df["bs_ratio"] = df["num_bs_dels"] / df["total_bs"]
       
-      # (ii) NBS
+      # (ii) NBS deletion ratio
       df["num_nbs_dels"] = df[all_cols["nbs_deletions_cols"]].sum(axis = 1)
       df["total_nbs"] = df[all_cols["nbs_totalcoverage_cols"]].sum(axis = 1)
       df["nbs_ratio"] = df["num_nbs_dels"] / df["total_nbs"]
       
-      ## Calculate rate ratios (R.R.)
+      ## Calculate rate ratio (RR)
       df["RateRatio"] = df["bs_ratio"] / df["nbs_ratio"]
       
-      if (sample_type == "7KO"):
-         # Sort 7KO R.R. distribution from lowest -> highest
-         df.sort_values(
-            by = "RateRatio",
-            ascending = True, 
-            inplace = True
-         )
-         return df
-      
-      # If not 7KO, sort from highest -> lowest
+      """
+      PART III:
+      Sort dataframe by rate ratios (highest -> lowest).
+      """
       df.sort_values(
          by = "RateRatio",
          ascending = False, 
