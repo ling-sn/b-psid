@@ -65,7 +65,12 @@ class SearchDB:
             id = transcript_id
          ) as handle:
             summary = Entrez.read(handle)
-         mane_transcript = summary[0]["AccessionVersion"]
+         
+         ## Handle case where MANE transcript may not exist   
+         if summary:
+            mane_transcript = summary[0]["AccessionVersion"]
+         else:
+            mane_transcript = None
          all_combos[gene_name] = mane_transcript
          
       """
