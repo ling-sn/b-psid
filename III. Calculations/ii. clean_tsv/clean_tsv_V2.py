@@ -45,6 +45,7 @@ class SearchDB:
 
          """
          II. Obtain transcript ID number
+         * If it exists, MANE will only return one transcript.
          """
          with Entrez.esearch(
             db = "nucleotide",
@@ -52,8 +53,12 @@ class SearchDB:
          ) as handle:
             record = Entrez.read(handle)
 
-         ## MANE only returns one transcript
-         transcript_id = record["IdList"][0]
+         ## Handle case where MANE transcript may not exist
+         if record["IdList"]:
+            transcript_id = record["IdList"][0]
+         else:
+            all_combos[gene_name] = None
+            continue
 
          """
          III. Obtain MANE transcript from ID number
@@ -65,12 +70,7 @@ class SearchDB:
             id = transcript_id
          ) as handle:
             summary = Entrez.read(handle)
-         
-         ## Handle case where MANE transcript may not exist   
-         if summary:
-            mane_transcript = summary[0]["AccessionVersion"]
-         else:
-            mane_transcript = None
+         mane_transcript = summary[0]["AccessionVersion"]
          all_combos[gene_name] = mane_transcript
          
       """
