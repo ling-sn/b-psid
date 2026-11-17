@@ -15,10 +15,30 @@ from Bio import Entrez
 pd.options.mode.chained_assignment = None
 
 class SearchDB:
+   def check_site_in_mane(
+      self, transcripts_str: str,
+      mane_list: list, 
+   ) -> list:
+      """
+      PURPOSE:
+      Determines if MANE transcript for each associated gene is in 
+      the list of AllAssocTranscripts.
+      """
+      all_transcripts = transcripts_str.split(", ")
+      mane_dict = mane_list[0]
+      checked_dict = {}
+      
+      for gene in mane_dict.keys:
+         for transcript in mane_dict.values:
+            checked_dict[gene] = (
+               transcript in all_transcripts
+            )
+      return [checked_dict]
+   
    def obtain_mane(
       self, email: str, 
       genes_str: str
-   ):
+   ) -> list:
       """
       PURPOSE:
       Obtain all MANE transcripts given a list of genes.
@@ -81,7 +101,7 @@ class SearchDB:
    def obtain_all_genes(
       self, email: str, 
       transcripts_str: str
-   ):
+   ) -> str:
       """
       PURPOSE:
       Use list of transcripts associated with the UNUAR site to find
@@ -147,18 +167,29 @@ class MergeData:
       ## Initialize class
       searchdb = SearchDB()
       
-      ## Obtain all associated genes
+      ## Obtain all associated genes and MANE transcripts
       MAX_THREADS = 20
       threads = min(MAX_THREADS, len(df["AllAssocTranscripts"]))
       with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
          df["AllAssocGenes"] = list(
             executor.map(
-               searchdb.obtain_all_genes, email, df["AllAssocTranscripts"]
+               searchdb.obtain_all_genes, 
+               email, 
+               df["AllAssocTranscripts"]
             )
          )
          df["MANETranscripts"] = list(
             executor.map(
-               searchdb.obtain_mane, email, df["AllAssocGenes"]
+               searchdb.obtain_mane, 
+               email, 
+               df["AllAssocGenes"]
+            )
+         )
+         df["SiteInMane"] = list(
+            executor.map(
+               searchdb.check_site_in_mane,
+               df["AllAssocTranscripts"],
+               df["MANETranscripts"]
             )
          )
       df.insert(0, "AllAssocGenes", df.pop("AllAssocGenes"))
