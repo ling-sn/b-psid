@@ -37,7 +37,7 @@ class SearchDB:
       """
       PART II:
       Obtain dictionary enclosed in a list
-      * Example: {"RB1": True, "LPAR6": False}
+         * Example: {"RB1": True, "LPAR6": False}
       """
       return [checked_dict]
    
@@ -48,7 +48,7 @@ class SearchDB:
       """
       PURPOSE:
       Obtain all MANE transcripts given a list of genes.
-      * MANE = Transcript that is most representative of a certain gene
+         * MANE = Transcript that is most representative of a certain gene
       """
       ## Provide identity to access Entrez
       Entrez.email = email
@@ -62,9 +62,9 @@ class SearchDB:
          Query the database
             EXAMPLE:
             Homo sapiens[organism] AND PRPF4[gene] AND MANE_select[keyword]
-            * Homo sapiens[organism] = Restrict to transcripts found in humans
-            * PRPF4[gene] = Specify name of gene
-            * MANE_select[keyword] = Return only the MANE transcript
+               * Homo sapiens[organism] = Restrict to transcripts found in humans
+               * PRPF4[gene] = Specify name of gene
+               * MANE_select[keyword] = Return only the MANE transcript
          """
          query = (
             f"Homo sapiens[organism] AND {gene_name}[gene] AND MANE_select[keyword]"
@@ -73,7 +73,7 @@ class SearchDB:
          """
          PART II:
          Obtain transcript ID number
-         * If it exists, MANE will only return one transcript.
+            * If it exists, MANE will only return one transcript.
          """
          with Entrez.esearch(
             db = "nucleotide",
@@ -105,7 +105,7 @@ class SearchDB:
       """
       PART IV:
       Obtain dictionary enclosed in a list
-      * Example: {"RB1": "NM_000321.3", "LPAR6": "NM_001162498.3"}
+         * Example: {"RB1": "NM_000321.3", "LPAR6": "NM_001162498.3"}
       """
       return [all_combos]
    
@@ -258,10 +258,10 @@ class FilterTSV:
       PART I:
       Collect lists of corresponding count columns and store them
       in a dictionary.
-      * BS Deletions
-      * BS TotalCoverage
-      * NBS Deletions
-      * NBS TotalCoverage
+         * BS Deletions
+         * BS TotalCoverage
+         * NBS Deletions
+         * NBS TotalCoverage
       """
       all_cols = {}
       
@@ -280,8 +280,8 @@ class FilterTSV:
       Create columns required for calculating rate ratios (RR).
       
       RR = [(BS deletions) / (Total BS)] ÷ [(NBS deletions) / (Total NBS)]
-      * (High) RR > 1.0: BS deletion ratio is greater than NBS deletion ratio
-      * (Low) RR < 1.0: BS deletion ratio is less than NBS deletion ratio
+         * (High) RR > 1.0: BS deletion ratio is greater than NBS deletion ratio
+         * (Low) RR < 1.0: BS deletion ratio is less than NBS deletion ratio
       """
       # (i) BS deletion ratio
       df["num_bs_dels"] = df[all_cols["bs_deletions_cols"]].sum(axis = 1)
