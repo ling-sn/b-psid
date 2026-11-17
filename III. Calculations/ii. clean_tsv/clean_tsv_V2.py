@@ -23,6 +23,7 @@ class SearchDB:
       PART I:
       For each gene, check to see if MANE transcript is in list 
       of all associated transcripts for the UNUAR site.
+         * Handle case where no MANE transcript exists.
       """
       all_transcripts = transcripts_str.split(", ")
       mane_dict = mane_list[0] # mane_list will only ever have 1 item (the dict)
@@ -30,9 +31,12 @@ class SearchDB:
       
       for gene in mane_dict.keys():
          for transcript in mane_dict.values():
-            checked_dict[gene] = (
-               transcript in all_transcripts
-            )
+            if transcript is not None:
+               checked_dict[gene] = (
+                  transcript in all_transcripts
+               )
+            else:
+               checked_dict[gene] = None
             
       """
       PART II:
