@@ -20,12 +20,12 @@ class SearchDB:
       mane_list: list, 
    ) -> list:
       """
-      PURPOSE:
-      Determines if MANE transcript for each associated gene is in 
-      the list of AllAssocTranscripts.
+      PART I:
+      For each gene, check to see if MANE transcript is in list 
+      of all associated transcripts for the UNUAR site.
       """
       all_transcripts = transcripts_str.split(", ")
-      mane_dict = mane_list[0]
+      mane_dict = mane_list[0] # mane_list will only ever have 1 item (the dict)
       checked_dict = {}
       
       for gene in mane_dict.keys:
@@ -33,6 +33,12 @@ class SearchDB:
             checked_dict[gene] = (
                transcript in all_transcripts
             )
+            
+      """
+      PART II:
+      Obtain dictionary enclosed in a list
+      * Example: {"RB1": True, "LPAR6": False}
+      """
       return [checked_dict]
    
    def obtain_mane(
@@ -52,7 +58,8 @@ class SearchDB:
       all_combos = {} # Create dictionary for gene + MANE transcript pairs
       for gene_name in all_genes:
          """
-         I. Query the database
+         PART I:
+         Query the database
             EXAMPLE:
             Homo sapiens[organism] AND PRPF4[gene] AND MANE_select[keyword]
             * Homo sapiens[organism] = Restrict to transcripts found in humans
@@ -64,7 +71,8 @@ class SearchDB:
          )
 
          """
-         II. Obtain transcript ID number
+         PART II:
+         Obtain transcript ID number
          * If it exists, MANE will only return one transcript.
          """
          with Entrez.esearch(
@@ -81,7 +89,8 @@ class SearchDB:
             continue
 
          """
-         III. Obtain MANE transcript from ID number
+         PART III:
+         Obtain MANE transcript from ID number
             * summary[0] = There is only one item (dict) in the list
             * ["AccessionVersion"] = Key in dict corresponding to MANE transcript
          """
@@ -94,7 +103,9 @@ class SearchDB:
          all_combos[gene_name] = mane_transcript
          
       """
-      IV. Obtain dictionary enclosed in a list
+      PART IV:
+      Obtain dictionary enclosed in a list
+      * Example: {"RB1": "NM_000321.3", "LPAR6": "NM_001162498.3"}
       """
       return [all_combos]
    
