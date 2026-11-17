@@ -196,7 +196,7 @@ class MergeData:
                df["AllAssocGenes"]
             )
          )
-         df["SiteInMane"] = list(
+         df["SiteInMANE"] = list(
             executor.map(
                searchdb.check_site_in_mane,
                df["AllAssocTranscripts"],
@@ -204,7 +204,8 @@ class MergeData:
             )
          )
       df.insert(0, "AllAssocGenes", df.pop("AllAssocGenes"))
-      df.insert(2, "MANETranscripts", df.pop("MANETranscripts"))
+      df.insert(1, "MANETranscripts", df.pop("MANETranscripts"))
+      df.insert(2, "SiteInMANE", df.pop("SiteInMANE"))
       
       ## Save merged dataframe as TSV
       merged_dir = final_dir/f"{location}.tsv"
