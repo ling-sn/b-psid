@@ -30,13 +30,11 @@ class SearchDB:
       checked_dict = {}
       
       for gene in mane_dict.keys():
-         for transcript in mane_dict.values():
-            if transcript is not None:
-               checked_dict[gene] = (
-                  transcript in all_transcripts
-               )
-            else:
-               checked_dict[gene] = None
+         transcript = mane_dict[gene]
+         if transcript is not None:
+            checked_dict[gene] = (transcript in all_transcripts)
+         else:
+            checked_dict[gene] = None
             
       """
       PART II:
