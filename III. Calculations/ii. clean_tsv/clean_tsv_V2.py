@@ -28,8 +28,8 @@ class SearchDB:
       mane_dict = mane_list[0] # mane_list will only ever have 1 item (the dict)
       checked_dict = {}
       
-      for gene in mane_dict.keys:
-         for transcript in mane_dict.values:
+      for gene in mane_dict.keys():
+         for transcript in mane_dict.values():
             checked_dict[gene] = (
                transcript in all_transcripts
             )
