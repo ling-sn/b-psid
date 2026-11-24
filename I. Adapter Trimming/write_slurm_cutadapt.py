@@ -1,6 +1,6 @@
 """
 @author: ling-sn
-Last updated: September 2026
+Last updated: November 2026
 Use B-PSID conda environment
 """
 from pathlib import Path
@@ -20,12 +20,12 @@ def main(
    ---
    EXAMPLE:
    1. Given the file:
-      -> KEH-Rep1-7KO-HEK293T-Cyto-BS_S6_L001_R1_001.fastq.gz
+      -> KEH-2-Dox-7KO-HTPUS7-Cyto-BS_S14_R1_001.fastq.gz
       We obtain the sample name:
-      -> KEH-Rep1-7KO-HEK293T-Cyto-BS_S6
+      -> KEH-2-Dox-7KO-HTPUS7-Cyto-BS
    2. We append the following task to the SBATCH script:
       "python3 run_cutadapt_fastp.py --input raw_fastqs --output trimmed_reads \ 
-      -C 2 -U 12 -S KEH-Rep1-7KO-HEK293T-Cyto-BS_S6"
+      -C 2 -U 12 -S KEH-2-Dox-7KO-HTPUS7-Cyto-BS"
    """
    current_path = Path.cwd()
    output = current_path/"SBATCHSubArr-CUT_FASTP.sbatch"
