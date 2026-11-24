@@ -55,7 +55,7 @@
 python3 run_cutadapt_fastp.py --input raw_fastqs --output trimmed_reads -C 2 -U 12 -S KEH-Rep1-WT-HEK293T-Nuc-BS
 ```
 * **#SBATCH --array=0-n:** This indicates that there are `n + 1` sample types being processed.
-  * If each sample type has a separate R1 and R2 fastq, then the number of sample types = half the number of files in `raw_fastqs`.
+  * If each sample type has a separate R1 and R2 fastq, then the number of sample types = half the number of files in 📁 `raw_fastqs`.
 * **--input:** Name of folder containing raw fastq.gz sequencing files.
 * **--output:** Name of output folder for trimmed reads.
 * **-C:** Number of CPUs. (Default = 2)
