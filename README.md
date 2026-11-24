@@ -30,7 +30,7 @@
 * **calculate_dr**
   - [x] Only count single-nt deletions instead of multi-nt ones (default behavior)
 * **clean_tsv**
-  - [ ] Update Fisher's Exact Test
-  - [ ] Add rate ratios
+  - [x] Update Fisher's Exact Test
+  - [x] Add rate ratios
 * **Other**
   - [ ] Create Snakemake pipeline for B-PsiD
