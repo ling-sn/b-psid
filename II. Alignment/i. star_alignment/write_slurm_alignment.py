@@ -37,6 +37,8 @@ def main(
    2. Subtract 1 so count is 0-based
    """
    num_jobs = len(next(os.walk(start_dir))[1]) - 1
+   if num_jobs > 12:
+      num_jobs = num_jobs + "%12"
    
    ## Create SBATCH file if it doesn't exist
    if not output.exists():
