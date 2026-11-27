@@ -14,7 +14,7 @@
 
 * Trimmed reads are aligned with [STAR](https://github.com/alexdobin/STAR) using hg38 as the reference genome, followed by UMI deduplication.
 
-  <img src="https://github.com/user-attachments/assets/7b47a1e4-5787-4f1a-b13c-4f95d45c3142" width="600"/>
+  <img src="https://github.com/user-attachments/assets/fbeccb5a-039b-4eaa-81fc-ef4e1ebf0070" width="600"/>
 
 ### Instructions
 1. Excluding the 📁 `trimmed_reads` folder (which should already exist), upload the remaining starter files to your GLC directory.
@@ -37,13 +37,14 @@
    python3 write_slurm_alignment.py --input_folder trimmed_reads --output_folder star_aligned --aligner_type star --genome_idx ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38 --filter_idx ~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants/contaminants_index --library RF --two_pass --emit_dedup SBATCHSubArr-DEDUP.sbatch --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 10:00:00 --mem 50000
    ```
    **Output:** 📄 `SBATCHSubArr-Align-STAR.sbatch`
-3. In Bash, run the following commands to obtain STAR aligned files:
+   * 🔴 **IMPORTANT:** If total number of tasks in the array exceed _N_ = 10 within `#SBATCH --array=0-N`, you must limit the amount of _n_ concurrently running tasks. Choose a number between 8-12 and modify the array tasks to have the following format: `#SBATCH --array=0-N%n`.
+4. In Bash, run the following commands to obtain STAR aligned files:
    ```
    conda activate B-PSID
    sbatch SBATCHSubArr-Align-STAR.sbatch
    ```
    **Output:** 📁 `star_aligned`
-4. After alignment concludes, deduplicate reads with the SBATCH that was automatically generated in the same directory:
+5. After alignment concludes, deduplicate reads with the SBATCH that was automatically generated in the same directory:
    ```
    sbatch SBATCHSubArr-DEDUP.sbatch
    ```
