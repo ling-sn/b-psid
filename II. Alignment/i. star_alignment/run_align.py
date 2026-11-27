@@ -242,33 +242,30 @@ def write_dedup_slurm(out_file, bam_files, threads, email, account):
          n = len(new_tasks)
          with open(out_file, "w") as fh:
             fh.write(
-               f"""#!/usr/bin/env bash
-               #SBATCH --job-name=DEDUP
-               #SBATCH --mail-user={email}
-               #SBATCH --mail-type=BEGIN,END,FAIL
-               #SBATCH --output=DEDUP_%u_%A_%a.out
-               #SBATCH --array=0-{n-1}
-               #SBATCH --account={account}
-               #SBATCH --time=1:30:00
-               #SBATCH --mem={mem}m
-               #SBATCH --cpus-per-task={threads}
+f"""#!/usr/bin/env bash
+#SBATCH --job-name=DEDUP
+#SBATCH --mail-user={email}
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --output=DEDUP_%u_%A_%a.out
+#SBATCH --array=0-{n-1}
+#SBATCH --account={account}
+#SBATCH --time=1:30:00
+#SBATCH --mem={mem}m
+#SBATCH --cpus-per-task={threads}
 
-               module purge
-               eval "$(conda shell.bash hook)"
-               conda activate ~/miniconda3/envs/RNA-SEQ
+module purge
+eval "$(conda shell.bash hook)"
+conda activate ~/miniconda3/envs/B-PSID
 
-               declare -a tasks=(
-               """
-            )
+declare -a tasks=(
+""")
             
             for t in new_tasks:
                fh.write(t + "\n")
             
-            fh.write(
-               """)
-               eval ${tasks[$SLURM_ARRAY_TASK_ID]}
-               """
-            )
+            fh.write(""")
+eval ${tasks[$SLURM_ARRAY_TASK_ID]}
+""")
          return
 
       # Case 2: file EXISTS → edit in place
