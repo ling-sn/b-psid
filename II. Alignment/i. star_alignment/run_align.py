@@ -445,7 +445,7 @@ if __name__ == "__main__":
    parser.add_argument(
       "--dedup_threads", 
       type = int, 
-      default = 8, 
+      default = 4, 
       help = argparse.SUPPRESS
    )
 
