@@ -241,8 +241,7 @@ def write_dedup_slurm(out_file, bam_files, threads, email, account):
       if not out_file.exists():
          n = len(new_tasks)
          with open(out_file, "w") as fh:
-            fh.write(
-f"""#!/usr/bin/env bash
+            fh.write(f"""#!/usr/bin/env bash
 #SBATCH --job-name=DEDUP
 #SBATCH --mail-user={email}
 #SBATCH --mail-type=BEGIN,END,FAIL
