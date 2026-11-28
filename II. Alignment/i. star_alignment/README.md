@@ -37,7 +37,7 @@
    python3 write_slurm_alignment.py --input_folder trimmed_reads --output_folder star_aligned --aligner_type star --genome_idx ~/umms-RNAlabDATA/Software/genome_indices/star_index_hg38 --filter_idx ~/umms-RNAlabDATA/Software/genome_indices/contaminants/bowtie2_contam_index/SL_contaminants/contaminants_index --library RF --two_pass --emit_dedup SBATCHSubArr-DEDUP.sbatch --email uniqname@umich.edu --slurm_acct cweidman99 --walltime 10:00:00 --mem 50000
    ```
    **Output:** 📄 `SBATCHSubArr-Align-STAR.sbatch`
-   * 🔴 **IMPORTANT:** If total number of tasks in the array exceed _N_ = 10 within `#SBATCH --array=0-N`, you must limit the amount of _n_ concurrently running tasks. Choose a number between 8-12 and modify the array tasks to have the following format: `#SBATCH --array=0-N%n`.
+   * 🟡 **NOTE:** If the total number of tasks in the array exceed _N_ = 12 within `#SBATCH --array=0-N`, the script limits the array to have 12 concurrently running tasks via `#SBATCH --array=0-N%12`.
 4. In Bash, run the following commands to obtain STAR aligned files:
    ```
    conda activate B-PSID
